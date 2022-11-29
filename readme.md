@@ -1,6 +1,11 @@
-## Set up project for development
-1. Clone repository
-2. Switch to `server/` folder
-3. Run `npm install`
-4. Create `.env` file and copy `.env.example` contents 
-5. Repeat for `client/` folder
+## Start development containers with Docker
+1. `docker compose up --build`
+
+## Remove development Docker containers
+1. `docker compose down`
+
+## Port Table
+| Name | Port |
+|---|---|
+| Server | 3000 |
+| Client | 8080 |
