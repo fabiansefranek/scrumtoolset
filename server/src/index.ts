@@ -12,9 +12,5 @@ io.on("connection",  (socket : any) => {
     console.log('hello world!')
 });
 
-const requestListener = function (req : any, res : any) {
-    res.writeHead(200);
-    res.end('Hello, World!');
-  }
-  
+
 io.listen(parseInt(process.env.PORT!));
