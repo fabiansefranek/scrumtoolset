@@ -22,3 +22,7 @@ services:
       - "3306:3306"
     environment:
       MARIADB_ROOT_PASSWORD: example
+    volumes:
+      - mariadb-data:/var/lib/mysql
+volumes:
+  mariadb-data:
