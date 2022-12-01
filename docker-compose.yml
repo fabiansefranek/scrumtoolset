@@ -16,3 +16,9 @@ services:
       - "3000:3000"
     volumes:
       - ./server/src:/src
+  db:
+    image: mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: example

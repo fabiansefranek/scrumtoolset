@@ -1,7 +1,5 @@
 import { Server } from "socket.io";
 import * as dotenv from 'dotenv';
-import http from 'http';
-
 dotenv.config();
 
 const io = new Server({
@@ -10,7 +8,7 @@ const io = new Server({
     }
 });
 
-io.on("connection",  (socket) => {
+io.on("connection",  (socket : any) => {
     console.log('hello world!')
 });
 
@@ -19,6 +17,4 @@ const requestListener = function (req : any, res : any) {
     res.end('Hello, World!');
   }
   
-const server = http.createServer(requestListener);
-server.listen(process.env.PORT);
-//io.listen(parseInt(process.env.PORT!));
+io.listen(parseInt(process.env.PORT!));
