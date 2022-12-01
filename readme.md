@@ -9,3 +9,4 @@
 |---|---|
 | Server | 3000 |
 | Client | 8080 |
+| MariaDB | 3030 |
