@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import * as dotenv from 'dotenv';
+import {join, joinAndCreate} from './connecting';
 dotenv.config();
 
 const io = new Server({
