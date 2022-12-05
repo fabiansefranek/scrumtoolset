@@ -1,7 +1,11 @@
-import { Server } from "socket.io";
+import {Server, Socket} from "socket.io";
 import * as dotenv from 'dotenv';
-import {join, joinAndCreate} from './connecting';
+import {connect, setup} from "./db";
+import {join, create} from './room';
 dotenv.config();
+
+export const connection = connect();
+setup(connection);
 
 const io = new Server({
     cors: {
@@ -9,9 +13,9 @@ const io = new Server({
     }
 });
 
-io.on("connection",  (socket : any) => {
-    console.log('hello world!')
+io.on("connection",  (socket : Socket) => {
+    socket.on("room:join", (arg : any) => join(arg, socket))
+    socket.on("room:create", (arg : any) => create(arg, socket))
 });
-
 
 io.listen(parseInt(process.env.PORT!));
