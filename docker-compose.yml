@@ -22,3 +22,8 @@ services:
       - "3306:3306"
     environment:
       MARIADB_ROOT_PASSWORD: example
+      MARIADB_DATABASE: scrumtoolset
+    volumes:
+      - ./mariadb-data:/var/lib/mysql
+volumes:
+  mariadb-data:
