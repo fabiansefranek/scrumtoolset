@@ -14,6 +14,7 @@ export async function join(payload : any, socket : Socket) {
     socket.join(roomcode);
     socket.emit("room:joined");
     }
+    else
     socket.emit("room:denied");
 }
 
