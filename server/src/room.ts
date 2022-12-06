@@ -5,7 +5,6 @@ import {Socket} from "socket.io";
 export async function join(payload : any, socket : Socket) {
     let roomcode: string = payload[0];
     const roomFound = await roomExists(roomcode);
-    console.log(roomFound)
     if(roomFound) {
     let username: string = payload[1];
     const now: number = Math.floor(Date.now() / 1000);
