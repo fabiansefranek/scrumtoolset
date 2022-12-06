@@ -29,7 +29,7 @@ services:
     volumes:
       - ./mariadb-data:/var/lib/mysql
     healthcheck:
-      test: "/usr/bin/mysql --user=root --password=example --execute \"SHOW DATABASES;\""
+      test: "mysqladmin ping -hlocalhost -uroot -pexample"
       interval: 2s
       timeout: 20s
       retries: 10
