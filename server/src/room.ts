@@ -11,6 +11,12 @@ export function join(payload : any, socket : Socket) {
     });
 }
 
+export function leave(socket : Socket) {
+    connection.query('DELETE FROM User WHERE sessionId = ?', [socket.id], (err, rows) => {
+        if(err) throw err;
+    });
+}
+
 export function create(payload : any, socket : Socket) {
     let roomPayload: string = payload[0];
     let userPayload: string = payload[1];
@@ -20,4 +26,11 @@ export function create(payload : any, socket : Socket) {
         if(err) throw err;
     });
     join([roomcode, userPayload], socket);
+}
+
+export function close(socket : Socket) {
+    let roomcode: string = uuidv4();
+    connection.query('DELETE FROM Room WHERE id = ?', [roomcode], (err, rows) => {
+        if(err) throw err;
+    });
 }
