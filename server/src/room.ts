@@ -11,8 +11,10 @@ export async function join(payload : any, socket : Socket) {
     connection.query('INSERT INTO User(sessionId, username, createdAt , roomId) VALUES (?, ?, ?, ?)', [socket.id, username, now, roomcode], (err, rows) => {
         if(err) throw err;
     });
+    socket.join(roomcode);
     socket.emit("room:joined");
     }
+    else
     socket.emit("room:denied");
 }
 
@@ -33,13 +35,6 @@ export function create(payload : any, socket : Socket) {
     join([roomcode, userPayload], socket);
 }
 
-
-export function close(socket : Socket) {
-    let roomcode: string = uuidv4();
-    connection.query('DELETE FROM Room WHERE id = ?', [roomcode], (err, rows) => {
-        if(err) throw err;
- });
-}
 function roomExists(roomcode : string) {
     return new Promise((resolve, reject) => {
         connection.query('SELECT id FROM Room WHERE id = ?', [roomcode], (err, rows) => {
