@@ -41,14 +41,12 @@ function App() {
   }
 
   function createRoom() {
-    if(!socket)
-      const socket = connect()
+    const socket = connect()
     socket.emit('room:create',[roomname, username])
   }
 
   function joinRoom() {
-    if(!socket)
-      const socket = connect();
+    const socket = connect();
     socket.emit('room:join',[roomcode, username])
   }
 
