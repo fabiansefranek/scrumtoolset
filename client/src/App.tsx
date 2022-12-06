@@ -5,7 +5,8 @@ function App() {
   const [socket, setSocket] = useState<any>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState<string>("");
-  const [roomname, setRoomname] = useState("");
+  const [roomname, setRoomname] = useState<string>("");
+  const [roomcode, setRoomcode] = useState<string>("");
 
   useEffect(() => {
     if(socket === null) return;
@@ -40,17 +41,23 @@ function App() {
   }
 
   function createRoom() {
-    console.log('create room')
-    const userName = "fabian";
-    const socket = connect()
+    if(!socket)
+      const socket = connect()
     socket.emit('room:create',[roomname, username])
+  }
+
+  function joinRoom() {
+    if(!socket)
+      const socket = connect();
+    socket.emit('room:join',[roomcode, username])
   }
 
   return (
     <div>
       <p>Connected: { '' + isConnected }</p>
-      {!isConnected && <input type="text" onInput={(event : any) => setUsername(event.target.value)}></input>}
-      {!isConnected && <input type="text" onInput={(event : any) => setRoomname(event.target.value)}></input>}
+      {!isConnected && <input type="text" placeholder="Username" onInput={(event : any) => setUsername(event.target.value)}></input>}
+      {!isConnected && <input type="text" placeholder="Room Name" onInput={(event : any) => setRoomname(event.target.value)}></input>}
+      {!isConnected && <input type="text" placeholder="Room Code" onInput={(event : any) => setRoomcode(event.target.value)}></input>}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
       {!isConnected && <button onClick={ createRoom }>Create room</button>}
     </div>
