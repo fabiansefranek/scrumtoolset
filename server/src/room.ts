@@ -3,9 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import {Socket} from "socket.io";
 
 export async function join(payload : any, socket : Socket) {
-
     let roomcode: string = payload[0];
-    if(await roomExists(roomcode)) {
+    const roomFound = await roomExists(roomcode);
+    console.log(roomFound)
+    if(roomFound) {
     let username: string = payload[1];
     const now: number = Math.floor(Date.now() / 1000);
     connection.query('INSERT INTO User(sessionId, username, createdAt , roomId) VALUES (?, ?, ?, ?)', [socket.id, username, now, roomcode], (err, rows) => {
@@ -42,11 +43,13 @@ export function close(socket : Socket) {
 }
 function roomExists(roomcode : string) {
     return new Promise((resolve, reject) => {
-        connection.query('Select id from Room where id like ?', [roomcode], (err, rows) => {
+        connection.query('SELECT id FROM Room WHERE id = ?', [roomcode], (err, rows) => {
             if (err) throw err;
-            if (rows != null)
+            if (rows.length != 0)
                 resolve(true);
+            else
+                resolve(false);
         });
-        resolve(false);
+
     });
 }

@@ -58,6 +58,7 @@ function App() {
       {!isConnected && <input type="text" placeholder="Room Code" onInput={(event : any) => setRoomcode(event.target.value)}></input>}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
       {!isConnected && <button onClick={ createRoom }>Create room</button>}
+      {!isConnected && <button onClick={ joinRoom }>Join room</button>}
     </div>
   );
 }
