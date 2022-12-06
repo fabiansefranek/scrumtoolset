@@ -1,4 +1,4 @@
-version: "1"
+version: "1.29"
 services:
   client:
     build: 
@@ -16,6 +16,9 @@ services:
       - "3000:3000"
     volumes:
       - ./server/src:/src
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: mariadb
     ports:
@@ -25,5 +28,10 @@ services:
       MARIADB_DATABASE: scrumtoolset
     volumes:
       - ./mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: "mysqladmin ping -hlocalhost -uroot -pexample"
+      interval: 2s
+      timeout: 20s
+      retries: 10
 volumes:
   mariadb-data:
