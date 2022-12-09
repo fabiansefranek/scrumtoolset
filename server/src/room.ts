@@ -13,7 +13,7 @@ export async function join(payload : any, socket : Socket, isMod? : boolean) {
         }
         const username: string = payload[1];
         const now: number = Math.floor(Date.now() / 1000);
-        connection.query('INSERT INTO User(sessionId, username, createdAt , roomId, isModerator) VALUES (?, ?, ?, ?, ?)', [socket.id, username, now, roomcode, isMod], (err, rows) => {
+        connection.query('INSERT INTO User(sessionId, username, createdAt , roomId, isModerator, state, vote) VALUES (?, ?, ?, ?, ?, ?, ?)', [socket.id, username, now, roomcode, isMod, "voting", ""], (err, rows) => {
            if(err) throw err;
         });
         socket.join(roomcode);
@@ -90,7 +90,7 @@ function getOldestConnectionFromRoom(roomcode : string) : Promise<String>{
 
 function getAllUsersInRoom(roomcode :string) : Promise<any> { //Used to display all users
     return new Promise((resolve, reject) => {
-        connection.query('SELECT sessionId, username FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC', [roomcode], (err, rows) => {
+        connection.query('SELECT sessionId, username, state, vote FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC', [roomcode], (err, rows) => {
             if (err) throw err;
                 resolve(rows);
         });
@@ -99,9 +99,20 @@ function getAllUsersInRoom(roomcode :string) : Promise<any> { //Used to display 
 
 async function handleUserListUpdate(roomcode : string) {
     const users : any[] = await getAllUsersInRoom(roomcode);
-    let formatedUsers : any[] = [];
-    users.forEach(element => {
-        formatedUsers.push({sessionId : element.sessionId, username : element.username})
+    let formattedUsers : any[] = [];
+    users.forEach(user => {
+        formattedUsers.push({sessionId : user.sessionId, username : user.username, state : user.state, vote : user.vote})
     });
-    io.in(roomcode).emit("room:userListUpdate", formatedUsers)
+    io.in(roomcode).emit("room:userListUpdate", formattedUsers)
+}
+
+export function handleUserVote(payload : any, socket : Socket) : void {
+    const sessionId : string = socket.id;
+    const state : string = payload.state;
+    const vote : string = payload.vote;
+    const room : string = [...socket.rooms][1];
+    connection.query('UPDATE User SET state = ? WHERE sessionId = ?', [state, sessionId], (err, rows) => {
+        if(err) throw err;
+    });
+    io.in(room).emit("room:broadcastVote", {sessionId : socket.id, state : state, vote : vote})
 }
