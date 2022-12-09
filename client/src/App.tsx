@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import PokerSessionScreen from './components/PokerSessionScreen';
 
 function App() {
   const [socket, setSocket] = useState<any>(null);
@@ -69,17 +70,13 @@ function App() {
 
   return (
     <div>
-      <p>Connected: { '' + isConnected }</p>
       {!isConnected && <input type="text" placeholder="Username" onInput={(event : any) => setUsername(event.target.value)}></input>}
       {!isConnected && <input type="text" placeholder="Room Name" onInput={(event : any) => setRoomName(event.target.value)}></input>}
       {!isConnected && <input type="text" placeholder="Room Code" onInput={(event : any) => setRoomCode(event.target.value)}></input>}
       {!isConnected && <button onClick={ createRoom }>Create room</button>}
       {!isConnected && <button onClick={ joinRoom }>Join room</button>}
+      {isConnected && <PokerSessionScreen userList={userList} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
-      {isConnected && <button onClick={ vote }>Vote</button>}
-      {isConnected && userList.map((user : any) => {
-        return <p key={user.sessionId}>{user.username}</p>
-      })}
     </div>
   );
 }
