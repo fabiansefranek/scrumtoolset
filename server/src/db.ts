@@ -1,7 +1,5 @@
 import mysql from "mysql";
 
-
-
 export function connect(){return mysql.createConnection({
     host: 'db',
     user: 'root',
