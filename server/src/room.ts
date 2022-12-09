@@ -122,3 +122,18 @@ export function handleVote(payload : any, socket : Socket) : void {
 
     io.in(roomCode).emit("room:broadcastVote", {sessionId : sessionId, state : state});
 }
+
+export async function close(payload : any, socket : Socket) {
+    const roomCode: string = payload.roomCode;
+    const roomFound = await doesRoomExist(roomCode);
+    if(!roomFound)  return socket.emit("room:notfound");
+
+    const sockets : any = await io.in(roomCode).fetchSockets();
+    let result = sockets.map((socket : Socket) => leave(socket));
+    await Promise.all(result);
+
+    connection.query('DELETE FROM Room WHERE id = ?', roomCode, (err, rows) => {
+        if (err) throw err;
+    });
+    socket.emit("room:closed")
+}
