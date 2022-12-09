@@ -85,3 +85,7 @@ function getOldestConnectionFromRoom(roomcode : string) : Promise<String>{
         });
     });
 }
+
+function handleUserListUpdate(socket : Socket) {
+    socket.emit("room:userListChange")
+}
