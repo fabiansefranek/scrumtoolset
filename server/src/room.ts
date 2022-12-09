@@ -1,4 +1,4 @@
-import {connection} from './index';
+import {connection, io} from './index';
 import { v4 as uuidv4 } from 'uuid';
 import {Socket} from "socket.io";
 
@@ -18,25 +18,27 @@ export async function join(payload : any, socket : Socket, isMod? : boolean) {
         });
         socket.join(roomcode);
         socket.emit("room:joined");
+        await handleUserListUpdate(roomcode);
     }
     else
     socket.emit("room:denied");
 }
 
 export async function leave(socket : Socket) {
-    const room = [...socket.rooms][1];
-    const roomAdmin = await getRoomAdmin(room);
+    const roomcode = [...socket.rooms][1];
+    const roomAdmin = await getRoomAdmin(roomcode);
     const isMod : boolean = (socket.id == roomAdmin);
     connection.query('DELETE FROM User WHERE sessionId = ?', [socket.id], (err, rows) => {
         if(err) throw err;
     });
     if(isMod) {
-        const newMod = await getOldestConnectionFromRoom(room);
+        const newMod = await getOldestConnectionFromRoom(roomcode);
         if(newMod == "") return
         connection.query('UPDATE User SET isModerator = 1 WHERE sessionId = ?', [newMod], (err, rows) => {
             if(err) throw err;
         });
     }
+    await handleUserListUpdate(roomcode);
 }
 
 export function create(payload : any, socket : Socket) {
@@ -86,6 +88,20 @@ function getOldestConnectionFromRoom(roomcode : string) : Promise<String>{
     });
 }
 
-function handleUserListUpdate(socket : Socket) {
-    socket.emit("room:userListChange")
+function getAllUsersInRoom(roomcode :string) : Promise<any> { //Used to display all users
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT sessionId, username FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC', [roomcode], (err, rows) => {
+            if (err) throw err;
+                resolve(rows);
+        });
+    });
+}
+
+async function handleUserListUpdate(roomcode : string) {
+    const users : any[] = await getAllUsersInRoom(roomcode);
+    let formatedUsers : any[] = [];
+    users.forEach(element => {
+        formatedUsers.push({sessionId : element.sessionId, username : element.username})
+    });
+    io.in(roomcode).emit("room:userListUpdate", formatedUsers)
 }

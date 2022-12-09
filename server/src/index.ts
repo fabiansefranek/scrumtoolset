@@ -7,7 +7,7 @@ dotenv.config();
 export const connection = connect();
 setup(connection);
 
-const io = new Server({
+export const io = new Server({
     cors: {
         origin: '*', //TODO Look up how to do safer
     }
