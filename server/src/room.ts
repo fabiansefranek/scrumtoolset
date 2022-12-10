@@ -52,7 +52,7 @@ export function create(payload : any, socket : Socket) {
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
-    connection.query('INSERT INTO Room(id, displayName, state, createdAt) VALUES (?, ?, ?, ?)', [roomCode, roomName,'INIT', now], (err, rows) => {
+    connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, roomName,'INIT', now, ''], (err, rows) => {
         if(err) throw err;
     });
 
@@ -122,3 +122,4 @@ export function handleVote(payload : any, socket : Socket) : void {
 
     io.in(roomCode).emit("room:broadcastVote", {sessionId : sessionId, state : state});
 }
+
