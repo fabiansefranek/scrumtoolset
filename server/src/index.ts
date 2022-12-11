@@ -14,9 +14,11 @@ export const io = new Server({
 });
 
 io.on("connection",  (socket : Socket) => {
-    socket.on("room:join", (arg : any) => join(arg, socket))
-    socket.on("room:create", (arg : any) => create(arg, socket))
-    socket.on("disconnecting", (reason : any) => leave(socket))
+    socket.on("room:join", (arg : any) => join(arg, socket));
+    socket.on("room:create", (arg : any) => create(arg, socket));
+    socket.on("room:vote", (arg : any) => handleVote(arg, socket));
+    socket.on("room:close", (arg : any) => close(arg, socket));
+    socket.on("disconnecting", (reason : any) => leave(socket));
 });
 
 io.listen(parseInt(process.env.PORT!));
