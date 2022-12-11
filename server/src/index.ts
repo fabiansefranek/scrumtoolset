@@ -1,7 +1,7 @@
 import {Server, Socket} from "socket.io";
 import * as dotenv from 'dotenv';
 import {connect, setup} from "./db";
-import {join, create, leave, handleVote} from './room';
+import {join, create, leave, handleVote, close} from './room';
 dotenv.config();
 
 export const connection = connect();
@@ -17,6 +17,7 @@ io.on("connection",  (socket : Socket) => {
     socket.on("room:join", (arg : any) => join(arg, socket));
     socket.on("room:create", (arg : any) => create(arg, socket));
     socket.on("room:vote", (arg : any) => handleVote(arg, socket));
+    socket.on("room:close", (arg : any) => close(arg, socket));
     socket.on("disconnecting", (reason : any) => leave(socket));
 });
 
