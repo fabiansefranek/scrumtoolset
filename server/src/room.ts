@@ -23,6 +23,11 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     socket.join(roomCode);
     socket.emit("room:joined");
     await handleUserListUpdate(roomCode);
+    if(await getRoomState(roomCode) == 'INIT') return;
+
+    const votingSystem : string = await getRoomVotingSystem(roomCode);
+    socket.emit("room:votingSystem", votingSystem);
+
 }
 
 export async function leave(socket : Socket) {
@@ -122,4 +127,33 @@ export function handleVote(payload : any, socket : Socket) : void {
 
     io.in(roomCode).emit("room:broadcastVote", {sessionId : sessionId, state : state});
 }
+
+export function setVotingSystem(payload : any, socket : Socket) : void { // TODO Group all info (votingSystem, userStories etc) that get send when room exits INIT phase into one start() function that gets triggered by a single emit
+    const roomCode : string =[...socket.rooms][1];
+    const votingSystem : string = payload.votingSystem;
+    connection.query('UPDATE Room SET votingSystem = ? WHERE id = ?', [votingSystem, roomCode], (err, rows) => {
+        if(err) throw err;
+    });
+    io.in(roomCode).emit("room:votingSystem", votingSystem);
+}
+
+function getRoomState(roomCode : string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
+            if (err) throw err;
+            resolve(rows[0].state);
+        });
+    });
+}
+
+function getRoomVotingSystem(roomCode : string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT votingSystem FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
+            if (err) throw err;
+            resolve(rows[0].votingSystem);
+        });
+    });
+}
+
+
 
