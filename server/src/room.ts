@@ -21,8 +21,11 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     });
 
     socket.join(roomCode);
-    socket.emit("room:joined");
+    const votingSystem : string = await getRoomVotingSystem(roomCode);
+    socket.emit("room:joined", {votingSystem : votingSystem});
     await handleUserListUpdate(roomCode);
+
+
 }
 
 export async function leave(socket : Socket) {
@@ -52,7 +55,7 @@ export function create(payload : any, socket : Socket) {
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
-    connection.query('INSERT INTO Room(id, displayName, state, createdAt) VALUES (?, ?, ?, ?)', [roomCode, roomName,'INIT', now], (err, rows) => {
+    connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, roomName,'INIT', now, ''], (err, rows) => {
         if(err) throw err;
     });
 
@@ -123,6 +126,36 @@ export function handleVote(payload : any, socket : Socket) : void {
     io.in(roomCode).emit("room:broadcastVote", {sessionId : sessionId, state : state});
 }
 
+
+export function setVotingSystem(payload : any, socket : Socket) : void { // TODO Group all info (votingSystem, userStories etc) that get send when room exits INIT phase into one start() function that gets triggered by a single emit
+    const roomCode : string =[...socket.rooms][1];
+    const votingSystem : string = payload.votingSystem;
+    connection.query('UPDATE Room SET votingSystem = ? WHERE id = ?', [votingSystem, roomCode], (err, rows) => {
+        if(err) throw err;
+    });
+}
+
+function getRoomState(roomCode : string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
+            if (err) throw err;
+            resolve(rows[0].state);
+        });
+    });
+}
+
+function getRoomVotingSystem(roomCode : string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT votingSystem FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
+            if (err) throw err;
+            resolve(rows[0].votingSystem);
+        });
+    });
+}
+
+
+
+
 export async function close(payload : any, socket : Socket) {
     const roomCode: string = payload.roomCode;
     const roomFound = await doesRoomExist(roomCode);
@@ -137,3 +170,5 @@ export async function close(payload : any, socket : Socket) {
     });
     socket.emit("room:closed")
 }
+
+
