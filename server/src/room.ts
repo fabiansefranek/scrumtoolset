@@ -153,9 +153,6 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
     });
 }
 
-
-
-
 export async function close(payload : any, socket : Socket) {
     const roomCode: string = payload.roomCode;
     const roomFound = await doesRoomExist(roomCode);
@@ -165,10 +162,26 @@ export async function close(payload : any, socket : Socket) {
     let result = sockets.map((socket : Socket) => leave(socket));
     await Promise.all(result);
 
+    connection.query('DELETE FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
+        if(err) throw err;
+    });
     connection.query('DELETE FROM Room WHERE id = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
     socket.emit("room:closed")
+}
+
+export function addUserstories(payload : any, socket : Socket){
+    const userStory : any[] = payload;
+    const roomCode : string =[...socket.rooms][1];
+    const data : any[] = [];
+    userStory.forEach((userStory) => {
+        data.push([userStory.name, userStory.content, roomCode])
+    })
+    console.log(data);
+    connection.query('INSERT INTO userStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
+        if (err) throw err;
+    });
 }
 
 
