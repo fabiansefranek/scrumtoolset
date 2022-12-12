@@ -10,6 +10,7 @@ function App() {
   const [roomName, setRoomName] = useState<string>("");
   const [votingSystem, setVotingSystem] = useState<string>("");
   const [roomCode, setRoomCode] = useState<string>("");
+  const [userStories, setUserStories] = useState<any[]>([]);
   const [userList, setUserList] = useState<any[]>([]);
 
   useEffect(() => {
@@ -57,8 +58,9 @@ function App() {
   }
 
   function createRoom() {
-    const socket = connect()
-    socket.emit('room:create', {roomName: roomName, username: username})
+    const socket = connect();
+    console.log({base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}})
+    socket.emit('room:create', {base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}})
   }
 
   function joinRoom() {
@@ -76,9 +78,8 @@ function App() {
       {!isConnected && <input type="text" placeholder="Room Code" onInput={(event : any) => setRoomCode(event.target.value)}></input>}
       {!isConnected && <button onClick={ joinRoom }>Join room</button>}
       <p>Create room</p>
-      {!isConnected && <PokerConfigurationScreen setRoomName={setRoomName} setUsername={setUsername} setVotingSystem={setVotingSystem}/>}
+      {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem}/>}
 
-      
       {isConnected && <PokerSessionScreen userList={userList} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
     </div>
