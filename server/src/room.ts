@@ -24,7 +24,7 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     if([...socket.rooms][1] != roomCode)
     socket.join(roomCode);
     const votingSystem : string = await getRoomVotingSystem(roomCode);
-    socket.emit("room:joined", {votingSystem : votingSystem});
+    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem});
     await handleUserListUpdate(roomCode);
 
 

@@ -20,18 +20,19 @@ function App() {
       setIsConnected(false);
     });
 
-    socket.on('room:joined', () => {
-      console.log('joinedRoom')
-      setIsConnected(true)
+    socket.on('room:joined', (args : any) => {
+      console.log(`Joined room and got payload: ${JSON.stringify(args)}`);
+      setRoomCode(args.roomCode);
+      setIsConnected(true);
     })
 
     socket.on('room:userListUpdate', (args : any) => {
+      console.log(`The user list updated. Payload: ${JSON.stringify(args)}`)
       setUserList(args);
-      console.log(args)
     })
 
     socket.on('room:broadcastVote', (args : any) => {
-      console.log(args)
+      console.log(`Someone voted. Payload: ${JSON.stringify(args)}`)
     })
 
     socket.on('error', (args : any) => {
@@ -49,23 +50,28 @@ function App() {
 
   function disconnect() {
     socket.disconnect();
+    console.log('Disconnected from server')
   }
 
   function connect() {
     const socket = io('http://localhost:3000')
     setSocket(socket)
+    console.log('Connected to server')
     return socket;
   }
 
   function createRoom() {
     const socket = connect();
-    console.log({base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}})
-    socket.emit('room:create', {base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}})
+    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}};
+    socket.emit('room:create', payload);
+    console.log(`Create room with payload: ${JSON.stringify(payload)}`);
   }
 
   function joinRoom() {
     const socket = connect();
-    socket.emit('room:join', {roomCode: roomCode, username: username})
+    const payload : any = {roomCode: roomCode, username: username};
+    socket.emit('room:join', payload)
+    console.log(`Trying to join room with payload: ${JSON.stringify(payload)}`);
   }
 
   function vote() {
@@ -74,12 +80,12 @@ function App() {
 
   return (
     <div>
-      <p>Join room</p>
+      {!isConnected && <p>Join room</p>}
       {!isConnected && <input type="text" placeholder="Room Code" onInput={(event : any) => setRoomCode(event.target.value)}></input>}
       {!isConnected && <button onClick={ joinRoom }>Join room</button>}
-      <p>Create room</p>
+      {!isConnected && <p>Create room</p>}
       {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem}/>}
-
+      {isConnected && <p>Room code: {roomCode}</p>}
       {isConnected && <PokerSessionScreen userList={userList} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
     </div>
