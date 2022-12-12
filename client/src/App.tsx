@@ -2,16 +2,18 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import PokerConfigurationScreen from './components/PokerConfigurationScreen';
 import PokerSessionScreen from './components/PokerSessionScreen';
+import { User, UserStory } from './types';
 
 function App() {
   const [socket, setSocket] = useState<any>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [roomName, setRoomName] = useState<string>("");
   const [votingSystem, setVotingSystem] = useState<string>("");
   const [roomCode, setRoomCode] = useState<string>("");
-  const [userStories, setUserStories] = useState<any[]>([]);
-  const [userList, setUserList] = useState<any[]>([]);
+  const [userStories, setUserStories] = useState<UserStory[]>([]);
+  const [currentUserStory, setCurrentUserStory] = useState<UserStory>({name: "", content: ""});
+  const [userList, setUserList] = useState<User[]>([]);
 
   useEffect(() => {
     if(socket === null) return;
@@ -84,9 +86,9 @@ function App() {
       {!isConnected && <input type="text" placeholder="Room Code" onInput={(event : any) => setRoomCode(event.target.value)}></input>}
       {!isConnected && <button onClick={ joinRoom }>Join room</button>}
       {!isConnected && <p>Create room</p>}
-      {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem}/>}
+      {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory}/>}
       {isConnected && <p>Room code: {roomCode}</p>}
-      {isConnected && <PokerSessionScreen userList={userList} />}
+      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
     </div>
   );
