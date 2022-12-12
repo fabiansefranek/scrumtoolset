@@ -1,6 +1,7 @@
 import {connection, io} from './index';
 import { v4 as uuidv4 } from 'uuid';
 import {Socket} from "socket.io";
+import {start} from "./session";
 
 
 export async function join(payload : any, socket : Socket, isModerator? : boolean) {
@@ -20,6 +21,7 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
         if(err) throw err;
     });
 
+    if([...socket.rooms][1] != roomCode)
     socket.join(roomCode);
     const votingSystem : string = await getRoomVotingSystem(roomCode);
     socket.emit("room:joined", {votingSystem : votingSystem});
@@ -50,8 +52,9 @@ export async function leave(socket : Socket) {
 }
 
 export function create(payload : any, socket : Socket) {
-    const roomName: string = payload.roomName;
-    const username: string = payload.username;
+    const roomName: string = payload.base.roomName;
+    const username: string = payload.base.username;
+    const options : any = payload.options;
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
@@ -59,6 +62,8 @@ export function create(payload : any, socket : Socket) {
         if(err) throw err;
     });
 
+    socket.join(roomCode);
+    start(options, socket);
     join({roomCode: roomCode, username: username}, socket, true);
 }
 
@@ -127,9 +132,8 @@ export function handleVote(payload : any, socket : Socket) : void {
 }
 
 
-export function setVotingSystem(payload : any, socket : Socket) : void { // TODO Group all info (votingSystem, userStories etc) that get send when room exits INIT phase into one start() function that gets triggered by a single emit
+export function setVotingSystem(votingSystem : String, socket : Socket) : void {
     const roomCode : string =[...socket.rooms][1];
-    const votingSystem : string = payload.votingSystem;
     connection.query('UPDATE Room SET votingSystem = ? WHERE id = ?', [votingSystem, roomCode], (err, rows) => {
         if(err) throw err;
     });
@@ -171,14 +175,13 @@ export async function close(payload : any, socket : Socket) {
     socket.emit("room:closed")
 }
 
-export function addUserstories(payload : any, socket : Socket){
-    const userStory : any[] = payload;
+export function addUserstories(userStories : any[], socket : Socket){
+    const userStory : any[] = userStories;
     const roomCode : string =[...socket.rooms][1];
     const data : any[] = [];
     userStory.forEach((userStory) => {
         data.push([userStory.name, userStory.content, roomCode])
     })
-    console.log(data);
     connection.query('INSERT INTO userStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
         if (err) throw err;
     });
