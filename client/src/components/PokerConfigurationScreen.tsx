@@ -1,5 +1,4 @@
 function convertLinesToUserStoryArray(lines : string) {
-    console.log(lines);
     return lines.split("\n").map((line : string) => ({
         name: line.split(',')[0],
         content: line.split(',')[1]
