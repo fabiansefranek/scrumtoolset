@@ -21,12 +21,10 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     });
 
     socket.join(roomCode);
-    socket.emit("room:joined");
-    await handleUserListUpdate(roomCode);
-    if(await getRoomState(roomCode) == 'INIT') return;
-
     const votingSystem : string = await getRoomVotingSystem(roomCode);
-    socket.emit("room:votingSystem", votingSystem);
+    socket.emit("room:joined", {votingSystem : votingSystem});
+    await handleUserListUpdate(roomCode);
+
 
 }
 
@@ -134,7 +132,6 @@ export function setVotingSystem(payload : any, socket : Socket) : void { // TODO
     connection.query('UPDATE Room SET votingSystem = ? WHERE id = ?', [votingSystem, roomCode], (err, rows) => {
         if(err) throw err;
     });
-    io.in(roomCode).emit("room:votingSystem", votingSystem);
 }
 
 function getRoomState(roomCode : string) : Promise<string> {
