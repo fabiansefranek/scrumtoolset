@@ -182,7 +182,7 @@ export function addUserstories(userStories : any[], socket : Socket){
     userStory.forEach((userStory) => {
         data.push([userStory.name, userStory.content, roomCode])
     })
-    connection.query('INSERT INTO userStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
+    connection.query('INSERT INTO UserStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
         if (err) throw err;
     });
 }

@@ -1,4 +1,13 @@
-function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem } : { setRoomName : Function, setUsername : Function, setVotingSystem : Function }) {
+function convertLinesToUserStoryArray(lines : string) {
+    console.log(lines);
+    return lines.split("\n").map((line : string) => ({
+        name: line.split(',')[0],
+        content: line.split(',')[1]
+    })
+    )
+}
+
+function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, setUserStories, createRoom } : { setRoomName : Function, setUsername : Function, setVotingSystem : Function, setUserStories : Function, createRoom : any }) {
     return (
         <>
             <input placeholder="Username" onChange={(event : any) => setUsername(event.target.value)}></input>
@@ -7,7 +16,8 @@ function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem } 
                 <option value="fibonacci">Fibonacci (☕,0,1/2,1,2,3,5,8,13,21,34,55)</option>
                 <option value="fibonacci">Scrum (☕,0,1/2,1,2,3,5,8,13,20,40,100)</option>
             </select>
-            <button>Create room</button>
+            <textarea onChange={(event : any) => setUserStories(convertLinesToUserStoryArray(event.target.value))}></textarea>
+            <button onClick={createRoom}>Create room</button>
         </>
     );
 }
