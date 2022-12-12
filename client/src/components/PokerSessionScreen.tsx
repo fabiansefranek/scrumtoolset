@@ -1,14 +1,14 @@
 import React from 'react';
 import PokerVoteContainer from './PokerVoteContainer';
 import PokerUserStoryContainer from './PokerUserStoryContainer';
-import { User } from '../types';
+import { User, UserStory } from '../types';
 
-function PokerSessionScreen({ userList } : { userList : User[] }) {
+function PokerSessionScreen({ userList, userStories, currentUserStory } : { userList : User[], userStories : UserStory[], currentUserStory : UserStory }) {
     const roomState : string = "Voted";
     return (
         <div>
             <p>State: {roomState}</p>
-            <PokerUserStoryContainer userStory="#21 Scrum Poker" />
+            <PokerUserStoryContainer userStories={userStories} currentUserStory={currentUserStory} />
             <PokerVoteContainer userList={userList} />
         </div>
     )

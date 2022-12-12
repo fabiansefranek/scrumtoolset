@@ -4,4 +4,9 @@ type User = {
     state: string
 }
 
-export type {User}
+type UserStory = {
+    name: string,
+    content: string
+}
+
+export type {User, UserStory}
