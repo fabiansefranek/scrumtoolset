@@ -38,7 +38,7 @@ export async function nextRound(socket: Socket) {
                 console.log("waiting");
                 resetVotes(roomId);
                 setCurrentUserStoryId(roomId, currentUserStoryId + 1)
-                io.in(roomId).emit("room:userStoryUpdate", userStories[currentUserStoryId + 1])
+                io.in(roomId).emit("room:userStoryUpdate", {userStory:userStories[currentUserStoryId + 1]})
                 setRoomState(roomId, "voting");
                 break;
             }
