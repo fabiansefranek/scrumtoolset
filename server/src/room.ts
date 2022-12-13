@@ -21,7 +21,7 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
         if(err) throw err;
     });
 
-    if([...socket.rooms][1] != roomCode)
+    if([...socket.rooms][1] != roomCode) //Please comment your code :)
     socket.join(roomCode);
     const votingSystem : string = await getRoomVotingSystem(roomCode);
     socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem});
@@ -58,7 +58,7 @@ export function create(payload : any, socket : Socket) {
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
-    connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, roomName,'INIT', now, ''], (err, rows) => {
+    connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, roomName,'waiting', now, ''], (err, rows) => {
         if(err) throw err;
     });
 
@@ -139,12 +139,18 @@ export function setVotingSystem(votingSystem : String, socket : Socket) : void {
     });
 }
 
-function getRoomState(roomCode : string) : Promise<string> {
+export function getRoomState(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
             if (err) throw err;
             resolve(rows[0].state);
         });
+    });
+}
+
+export function setRoomState(roomCode : string, state : string) : void {
+    connection.query('UPDATE Room SET state = ? WHERE id = ?', [state, roomCode], (err, rows) => {
+        if (err) throw err;
     });
 }
 
@@ -157,19 +163,18 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
     });
 }
 
-export async function close(payload : any, socket : Socket) {
-    const roomCode: string = payload.roomCode;
-    const roomFound = await doesRoomExist(roomCode);
+export async function close(roomId : string, socket : Socket) {
+    const roomFound = await doesRoomExist(roomId);
     if(!roomFound)  return socket.emit("room:notfound");
 
-    const sockets : any = await io.in(roomCode).fetchSockets();
+    const sockets : any = await io.in(roomId).fetchSockets();
     let result = sockets.map((socket : Socket) => leave(socket));
     await Promise.all(result);
 
-    connection.query('DELETE FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
+    connection.query('DELETE FROM UserStory WHERE roomId = ?', roomId, (err, rows) => {
         if(err) throw err;
     });
-    connection.query('DELETE FROM Room WHERE id = ?', roomCode, (err, rows) => {
+    connection.query('DELETE FROM Room WHERE id = ?', roomId, (err, rows) => {
         if (err) throw err;
     });
     socket.emit("room:closed")
