@@ -165,18 +165,18 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
     });
 }
 
-export async function close(roomId : string, socket : Socket) {
-    const roomFound = await doesRoomExist(roomId);
-    if(!roomFound)  return socket.emit("room:notfound");
+export async function close(roomCode : string, socket : Socket) {
+    const roomFound = await doesRoomExist(roomCode);
+    if(!roomCode)  return socket.emit("room:notfound");
 
-    const sockets : any = await io.in(roomId).fetchSockets();
+    const sockets : any = await io.in(roomCode).fetchSockets();
     let result = sockets.map((socket : Socket) => leave(socket));
     await Promise.all(result);
 
-    connection.query('DELETE FROM UserStory WHERE roomId = ?', roomId, (err, rows) => {
+    connection.query('DELETE FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
         if(err) throw err;
     });
-    connection.query('DELETE FROM Room WHERE id = ?', roomId, (err, rows) => {
+    connection.query('DELETE FROM Room WHERE id = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
     socket.emit("room:closed")
