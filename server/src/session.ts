@@ -12,38 +12,41 @@ export function start(options : any, socket : Socket) {
 }
 
 export async function nextRound(socket: Socket) {
-    const roomId : string = [...socket.rooms][1];
-    const currentState : string = await getRoomState(roomId);
-    const userStories : any[] = await getUserStories(roomId);
-    const currentUserStoryId : number = await getCurrentUserStoryId(socket);
+    const roomCode : string = [...socket.rooms][1];
+    const currentState : string = await getRoomState(roomCode);
+    const userStories : any[] = await getUserStories(roomCode);
+    const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
     console.log("LENGTH: "+userStories.length);
     console.log("ID: "+currentUserStoryId);
     console.log("CURRENSTATE: "+currentState);
     if(userStories.length - 1 == currentUserStoryId && currentState != "closeable") {
-        setRoomState(roomId, "closeable");
+        setRoomState(roomCode, "closeable");
     }
     else {
         switch (currentState) {
             case "closeable": {
                 console.log("closeable");
-                await close(roomId, socket);
-                break;
+                await close(roomCode, socket);
+                return;
             }
             case "voting": {
                 console.log("voting");
-                setRoomState(roomId, "waiting");
+                setRoomState(roomCode, "waiting");
                 break;
             }
             case "waiting": {
                 console.log("waiting");
-                resetVotes(roomId);
-                setCurrentUserStoryId(roomId, currentUserStoryId + 1)
-                io.in(roomId).emit("room:userStoryUpdate", userStories[currentUserStoryId + 1])
-                setRoomState(roomId, "voting");
+                resetVotes(roomCode);
+                setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
+                io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
+                setRoomState(roomCode, "voting");
                 break;
             }
         }
     }
+    const newRoomState = await getRoomState(roomCode);
+    console.log(`New room state: ${newRoomState}`);
+    io.in(roomCode).emit("room:stateUpdate", {roomState: newRoomState});
 }
 
 export async function getUserStories(roomId : string) : Promise<any[]> {
@@ -60,24 +63,35 @@ export async function getUserStories(roomId : string) : Promise<any[]> {
     })
 }
 
-function getCurrentUserStoryId(socket : Socket) : Promise<number>{
-    const roomId : string = [...socket.rooms][1];
+function getCurrentUserStoryId(roomCode : string) : Promise<number>{
     return new Promise((resolve, reject) => {
-        connection.query('SELECT currentUserStory FROM Room WHERE id = ?', roomId, (err, rows) => {
+        connection.query('SELECT currentUserStory FROM Room WHERE id = ?', roomCode, (err, rows) => {
             if (err) throw err;
             resolve(rows[0].currentUserStory);
         });
     });
 }
 
-function setCurrentUserStoryId(roomId : string, id : number) : void{
-    connection.query('UPDATE Room SET currentUserStory = ? WHERE id = ?', [id, roomId], (err, rows) => {
+export async function getCurrentUserStory(roomCode : string) : Promise<any> {
+    const currentUserStoryId = await getCurrentUserStoryId(roomCode);
+    console.log(currentUserStoryId);
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * FROM UserStory WHERE id = ?', [currentUserStoryId], (err, rows) => {
+            if (err) throw err;
+            console.log(rows[0]);
+            resolve(rows[0]);
+        });
+    });
+}
+
+function setCurrentUserStoryId(roomCode : string, id : number) : void{
+    connection.query('UPDATE Room SET currentUserStory = ? WHERE id = ?', [id, roomCode], (err, rows) => {
         if (err) throw err;
     });
 }
 
-function resetVotes(roomId : string) : void{
-    connection.query('UPDATE User SET vote = "" WHERE roomId = ?', roomId, (err, rows) => {
+function resetVotes(roomCode : string) : void{
+    connection.query('UPDATE User SET vote = "" WHERE roomId = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
 }

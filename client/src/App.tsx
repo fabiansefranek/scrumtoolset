@@ -11,9 +11,11 @@ function App() {
   const [roomName, setRoomName] = useState<string>("");
   const [votingSystem, setVotingSystem] = useState<string>("");
   const [roomCode, setRoomCode] = useState<string>("");
+  const [roomState, setRoomState] = useState<string>("");
   const [userStories, setUserStories] = useState<UserStory[]>([]);
   const [currentUserStory, setCurrentUserStory] = useState<UserStory>({name: "", content: ""});
   const [userList, setUserList] = useState<User[]>([]);
+  const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
 
   useEffect(() => {
     if(socket === null) return;
@@ -25,6 +27,8 @@ function App() {
     socket.on('room:joined', (args : any) => {
       console.log(`Joined room and got payload: ${JSON.stringify(args)}`);
       setRoomCode(args.roomCode);
+      setCurrentUserStory(args.currentUserStory);
+      setRoomState(args.roomState);
       setIsConnected(true);
     })
 
@@ -35,6 +39,22 @@ function App() {
 
     socket.on('room:broadcastVote', (args : any) => {
       console.log(`Someone voted. Payload: ${JSON.stringify(args)}`)
+    })
+
+    socket.on('room:userStoryUpdate', (args : any) => {
+      setCurrentUserStory(args.currentUserStory);
+      setRoomState("voting");
+      console.log(`New round! Payload: ${JSON.stringify(args)}`);
+    })
+
+    socket.on('room:revealVotes', (args : any) => {
+      setRoomState("waiting");
+      console.log(`Revealed votes. Now room in state: waiting`)
+    })
+
+    socket.on('room:stateUpdate', (args : any) => {
+      console.log(`Room state updated. Payload: ${JSON.stringify(args)}`);
+      setRoomState(args.roomState);
     })
 
     socket.on('error', (args : any) => {
@@ -66,18 +86,31 @@ function App() {
     const socket = connect();
     const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}};
     socket.emit('room:create', payload);
+    setUserIsModerator(true);
     console.log(`Create room with payload: ${JSON.stringify(payload)}`);
   }
 
   function joinRoom() {
     const socket = connect();
     const payload : any = {roomCode: roomCode, username: username};
-    socket.emit('room:join', payload)
+    socket.emit('room:join', payload);
+    setUserIsModerator(false);
     console.log(`Trying to join room with payload: ${JSON.stringify(payload)}`);
   }
 
   function vote() {
     socket.emit('room:vote', {state: 'voted', vote: '5'})
+  }
+
+  function nextRound() {
+    if(!userIsModerator) throw('User is not a moderator');
+    socket.emit('room:nextRound');
+      
+  }
+
+  function revealVotes() {
+    if(!userIsModerator) throw ('User is not a moderator');
+    socket.emit('room:revealVotes');
   }
 
   return (
@@ -88,7 +121,7 @@ function App() {
       {!isConnected && <p>Create room</p>}
       {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory}/>}
       {isConnected && <p>Room code: {roomCode}</p>}
-      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} />}
+      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
     </div>
   );
