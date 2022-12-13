@@ -194,12 +194,13 @@ export function addUserstories(userStories : any[], socket : Socket){
     });
 }
 
-export async function broadcastVotes(payload : any, socket : Socket){
+export async function broadcastVotes(socket : Socket){
     const roomCode : string =[...socket.rooms][1];
     const sessionId : string = socket.id;
     const roomModerator = await getRoomModerator(roomCode);
+    console.log("Broadcast check:")
     if(sessionId === roomModerator) return;
-
+    console.log("Broadcast TRUE")
     const rawVotes : any = await getVotes(roomCode);
     const votes : any = rawVotes.map((vote : any) => {return {sessionId : vote.sessionId, vote : vote.vote}});
     io.in(roomCode).emit("room:revealedVotes", votes);

@@ -1,5 +1,5 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserstories, getRoomState, setRoomState, close} from "./room";
+import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes} from "./room";
 import {connection, io} from "./index";
 
 export function start(options : any, socket : Socket) {
@@ -36,6 +36,7 @@ export async function nextRound(socket: Socket) {
             }
             case "waiting": {
                 console.log("waiting");
+                broadcastVotes(socket);
                 resetVotes(roomCode);
                 setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                 io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
