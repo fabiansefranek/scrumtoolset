@@ -14,7 +14,7 @@ export function start(options : any, socket : Socket) {
 export async function nextRound(socket: Socket) {
     const roomId : string = [...socket.rooms][1];
     const currentState : string = await getRoomState(roomId);
-    const userStories : any[] = getUserStories(roomId);
+    const userStories : any[] = await getUserStories(roomId);
     const currentUserStoryId : number = await getCurrentUserStoryId(socket);
     console.log("LENGTH: "+userStories.length);
     console.log("ID: "+currentUserStoryId);
@@ -38,7 +38,7 @@ export async function nextRound(socket: Socket) {
                 console.log("waiting");
                 resetVotes(roomId);
                 setCurrentUserStoryId(roomId, currentUserStoryId + 1)
-                io.in(roomId).emit("room:userStoryUpdate", {name:userStories[currentUserStoryId + 1].name,content:userStories[currentUserStoryId + 1].content})
+                io.in(roomId).emit("room:userStoryUpdate", userStories[currentUserStoryId + 1])
                 setRoomState(roomId, "voting");
                 break;
             }
@@ -46,15 +46,18 @@ export async function nextRound(socket: Socket) {
     }
 }
 
-function getUserStories(roomId : string) : any[]{
-    const userStories : any[] = [];
-    connection.query('SELECT id, name, content FROM UserStory WHERE roomId = ?', roomId, (err, rows) => {
-        if (err) throw err;
-        rows.forEach((row : any) => {
-            userStories.push([row.id, row.name, row.content])
+async function getUserStories(roomId : string) : Promise<any[]> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT id, name, content FROM UserStory WHERE roomId = ?', roomId, (err, rows) => {
+            if (err) throw err;
+            const userStories : any[] = rows.map((userStory : any) => ({
+                id: userStory.id,
+                name: userStory.name,
+                content: userStory.content
+            }))
+            resolve(userStories)
         })
     })
-    return userStories;
 }
 
 function getCurrentUserStoryId(socket : Socket) : Promise<number>{
