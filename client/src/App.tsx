@@ -113,6 +113,11 @@ function App() {
     socket.emit('room:revealVotes');
   }
 
+  function closeRoom() {
+    if(!userIsModerator) throw ('User is not a moderator');
+    socket.emit('room:close', roomCode);
+  }
+
   return (
     <div>
       {!isConnected && <p>Join room</p>}
@@ -121,7 +126,7 @@ function App() {
       {!isConnected && <p>Create room</p>}
       {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory}/>}
       {isConnected && <p>Room code: {roomCode}</p>}
-      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} />}
+      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
     </div>
   );
