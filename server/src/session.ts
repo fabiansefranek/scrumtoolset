@@ -31,12 +31,12 @@ export async function nextRound(socket: Socket) {
             }
             case "voting": {
                 console.log("voting");
+                broadcastVotes(socket);
                 setRoomState(roomCode, "waiting");
                 break;
             }
             case "waiting": {
                 console.log("waiting");
-                broadcastVotes(socket);
                 resetVotes(roomCode);
                 setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                 io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
