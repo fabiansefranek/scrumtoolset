@@ -114,7 +114,7 @@ function getUsersInRoom(roomCode : string) : Promise<any> { //Used to display al
     });
 }
 
-async function handleUserListUpdate(roomcode : string) : Promise<void> {
+export async function handleUserListUpdate(roomcode : string) : Promise<void> {
     const users : any[] = await getUsersInRoom(roomcode);
     const userList : any[] = users.map((user : any) => {return {sessionId: user.sessionId, username: user.username, state: user.state}});
     io.in(roomcode).emit("room:userListUpdate", userList)

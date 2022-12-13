@@ -1,5 +1,5 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes} from "./room";
+import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate} from "./room";
 import {connection, io} from "./index";
 
 export function start(options : any, socket : Socket) {
@@ -41,6 +41,7 @@ export async function nextRound(socket: Socket) {
                 setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                 io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
                 setRoomState(roomCode, "voting");
+                await handleUserListUpdate(roomCode);
                 break;
             }
         }
@@ -92,7 +93,7 @@ function setCurrentUserStoryId(roomCode : string, id : number) : void{
 }
 
 function resetVotes(roomCode : string) : void{
-    connection.query('UPDATE User SET vote = "" WHERE roomId = ?', roomCode, (err, rows) => {
+    connection.query('UPDATE User SET vote = "", state = "voting" WHERE roomId = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
 }
