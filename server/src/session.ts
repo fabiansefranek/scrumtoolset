@@ -46,7 +46,7 @@ export async function nextRound(socket: Socket) {
     }
 }
 
-async function getUserStories(roomId : string) : Promise<any[]> {
+export async function getUserStories(roomId : string) : Promise<any[]> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT id, name, content FROM UserStory WHERE roomId = ?', roomId, (err, rows) => {
             if (err) throw err;

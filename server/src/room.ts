@@ -2,6 +2,7 @@ import {connection, io} from './index';
 import { v4 as uuidv4 } from 'uuid';
 import {Socket} from "socket.io";
 import {start} from "./session";
+import { getUserStories } from './session';
 
 
 export async function join(payload : any, socket : Socket, isModerator? : boolean) {
@@ -25,7 +26,8 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     socket.join(roomCode);
     const votingSystem : string = await getRoomVotingSystem(roomCode);
     const roomState : string = await getRoomState(roomCode);
-    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem, roomState: roomState, });
+    const userStories : any[] = await getUserStories(roomCode);
+    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem, roomState: roomState, userStories: userStories});
     await handleUserListUpdate(roomCode);
 
 
