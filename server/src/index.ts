@@ -2,6 +2,8 @@ import {Server, Socket} from "socket.io";
 import * as dotenv from 'dotenv';
 import {connect, setup} from "./db";
 import {join, create, leave, handleVote, close} from './room';
+import {nextRound} from "./session";
+
 dotenv.config();
 
 export const connection = connect();
@@ -19,6 +21,7 @@ io.on("connection",  (socket : Socket) => {
     socket.on("room:vote", (arg : any) => handleVote(arg, socket));
     socket.on("room:close", (arg : any) => close(arg, socket));
     socket.on("disconnecting", (reason : any) => leave(socket));
+    socket.on("room:nextRound", (arg : any) => nextRound(socket));
 });
 
 io.listen(parseInt(process.env.PORT!));
