@@ -20,6 +20,7 @@ export async function nextRound(socket: Socket) {
     console.log("ID: "+currentUserStoryId);
     console.log("CURRENSTATE: "+currentState);
     if(userStories.length - 1 == currentUserStoryId && currentState != "closeable") {
+        broadcastVotes(socket);
         setRoomState(roomCode, "closeable");
     }
     else {
