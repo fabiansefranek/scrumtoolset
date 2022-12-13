@@ -77,9 +77,13 @@ function getCurrentUserStoryId(roomCode : string) : Promise<number>{
 
 export async function getCurrentUserStory(roomCode : string) : Promise<any> {
     const currentUserStoryId = await getCurrentUserStoryId(roomCode);
-    console.log(currentUserStoryId);
+    console.log('HELLO HELLO: ' + currentUserStoryId)
+    const userStories = await getUserStories(roomCode);
+    console.log(userStories)
+    const userStoryId = (userStories[currentUserStoryId]) ? userStories[currentUserStoryId].id : userStories[currentUserStoryId];
+    console.log(userStoryId)
     return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM UserStory WHERE id = ?', [currentUserStoryId], (err, rows) => {
+        connection.query('SELECT * FROM UserStory WHERE id = ?', [userStoryId], (err, rows) => {
             if (err) throw err;
             console.log(rows[0]);
             resolve(rows[0]);
