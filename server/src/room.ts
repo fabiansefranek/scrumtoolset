@@ -199,7 +199,7 @@ export async function broadcastVotes(socket : Socket){
     const sessionId : string = socket.id;
     const roomModerator = await getRoomModerator(roomCode);
     console.log("Broadcast check:")
-    if(sessionId === roomModerator) return;
+    if(sessionId == roomModerator) return;
     console.log("Broadcast TRUE")
     const rawVotes : any = await getVotes(roomCode);
     const votes : any = rawVotes.map((vote : any) => {return {sessionId : vote.sessionId, vote : vote.vote}});
