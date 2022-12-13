@@ -5,6 +5,7 @@ type User = {
 }
 
 type UserStory = {
+    id? : number,
     name: string,
     content: string
 }

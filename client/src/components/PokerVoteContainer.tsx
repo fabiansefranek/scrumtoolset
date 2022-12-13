@@ -5,13 +5,22 @@ import PokerUserContainer from './PokerUserContainer';
 
 
 
-function PokerVoteContainer({ userList } : { userList : User[] }) {
+function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, revealVotes } : { userList : User[], nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function }) {
     const cards : string[] = ["0", "0.5", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"]
     return (
-        <div style={{display: "flex", flexDirection: "row", gap: "3rem"}}>
-            <PokerUserContainer userList={userList} />
-            <PokerCardContainer cards={cards} />
-        </div>
+        <React.Fragment>
+            <div style={{display: "flex", flexDirection: "row", gap: "3rem"}}>
+                <PokerUserContainer userList={userList} />
+                <PokerCardContainer cards={cards} />
+            </div>
+            <div>
+                {userIsModerator && <>
+                    <button onClick={() => nextRound()}>{(roomState === "voting") ? "Reveal votes" : (roomState === "waiting") ? "Next round" : "Close room"}</button>
+                    <button>Close room</button>
+                </>}
+            </div>
+        </React.Fragment>       
+
     );
 }
 
