@@ -9,7 +9,7 @@ function App() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [roomName, setRoomName] = useState<string>("");
-  const [votingSystem, setVotingSystem] = useState<string>("");
+  const [votingSystem, setVotingSystem] = useState<string>("fibonacci");
   const [roomCode, setRoomCode] = useState<string>("");
   const [roomState, setRoomState] = useState<string>("");
   const [userStories, setUserStories] = useState<UserStory[]>([]);
