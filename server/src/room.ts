@@ -88,7 +88,7 @@ function getRoomModerator(roomCode : string) : Promise<string> {
             if (rows.length != 0)
                 resolve(rows[0].sessionId);
             else
-                reject("No Moderator found");
+                resolve("");
         });
     });
 }
@@ -141,7 +141,7 @@ export function setVotingSystem(votingSystem : String, socket : Socket) : void {
     });
 }
 
-export function getRoomState(roomCode : string) : Promise<string> { //TODO fix error when closing room
+export function getRoomState(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
             if (err) throw err;
