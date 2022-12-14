@@ -10,7 +10,7 @@ function convertLinesToUserStoryArray(lines : string) {
 
 function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, setUserStories, createRoom, setCurrentUserStory, joinRoom, setRoomCode } : { setRoomName : Function, setUsername : Function, setVotingSystem : Function, setUserStories : Function, createRoom : any, setCurrentUserStory : Function, joinRoom : Function, setRoomCode : Function }) {
     return (
-        <div style={{display: "flex", flexDirection: "column", gap: "2rem", width: "40vw", backgroundColor: "#f3f3f3", padding: "2rem"}}>
+        <div style={{display: "flex", flexDirection: "column", gap: "2rem", width: "30vw", backgroundColor: "#f3f3f3", padding: "2rem"}}>
 	    <p style={{margin:"0"}}>Raum beitreten</p>
             <div style={{display: "flex", flexDirection: "column", gap: "0.5rem"}}>
 	    <input style={{padding: "0.5rem"}} placeholder="Benutzername" onChange={(event : any) => setUsername(event.target.value)}></input>

@@ -17,8 +17,6 @@ function App() {
   const [userList, setUserList] = useState<User[]>([]);
   const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
 
-  const userListRef = React.useRef(userList);
-
   useEffect(() => {
     if(socket === null) return;
 
@@ -35,8 +33,12 @@ function App() {
     })
 
     socket.on('room:userListUpdate', (args : any) => {
+      const moderatorSessionId : string = args[args.findIndex((user : User) => user.isModerator == 1)].sessionId;
+      if(socket.id == moderatorSessionId) {
+        setUserIsModerator(true);
+        console.warn('You are now a moderator');
+      }
       console.log(`The user list updated. Payload: ${JSON.stringify(args)}`);
-      userListRef.current = args;
       setUserList(args);
     })
 

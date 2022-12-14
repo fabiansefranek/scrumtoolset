@@ -14,8 +14,8 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, r
                 <PokerCardContainer cards={cards} roomState={roomState} sendVote={sendVote}/>
             </div>
             <div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end", marginTop: "2rem", gap: "1rem"}}>
-                    {(roomState === "voting") ? <button style={{padding: "0.5rem"}} onClick={() => nextRound()}>Karten aufdecken</button> : (roomState === "waiting") ? <button style={{padding: "0.5rem"}}  onClick={() => nextRound()}>Nächste Runde</button> : <button style={{padding: "0.5rem"}} onClick={() => nextRound()}>Raum schließen</button>}
-		   <button onClick={() => disconnect()}>Raum verlassen</button>
+                    {(userIsModerator) ? (roomState === "voting") ? <button style={{padding: "0.5rem"}} onClick={() => nextRound()}>Karten aufdecken</button> : (roomState === "waiting") ? <button style={{padding: "0.5rem"}}  onClick={() => nextRound()}>Nächste Runde</button> : <button style={{padding: "0.5rem"}} onClick={() => nextRound()}>Raum schließen</button> : <></>}
+		   <button style={{padding: "0.5rem"}} onClick={() => disconnect()}>Raum verlassen</button>
             </div>
         </div>
 
