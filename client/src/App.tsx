@@ -41,10 +41,8 @@ function App() {
     })
 
     socket.on('room:broadcastVote', (args : any) => {
-      let tempUserList : User[] = userListRef.current;
+      let tempUserList : User[] = [...userList];
       tempUserList[tempUserList.findIndex((user) => user.sessionId == args.sessionId)].state = args.state;
-      userListRef.current = tempUserList;
-      console.warn(tempUserList)
       setUserList(tempUserList);
       console.log(`Someone voted. Payload: ${JSON.stringify(args)}`)
     })
@@ -61,13 +59,13 @@ function App() {
     })
 
     socket.on('room:revealedVotes', (args : any) => {
-      let tempUserList : User[] = userListRef.current;
+      let tempUserList : User[] = [...userList];
       console.warn(args);
       args.forEach((vote : any) => {
         tempUserList[tempUserList.findIndex((user) => user.sessionId == vote.sessionId)].vote = vote.vote;
       })
-      userListRef.current = tempUserList;
       setUserList(tempUserList);
+      console.info(`Votes were revealed!`)
     })
 
     socket.on('error', (args : any) => {
@@ -78,10 +76,13 @@ function App() {
       socket.off('room:joined');
       socket.off('room:userListUpdate');
       socket.off('room:broadcastVote');
+      socket.off('room:userStoryUpdate');
+      socket.off('room:stateUpdate');
+      socket.off('room:revealedVotes');
       socket.off('disconnect');
       socket.off('error');
     };
-  }, [socket]);
+  }, [socket, userList]);
 
   function disconnect() {
     socket.disconnect();
@@ -111,8 +112,8 @@ function App() {
     console.log(`Trying to join room with payload: ${JSON.stringify(payload)}`);
   }
 
-  function vote() {
-    socket.emit('room:vote', {state: 'voted', vote: '5'})
+  function vote(text : string) {
+    socket.emit('room:vote', {state: 'voted', vote: text})
   }
 
   function nextRound() {

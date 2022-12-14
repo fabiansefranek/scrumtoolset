@@ -3,9 +3,6 @@ import { User } from "../types";
 import PokerProfilePicture from "./PokerProfilePicture";
 
 function PokerUser({ user, roomState } : { user : User, roomState : string }) {
-    useEffect(() => {
-        console.warn('Users state updated: ' + user.state);
-    }, [user.state])
     return(
         <div key={user.sessionId} style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "200px"}}>
             <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "0.5rem"}}>
