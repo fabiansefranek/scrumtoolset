@@ -88,7 +88,7 @@ function getRoomModerator(roomCode : string) : Promise<string> {
             if (rows.length != 0)
                 resolve(rows[0].sessionId);
             else
-                reject("No Moderator found");
+                resolve("");
         });
     });
 }
@@ -172,6 +172,7 @@ export async function close(roomCode : string, socket : Socket) {
     const sockets : any = await io.in(roomCode).fetchSockets();
     let result = sockets.map((socket : Socket) => leave(socket));
     await Promise.all(result);
+    io.in(roomCode).disconnectSockets(true);
 
     connection.query('DELETE FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
         if(err) throw err;

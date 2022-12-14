@@ -9,7 +9,7 @@ function App() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const [roomName, setRoomName] = useState<string>("");
-  const [votingSystem, setVotingSystem] = useState<string>("");
+  const [votingSystem, setVotingSystem] = useState<string>("fibonacci");
   const [roomCode, setRoomCode] = useState<string>("");
   const [roomState, setRoomState] = useState<string>("");
   const [userStories, setUserStories] = useState<UserStory[]>([]);
@@ -98,7 +98,7 @@ function App() {
 
   function createRoom() {
     const socket = connect();
-    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}};
+    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: (votingSystem) ? votingSystem : "fibonacci", userStories: userStories}};
     socket.emit('room:create', payload);
     setUserIsModerator(true);
     console.log(`Create room with payload: ${JSON.stringify(payload)}`);
