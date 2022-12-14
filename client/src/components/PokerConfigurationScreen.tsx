@@ -2,8 +2,8 @@ import { UserStory } from "../types";
 
 function convertLinesToUserStoryArray(lines : string) {
     return lines.split("\n").map((line : string) => ({
-        name: line.split(',')[0],
-        content: line.split(',')[1]
+        name: line.split(';')[0],
+        content: line.split(';')[1]
     })
     )
 }
