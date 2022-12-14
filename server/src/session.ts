@@ -1,5 +1,5 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserstories, getRoomState, setRoomState, close} from "./room";
+import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate} from "./room";
 import {connection, io} from "./index";
 
 export function start(options : any, socket : Socket) {
@@ -20,6 +20,7 @@ export async function nextRound(socket: Socket) {
     console.log("ID: "+currentUserStoryId);
     console.log("CURRENSTATE: "+currentState);
     if(userStories.length - 1 == currentUserStoryId && currentState != "closeable") {
+        broadcastVotes(socket);
         setRoomState(roomCode, "closeable");
     }
     else {
@@ -31,6 +32,7 @@ export async function nextRound(socket: Socket) {
             }
             case "voting": {
                 console.log("voting");
+                broadcastVotes(socket);
                 setRoomState(roomCode, "waiting");
                 break;
             }
@@ -40,6 +42,7 @@ export async function nextRound(socket: Socket) {
                 setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                 io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
                 setRoomState(roomCode, "voting");
+                await handleUserListUpdate(roomCode);
                 break;
             }
         }
@@ -74,9 +77,13 @@ function getCurrentUserStoryId(roomCode : string) : Promise<number>{
 
 export async function getCurrentUserStory(roomCode : string) : Promise<any> {
     const currentUserStoryId = await getCurrentUserStoryId(roomCode);
-    console.log(currentUserStoryId);
+    console.log('HELLO HELLO: ' + currentUserStoryId)
+    const userStories = await getUserStories(roomCode);
+    console.log(userStories)
+    const userStoryId = (userStories[currentUserStoryId]) ? userStories[currentUserStoryId].id : userStories[currentUserStoryId];
+    console.log(userStoryId)
     return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM UserStory WHERE id = ?', [currentUserStoryId], (err, rows) => {
+        connection.query('SELECT * FROM UserStory WHERE id = ?', [userStoryId], (err, rows) => {
             if (err) throw err;
             console.log(rows[0]);
             resolve(rows[0]);
@@ -91,7 +98,7 @@ function setCurrentUserStoryId(roomCode : string, id : number) : void{
 }
 
 function resetVotes(roomCode : string) : void{
-    connection.query('UPDATE User SET vote = "" WHERE roomId = ?', roomCode, (err, rows) => {
+    connection.query('UPDATE User SET vote = "", state = "voting" WHERE roomId = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
 }

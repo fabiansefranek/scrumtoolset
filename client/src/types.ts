@@ -1,7 +1,8 @@
 type User = {
     sessionId: string,
     username: string,
-    state: string
+    state: string,
+    vote?: string
 }
 
 type UserStory = {

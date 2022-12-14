@@ -17,6 +17,8 @@ function App() {
   const [userList, setUserList] = useState<User[]>([]);
   const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
 
+  const userListRef = React.useRef(userList);
+
   useEffect(() => {
     if(socket === null) return;
 
@@ -33,11 +35,15 @@ function App() {
     })
 
     socket.on('room:userListUpdate', (args : any) => {
-      console.log(`The user list updated. Payload: ${JSON.stringify(args)}`)
+      console.log(`The user list updated. Payload: ${JSON.stringify(args)}`);
+      userListRef.current = args;
       setUserList(args);
     })
 
     socket.on('room:broadcastVote', (args : any) => {
+      let tempUserList : User[] = [...userList];
+      tempUserList[tempUserList.findIndex((user) => user.sessionId == args.sessionId)].state = args.state;
+      setUserList(tempUserList);
       console.log(`Someone voted. Payload: ${JSON.stringify(args)}`)
     })
 
@@ -47,14 +53,19 @@ function App() {
       console.log(`New round! Payload: ${JSON.stringify(args)}`);
     })
 
-    socket.on('room:revealVotes', (args : any) => {
-      setRoomState("waiting");
-      console.log(`Revealed votes. Now room in state: waiting`)
-    })
-
     socket.on('room:stateUpdate', (args : any) => {
       console.log(`Room state updated. Payload: ${JSON.stringify(args)}`);
       setRoomState(args.roomState);
+    })
+
+    socket.on('room:revealedVotes', (args : any) => {
+      let tempUserList : User[] = [...userList];
+      console.warn(args);
+      args.forEach((vote : any) => {
+        tempUserList[tempUserList.findIndex((user) => user.sessionId == vote.sessionId)].vote = vote.vote;
+      })
+      setUserList(tempUserList);
+      console.info(`Votes were revealed!`)
     })
 
     socket.on('error', (args : any) => {
@@ -65,10 +76,13 @@ function App() {
       socket.off('room:joined');
       socket.off('room:userListUpdate');
       socket.off('room:broadcastVote');
+      socket.off('room:userStoryUpdate');
+      socket.off('room:stateUpdate');
+      socket.off('room:revealedVotes');
       socket.off('disconnect');
       socket.off('error');
     };
-  }, [socket]);
+  }, [socket, userList]);
 
   function disconnect() {
     socket.disconnect();
@@ -98,8 +112,8 @@ function App() {
     console.log(`Trying to join room with payload: ${JSON.stringify(payload)}`);
   }
 
-  function vote() {
-    socket.emit('room:vote', {state: 'voted', vote: '5'})
+  function vote(text : string) {
+    socket.emit('room:vote', {state: 'voted', vote: text})
   }
 
   function nextRound() {
@@ -110,6 +124,7 @@ function App() {
 
   function revealVotes() {
     if(!userIsModerator) throw ('User is not a moderator');
+    console.log('reveal votes');
     socket.emit('room:revealVotes');
   }
 
@@ -126,7 +141,7 @@ function App() {
       {!isConnected && <p>Create room</p>}
       {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory}/>}
       {isConnected && <p>Room code: {roomCode}</p>}
-      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} />}
+      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={vote} />}
       {isConnected && <button onClick={ disconnect }>Disconnect</button>}
     </div>
   );

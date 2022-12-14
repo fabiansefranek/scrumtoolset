@@ -114,9 +114,9 @@ function getUsersInRoom(roomCode : string) : Promise<any> { //Used to display al
     });
 }
 
-async function handleUserListUpdate(roomcode : string) : Promise<void> {
+export async function handleUserListUpdate(roomcode : string) : Promise<void> {
     const users : any[] = await getUsersInRoom(roomcode);
-    const userList : any[] = users.map((user : any) => {return {sessionId: user.sessionId, username: user.username, state: user.state, vote: user.vote}});
+    const userList : any[] = users.map((user : any) => {return {sessionId: user.sessionId, username: user.username, state: user.state}});
     io.in(roomcode).emit("room:userListUpdate", userList)
 }
 
@@ -166,8 +166,8 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
 }
 
 export async function close(roomCode : string, socket : Socket) {
-    const roomFound = await doesRoomExist(roomCode);
-    if(!roomCode)  return socket.emit("room:notfound");
+    const roomFound : boolean = await doesRoomExist(roomCode);
+    if(!roomFound)  return socket.emit("room:notfound");
 
     const sockets : any = await io.in(roomCode).fetchSockets();
     let result = sockets.map((socket : Socket) => leave(socket));
@@ -193,5 +193,28 @@ export function addUserstories(userStories : any[], socket : Socket){
         if (err) throw err;
     });
 }
+
+export async function broadcastVotes(socket : Socket){
+    const roomCode : string =[...socket.rooms][1];
+    const sessionId : string = socket.id;
+    const roomModerator = await getRoomModerator(roomCode);
+    console.log("Broadcast check:")
+    if(sessionId !== roomModerator) return;
+    console.log("Broadcast TRUE")
+    const rawVotes : any = await getVotes(roomCode);
+    const votes : any = rawVotes.map((vote : any) => {return {sessionId : vote.sessionId, vote : vote.vote}});
+    io.in(roomCode).emit("room:revealedVotes", votes);
+}
+
+function getVotes(roomCode : string) : Promise<any> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT sessionId, vote FROM User WHERE roomId LIKE ?', [roomCode], (err, rows) => {
+            if (err) throw err;
+            resolve(rows);
+        });
+    });
+}
+
+
 
 
