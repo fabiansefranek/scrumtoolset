@@ -141,7 +141,7 @@ export function setVotingSystem(votingSystem : String, socket : Socket) : void {
     });
 }
 
-export function getRoomState(roomCode : string) : Promise<string> {
+export function getRoomState(roomCode : string) : Promise<string> { //TODO fix error when closing room
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
             if (err) throw err;
@@ -172,6 +172,7 @@ export async function close(roomCode : string, socket : Socket) {
     const sockets : any = await io.in(roomCode).fetchSockets();
     let result = sockets.map((socket : Socket) => leave(socket));
     await Promise.all(result);
+    io.in(roomCode).disconnectSockets(true);
 
     connection.query('DELETE FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
         if(err) throw err;
