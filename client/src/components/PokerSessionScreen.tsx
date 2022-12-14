@@ -7,8 +7,10 @@ function PokerSessionScreen({ userList, userStories, currentUserStory, nextRound
     return (
         <div>
             <p>State: {roomState}</p>
-            <PokerUserStoryContainer userStories={userStories} currentUserStory={currentUserStory} userIsModerator={userIsModerator} />
-            <PokerVoteContainer userList={userList} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={sendVote} />
+            <div style={{display: "flex", flexDirection: "column", gap: "1rem"}}>
+                <PokerUserStoryContainer userStories={userStories} currentUserStory={currentUserStory} userIsModerator={userIsModerator} />
+                <PokerVoteContainer userList={userList} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={sendVote} />
+            </div>
         </div>
     )
 }
