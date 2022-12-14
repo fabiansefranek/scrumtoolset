@@ -98,7 +98,7 @@ function App() {
 
   function createRoom() {
     const socket = connect();
-    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: votingSystem, userStories: userStories}};
+    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: (votingSystem) ? votingSystem : "fibonacci", userStories: userStories}};
     socket.emit('room:create', payload);
     setUserIsModerator(true);
     console.log(`Create room with payload: ${JSON.stringify(payload)}`);

@@ -6,7 +6,7 @@ import PokerUserContainer from './PokerUserContainer';
 
 
 function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, revealVotes, closeRoom, sendVote } : { userList : User[], nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function }) {
-    const cards : string[] = ["0", "0.5", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"]
+    const cards : string[] = ["0", "0.5", "1", "2", "3", "5", "8", "13", "20", "40", "80", "100"];
     return (
         <div style={{backgroundColor: "#f5f5f5", width: "40vw", padding: "2rem", height: "fit-content", boxSizing: "border-box", borderRadius: "0.5rem"}}>
             <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
