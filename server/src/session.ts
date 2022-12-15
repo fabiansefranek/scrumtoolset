@@ -1,6 +1,7 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate} from "./room";
+import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, getNotEmptyVotes} from "./room";
 import {connection, io} from "./index";
+import * as Console from "console";
 
 export function start(options : any, socket : Socket) {
     const votingSystem : string = options.votingSystem;
@@ -16,9 +17,6 @@ export async function nextRound(socket: Socket) {
     const currentState : string = await getRoomState(roomCode);
     const userStories : any[] = await getUserStories(roomCode);
     const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
-    console.log("LENGTH: "+userStories.length);
-    console.log("ID: "+currentUserStoryId);
-    console.log("CURRENSTATE: "+currentState);
     if(userStories.length - 1 == currentUserStoryId && currentState != "closeable") {
         broadcastVotes(socket);
         setRoomState(roomCode, "closeable");
@@ -26,24 +24,26 @@ export async function nextRound(socket: Socket) {
     else {
         switch (currentState) {
             case "closeable": {
-                console.log("closeable");
                 await close(roomCode, socket);
                 return;
             }
             case "voting": {
-                console.log("voting");
-                broadcastVotes(socket);
+                await broadcastVotes(socket);
                 setRoomState(roomCode, "waiting");
                 break;
             }
             case "waiting": {
-                console.log("waiting");
+                console.log("Boolean: "+await areVotesUnanimous(roomCode));
+                if(await areVotesUnanimous(roomCode) == true || currentUserStoryId == -1) {
+                    Console.log("Votes are unanimous");
+                    setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
+                    io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
+                }
                 resetVotes(roomCode);
-                setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
-                io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
                 setRoomState(roomCode, "voting");
                 await handleUserListUpdate(roomCode);
                 break;
+
             }
         }
     }
@@ -101,4 +101,17 @@ function resetVotes(roomCode : string) : void{
     connection.query('UPDATE User SET vote = "", state = "voting" WHERE roomId = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
+}
+
+async function areVotesUnanimous(roomCode: string) : Promise<boolean> {
+    const rawVotes: any = await getNotEmptyVotes(roomCode);
+    const votes: any[] = rawVotes.map((vote: any) => {
+        return {vote: vote.vote}
+    });
+    if(votes.length == 0) return false;
+    let flag: boolean = true;
+    votes.reduce((previousValue, currentValue) => {
+        if (previousValue.vote != currentValue.vote) flag = false;
+    })
+    return flag;
 }
