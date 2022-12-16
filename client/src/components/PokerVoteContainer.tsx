@@ -16,7 +16,7 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, r
             </UserAndCardContainer>
             <ButtonContainer>
                     {(userIsModerator) ? (roomState === "voting") 
-                        ? <Button onClick={() => nextRound()}></Button> 
+                        ? <Button onClick={() => nextRound()}>Karten aufdecken</Button>
                         : (roomState === "waiting") 
                         ? <Button onClick={() => nextRound()}>Nächste Runde</Button> 
                         : <Button onClick={() => nextRound()}>Raum schließen</Button> 
