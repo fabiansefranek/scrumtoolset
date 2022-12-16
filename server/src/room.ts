@@ -12,6 +12,7 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
 
     const roomFound = await doesRoomExist(roomCode);
     if(!roomFound) return socket.emit("room:denied");
+    if(!checkUserInput(username)) return socket.emit("room:denied");
 
     if(typeof isModerator === "undefined") {
         const moderatorNotExists : boolean = (await getOldestConnectionFromRoom(roomCode) == ""); //Checks if any user is connected
@@ -59,6 +60,9 @@ export function create(payload : any, socket : Socket) {
     const options : any = payload.options;
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
+
+    if(!checkUserInput(roomName)) return;
+    if(!checkUserInput(username)) return;
 
     connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, roomName,'waiting', now, ''], (err, rows) => {
         if(err) throw err;
@@ -214,6 +218,10 @@ function getVotes(roomCode : string) : Promise<any> {
             resolve(rows);
         });
     });
+}
+
+function checkUserInput(input : string) : boolean {
+    return !(input || input.trim() == ""); //Checks if its empty
 }
 
 
