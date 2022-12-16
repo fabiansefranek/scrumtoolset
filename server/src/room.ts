@@ -107,7 +107,7 @@ function getOldestConnectionFromRoom(roomCode : string) : Promise<String> {
 
 function getUsersInRoom(roomCode : string) : Promise<any> { //Used to display all users
     return new Promise((resolve, reject) => {
-        connection.query('SELECT sessionId, username, state, vote FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC', [roomCode], (err, rows) => {
+        connection.query('SELECT sessionId, username, state, isModerator, vote FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC', [roomCode], (err, rows) => {
             if (err) throw err;
                 resolve(rows);
         });
@@ -116,7 +116,7 @@ function getUsersInRoom(roomCode : string) : Promise<any> { //Used to display al
 
 export async function handleUserListUpdate(roomcode : string) : Promise<void> {
     const users : any[] = await getUsersInRoom(roomcode);
-    const userList : any[] = users.map((user : any) => {return {sessionId: user.sessionId, username: user.username, state: user.state}});
+    const userList : any[] = users.map((user : any) => {return {sessionId: user.sessionId, username: user.username, state: user.state, isModerator : user.isModerator}});
     io.in(roomcode).emit("room:userListUpdate", userList)
 }
 
