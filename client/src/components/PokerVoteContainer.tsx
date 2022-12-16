@@ -1,24 +1,24 @@
 import React from 'react';
-import { User } from '../types';
+import { User, UserStory } from '../types';
 import PokerCardContainer from './PokerCardContainer';
 import PokerUserContainer from './PokerUserContainer';
+import { votingSystems } from '../App';
 import styled from 'styled-components';
 
-
-
-function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, revealVotes, closeRoom, sendVote, disconnect } : { userList : User[], nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function, disconnect : Function }) {
-    const cards : string[] = ["0", "0.5", "1", "2", "3", "5", "8", "13", "20", "40", "80", "100"];
+function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, sendVote, disconnect, votingSystem, currentUserStory } : { userList : User[], nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function, disconnect : Function, votingSystem : any, currentUserStory : UserStory }) {
     return (
         <Container>
             <UserAndCardContainer>
                 <PokerUserContainer userList={userList} roomState={roomState} />
-                <PokerCardContainer cards={cards} roomState={roomState} sendVote={sendVote}/>
+                <PokerCardContainer cards={votingSystems[votingSystem]} roomState={roomState} sendVote={sendVote}/>
             </UserAndCardContainer>
             <ButtonContainer>
                     {(userIsModerator) ? (roomState === "voting") 
                         ? <Button onClick={() => nextRound()}>Karten aufdecken</Button>
                         : (roomState === "waiting") 
-                        ? <Button onClick={() => nextRound()}>Nächste Runde</Button> 
+                        ? <Button onClick={() => nextRound()}>
+                            {(userIsModerator && currentUserStory.name === "Waiting") ? 'Runde starten' : 'Nächste Runde' }
+                          </Button> 
                         : <Button onClick={() => nextRound()}>Raum schließen</Button> 
                         : <></>}
 		            <Button onClick={() => disconnect()}>Raum verlassen</Button>
