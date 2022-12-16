@@ -4,13 +4,13 @@ import PokerUserStoryContainer from './PokerUserStoryContainer';
 import { User, UserStory } from '../types';
 import styled from 'styled-components';
 
-function PokerSessionScreen({ userList, userStories, currentUserStory, nextRound, userIsModerator, roomState, revealVotes, closeRoom, sendVote, disconnect } : { userList : User[], userStories : UserStory[], currentUserStory : UserStory, nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function, disconnect : Function }) {
+function PokerSessionScreen({ userList, userStories, currentUserStory, nextRound, userIsModerator, roomState, revealVotes, closeRoom, sendVote, disconnect, votingSystem } : { userList : User[], userStories : UserStory[], currentUserStory : UserStory, nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function, disconnect : Function, votingSystem : any }) {
     return (
         <div>
             {userIsModerator && <p>Status: {roomState}</p>}
             <Container>
                 <PokerUserStoryContainer userStories={userStories} currentUserStory={currentUserStory} userIsModerator={userIsModerator} />
-                <PokerVoteContainer userList={userList} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={sendVote} disconnect={disconnect} />
+                <PokerVoteContainer userList={userList} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={sendVote} disconnect={disconnect} votingSystem={votingSystem} currentUserStory={currentUserStory} />
             </Container>
         </div>
     )

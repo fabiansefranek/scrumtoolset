@@ -18,7 +18,7 @@ function PokerUserStoryContainer({ userStories, currentUserStory, userIsModerato
 		            <AllUserstoriesContainer>
                         <Text>Alle Userstories</Text>
 			            <List>{userStories.map((userStory : UserStory) => {
-                    		return <li>{userStory.name}</li>
+                    		return <li key={userStory.id}>{userStory.name}</li>
                         })}
 			            </List>
 		            </AllUserstoriesContainer>

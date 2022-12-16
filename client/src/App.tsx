@@ -4,6 +4,12 @@ import PokerConfigurationScreen from './components/PokerConfigurationScreen';
 import PokerSessionScreen from './components/PokerSessionScreen';
 import { User, UserStory } from './types';
 
+export const votingSystems : any = {
+  fibonacci: ["?", "0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"],
+  scrum: ["?", "0", "0.5", "1", "2", "3", "5", "8", "13", "20", "40", "100"],
+  tshirts: ["?", "xs", "s", "m", "l", "xl"]
+}
+
 function App() {
   const [socket, setSocket] = useState<any>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -138,7 +144,7 @@ function App() {
   return (
     <div>
       {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory} setRoomCode={setRoomCode} joinRoom={joinRoom} />}
-      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={vote} disconnect={disconnect}/>}
+      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={vote} disconnect={disconnect} votingSystem={votingSystem} />}
     </div>
   );
 }

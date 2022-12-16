@@ -1,5 +1,6 @@
 import { UserStory } from "../types";
 import styled from "styled-components";
+import { votingSystems } from "../App";
 
 function convertLinesToUserStoryArray(lines : string) {
     return lines.split("\n").map((line : string) => ({
@@ -23,8 +24,9 @@ function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, s
                 <Input placeholder="Benutzername" onChange={(event : any) => setUsername(event.target.value)} />
                 <Input placeholder="Raum Name" onChange={(event : any) => setRoomName(event.target.value)} />
                 <Select onChange={(event : any) => setVotingSystem(event.target.value) }>
-                    <option value="fibonacci">Fibonacci (☕,0,1/2,1,2,3,5,8,13,21,34,55)</option>
-                    <option value="scrum">Scrum (☕,0,1/2,1,2,3,5,8,13,20,40,100)</option>
+                    {Object.keys(votingSystems).map((votingSystem : string) => {
+                        return <option key={votingSystem} value={votingSystem}>{votingSystem.charAt(0).toUpperCase() + votingSystem.slice(1) + ` (${votingSystems[votingSystem].join(',')})`}</option>
+                    })}
                 </Select>
                 <TextArea onChange={(event : any) => {
                     const userStories : UserStory[] = convertLinesToUserStoryArray(event.target.value);
