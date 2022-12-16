@@ -221,8 +221,9 @@ export function getVotes(roomCode : string) : Promise<any> {
 }
 
 function checkUserInput(input : string) : boolean {
-    return !(input || input.trim() == ""); //Checks if its empty
+    return /^[a-zA-Z\u00F0-\u02AF0-9_\.]+$/.test(input); // lower case letters + upper case letters + umlauts + numbers + underscore + dot
 }
+
 export function getNotEmptyVotes(roomCode : string) : Promise<any> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT vote FROM User WHERE roomId LIKE ? AND vote != ""', [roomCode], (err, rows) => {
