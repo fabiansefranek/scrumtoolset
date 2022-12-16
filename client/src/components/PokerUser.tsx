@@ -1,18 +1,43 @@
-import { useEffect } from "react";
 import { User } from "../types";
 import PokerProfilePicture from "./PokerProfilePicture";
+import styled from "styled-components";
 
 function PokerUser({ user, roomState } : { user : User, roomState : string }) {
     return(
-        <div key={user.sessionId} style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%"}}>
-            <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "0.5rem"}}>
+        <Container key={user.sessionId}>
+            <UserContainer>
                 <PokerProfilePicture username={user.username} />
-                <p style={{margin: "0", textTransform: "capitalize"}}>{user.username}</p>
-            </div>
+                <Username>{user.username}</Username>
+            </UserContainer>
             
-            <p style={{margin: 0, textTransform: "capitalize"}}>{(roomState === "voting") ? user.state : user.vote} </p>
-        </div>
+            <State>{(roomState === "voting") ? user.state : user.vote}</State>
+        </Container>
     )
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+`;
+
+const UserContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+`;
+
+const Username = styled.p`
+    margin: 0;
+    text-transform: capitalize;
+`;
+
+const State = styled.p`
+    margin: 0;
+    text-transform: capitalize;
+`;
 
 export default PokerUser;
