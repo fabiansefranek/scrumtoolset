@@ -14,7 +14,7 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, s
             </UserAndCardContainer>
             <ButtonContainer>
                     {(userIsModerator) ? (roomState === "voting") 
-                        ? <Button onClick={() => nextRound()}>Karten aufdecken</Button> 
+                        ? <Button onClick={() => nextRound()}>Karten aufdecken</Button>
                         : (roomState === "waiting") 
                         ? <Button onClick={() => nextRound()}>
                             {(userIsModerator && currentUserStory.name === "Waiting") ? 'Runde starten' : 'Nächste Runde' }
