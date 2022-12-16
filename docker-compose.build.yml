@@ -6,16 +6,12 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./client/src:/src
   server:
     build:
       context: ./server
       dockerfile: ./Dockerfile
     ports:
       - "3000:3000"
-    volumes:
-      - ./server/src:/src
     depends_on:
       db:
         condition: service_healthy
@@ -30,8 +26,8 @@ services:
       - ./mariadb-data:/var/lib/mysql
     healthcheck:
       test: "mysqladmin ping -hlocalhost -uroot -pexample"
-      interval: 2s
-      timeout: 20s
-      retries: 10
+      interval: 3s
+      timeout: 50s
+      retries: 15
 volumes:
   mariadb-data:

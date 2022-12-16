@@ -1,6 +1,9 @@
 FROM node:17-alpine
-COPY package*.json ./
-RUN npm install
+ENV NODE_ENV=production
+COPY package*.json .
+RUN npm ci
+RUN npm install -g serve
 COPY . .
+RUN npm run build
 EXPOSE 8080
-CMD ["npm", "start"]
+CMD ["npx", "serve", "-s", "-p", "8080", "build"]

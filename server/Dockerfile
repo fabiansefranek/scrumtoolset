@@ -1,6 +1,9 @@
 FROM node:17-alpine
 COPY package*.json ./
-RUN npm install
+COPY tsconfig.json ./
+RUN npm ci
+ENV NODE_ENV=production
 COPY . .
+RUN npm run build
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
