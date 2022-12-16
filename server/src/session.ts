@@ -1,7 +1,6 @@
 import {Socket} from "socket.io";
 import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, getNotEmptyVotes} from "./room";
 import {connection, io} from "./index";
-import * as Console from "console";
 
 export function start(options : any, socket : Socket) {
     const votingSystem : string = options.votingSystem;
@@ -33,9 +32,7 @@ export async function nextRound(socket: Socket) {
                 break;
             }
             case "waiting": {
-                console.log("Boolean: "+await areVotesUnanimous(roomCode));
                 if(await areVotesUnanimous(roomCode) == true || currentUserStoryId == -1) {
-                    Console.log("Votes are unanimous");
                     setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                     io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
                 }
@@ -48,7 +45,6 @@ export async function nextRound(socket: Socket) {
         }
     }
     const newRoomState = await getRoomState(roomCode);
-    console.log(`New room state: ${newRoomState}`);
     io.in(roomCode).emit("room:stateUpdate", {roomState: newRoomState});
 }
 
@@ -77,15 +73,11 @@ function getCurrentUserStoryId(roomCode : string) : Promise<number>{
 
 export async function getCurrentUserStory(roomCode : string) : Promise<any> {
     const currentUserStoryId = await getCurrentUserStoryId(roomCode);
-    console.log('HELLO HELLO: ' + currentUserStoryId)
     const userStories = await getUserStories(roomCode);
-    console.log(userStories)
     const userStoryId = (userStories[currentUserStoryId]) ? userStories[currentUserStoryId].id : userStories[currentUserStoryId];
-    console.log(userStoryId)
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM UserStory WHERE id = ?', [userStoryId], (err, rows) => {
             if (err) throw err;
-            console.log(rows[0]);
             resolve(rows[0]);
         });
     });
