@@ -1,9 +1,25 @@
 import React from 'react';
+import styled from 'styled-components';
 
 function PokerProfilePicture({ username } : { username : string }) {
     return (
-        <p style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", backgroundColor: "#0093A3", color: "white", width: "40px", height: "40px", borderRadius: "50%", margin: "0", userSelect: "none", textTransform: "capitalize"}}>{username.charAt(0)}</p>
+        <ProfilePicture>{username.charAt(0)}</ProfilePicture>
     );
 }
+
+const ProfilePicture = styled.p`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #0093A3;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0;
+    user-select: none;
+    text-transform: capitalize;
+`;
 
 export default PokerProfilePicture;

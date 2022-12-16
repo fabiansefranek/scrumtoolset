@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import PokerConfigurationScreen from './components/PokerConfigurationScreen';
 import PokerSessionScreen from './components/PokerSessionScreen';
@@ -33,8 +33,8 @@ function App() {
     })
 
     socket.on('room:userListUpdate', (args : any) => {
-      const moderatorSessionId : string = args[args.findIndex((user : User) => user.isModerator == 1)].sessionId;
-      if(socket.id == moderatorSessionId) {
+      const moderatorSessionId : string = args[args.findIndex((user : User) => user.isModerator === 1)].sessionId;
+      if(socket.id === moderatorSessionId) {
         setUserIsModerator(true);
         console.warn('You are now a moderator');
       }
@@ -44,7 +44,7 @@ function App() {
 
     socket.on('room:broadcastVote', (args : any) => {
       let tempUserList : User[] = [...userList];
-      tempUserList[tempUserList.findIndex((user) => user.sessionId == args.sessionId)].state = args.state;
+      tempUserList[tempUserList.findIndex((user) => user.sessionId === args.sessionId)].state = args.state;
       setUserList(tempUserList);
       console.log(`Someone voted. Payload: ${JSON.stringify(args)}`)
     })
@@ -64,7 +64,7 @@ function App() {
       let tempUserList : User[] = [...userList];
       console.warn(args);
       args.forEach((vote : any) => {
-        tempUserList[tempUserList.findIndex((user) => user.sessionId == vote.sessionId)].vote = vote.vote;
+        tempUserList[tempUserList.findIndex((user) => user.sessionId === vote.sessionId)].vote = vote.vote;
       })
       setUserList(tempUserList);
       console.info(`Votes were revealed!`)
@@ -119,19 +119,19 @@ function App() {
   }
 
   function nextRound() {
-    if(!userIsModerator) throw('User is not a moderator');
+    if(!userIsModerator) throw new Error('User is not a moderator');
     socket.emit('room:nextRound');
       
   }
 
   function revealVotes() {
-    if(!userIsModerator) throw ('User is not a moderator');
+    if(!userIsModerator) throw new Error('User is not a moderator');
     console.log('reveal votes');
     socket.emit('room:revealVotes');
   }
 
   function closeRoom() {
-    if(!userIsModerator) throw ('User is not a moderator');
+    if(!userIsModerator) throw new Error('User is not a moderator');
     socket.emit('room:close', roomCode);
   }
 
