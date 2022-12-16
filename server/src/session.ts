@@ -104,7 +104,7 @@ function resetVotes(roomCode : string) : void{
 }
 
 async function areVotesUnanimous(roomCode: string) : Promise<boolean> {
-    const rawVotes: any = await getNotEmptyVotes(roomCode);
+    const rawVotes: any[] = await getNotEmptyVotes(roomCode);
     const votes: any[] = rawVotes.map((vote: any) => {
         return {vote: vote.vote}
     });
