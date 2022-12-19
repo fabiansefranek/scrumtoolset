@@ -30,7 +30,7 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, s
 
 const Container = styled.div`
     background-color: #f5f5f5;
-    width: 40vw;
+    width: 80vw;
     padding: 2rem;
     height: fit-content;
     box-sizing: border-box;
