@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import PokerConfigurationScreen from './components/PokerConfigurationScreen';
 import PokerSessionScreen from './components/PokerSessionScreen';
-import { User, UserStory } from './types';
+import { Theme, User, UserStory } from './types';
 import styled from 'styled-components';
+import { light, dark } from './themes';
+import { ThemeProvider } from 'styled-components';
 
 export const votingSystems : any = {
   fibonacci: ["?", "0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"],
@@ -24,6 +26,7 @@ function App() {
   const [currentUserStory, setCurrentUserStory] = useState<UserStory>({name: "", content: ""});
   const [userList, setUserList] = useState<User[]>([]);
   const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
+  const [theme, setTheme] = useState<Theme>(light);
 
   useEffect(() => {
     if(socket === null) return;
@@ -144,10 +147,12 @@ function App() {
   }
 
   return (
-    <Container>
-      {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory} setRoomCode={setRoomCode} joinRoom={joinRoom} />}
-      {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={vote} disconnect={disconnect} votingSystem={votingSystem} />}
-    </Container>
+    <ThemeProvider theme={theme}>
+      <Container>
+        {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory} setRoomCode={setRoomCode} joinRoom={joinRoom} setTheme={setTheme} />}
+        {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={vote} disconnect={disconnect} votingSystem={votingSystem} />}
+      </Container>
+    </ThemeProvider>
   );
 }
 
@@ -156,6 +161,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
+  background-color: ${({ theme }) => theme.colors.background};
 `;
 
 export default App;

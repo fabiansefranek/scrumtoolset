@@ -33,11 +33,13 @@ const UserContainer = styled.div`
 const Username = styled.p`
     margin: 0;
     text-transform: capitalize;
+    color: ${props => props.theme.colors.text};
 `;
 
 const State = styled.p`
     margin: 0;
     text-transform: capitalize;
+    color: ${props => props.theme.colors.text};
 `;
 
 export default PokerUser;

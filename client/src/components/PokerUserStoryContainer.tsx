@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { UserStory } from '../types';
 import styled from 'styled-components';
+import { Button } from './Button';
 
 function PokerUserStoryContainer({ userStories, currentUserStory, userIsModerator } : { userStories : UserStory[], currentUserStory : UserStory, userIsModerator : Boolean }) {
     const [showUserStories, setShowUserStories] = useState<boolean>(false);
@@ -17,10 +18,7 @@ function PokerUserStoryContainer({ userStories, currentUserStory, userIsModerato
                 {showUserStories && 
 		            <AllUserstoriesContainer>
                         <Text>Alle Userstories</Text>
-			            <List>{userStories.map((userStory : UserStory) => {
-                    		return <li key={userStory.id}>{userStory.name}</li>
-                        })}
-			            </List>
+                        <Text>{userStories.map((userStory : UserStory) => userStory.name + ',')}</Text>
 		            </AllUserstoriesContainer>
 	            }
         </React.Fragment>
@@ -32,32 +30,31 @@ const CurrentUserStoryContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background-color: #f5f5f5;
     width: 80vw;
     padding: 2rem;
     box-sizing: border-box;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: ${props => props.theme.colors.secondaryBackground};
+    color: ${props => props.theme.colors.text};
 `;
 
 const AllUserstoriesContainer = styled.div`
-    background-color: #f5f5f5;
-    width: 40vw;
-    border-radius: 0.5rem;
+    background-color: ${props => props.theme.colors.secondaryBackground};
+    width: 80vw;
+    border-radius: 0.25rem;
     padding: 2rem;
     box-sizing: border-box;
 `;
 
 const Text = styled.p`
     margin: 0;
-`;
-
-const Button = styled.button`
-  padding: 0.5rem;  
+    color: ${props => props.theme.colors.text}
 `;
 
 const List = styled.ul`
     list-style: none;
     padding: 0;
+    color: ${props => props.theme.colors.text}
 `;
 
 export default PokerUserStoryContainer;

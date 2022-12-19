@@ -4,6 +4,7 @@ import PokerCardContainer from './PokerCardContainer';
 import PokerUserContainer from './PokerUserContainer';
 import { votingSystems } from '../App';
 import styled from 'styled-components';
+import { Button } from './Button';
 
 function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, sendVote, disconnect, votingSystem, currentUserStory } : { userList : User[], nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function, disconnect : Function, votingSystem : any, currentUserStory : UserStory }) {
     return (
@@ -29,12 +30,12 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, s
 }
 
 const Container = styled.div`
-    background-color: #f5f5f5;
+    background-color: ${props => props.theme.colors.secondaryBackground};
     width: 80vw;
-    padding: 2rem;
+    padding: 3rem;
     height: fit-content;
     box-sizing: border-box;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
 `;
 
 const UserAndCardContainer = styled.div`
@@ -49,10 +50,6 @@ const ButtonContainer = styled.div`
     justify-content: flex-end;
     margin-top: 2rem;
     gap: 1rem;
-`;
-
-const Button = styled.button`
-    padding: 0.5rem;
 `;
 
 export default PokerVoteContainer;

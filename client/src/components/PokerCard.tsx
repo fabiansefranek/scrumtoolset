@@ -25,11 +25,13 @@ const Card = styled.div.attrs((props : {width: number, active : boolean}) => pro
     border-radius: 0.5rem;
     user-select: "none";
     cursor: ${props => props.active ? "pointer" : "not-allowed"};
-    background-color: ${props => props.active ? "white" : "#F6F6F6"};
+    background-color: ${props => props.active ? props.theme.colors.cardBackgroundActive : props.theme.colors.cardBackgroundInactive};
+    user-select: none;
 `;
 
 const CardText = styled.p`
     margin: 0;
+    color: ${props => props.theme.colors.text}
 `;
 
 export default PokerCard;
