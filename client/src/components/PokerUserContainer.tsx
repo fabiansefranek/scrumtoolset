@@ -19,13 +19,14 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    width: 15vw;
+    width: 35%;
     max-height: 100%;
     overflow: hidden;
 `;
 
 const Text = styled.p`
     margin: 0;
+    color: ${props => props.theme.colors.text}
 `;
 
 const Users = styled.div`

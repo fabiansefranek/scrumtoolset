@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { ThemeConsumer } from 'styled-components';
 
 function PokerProfilePicture({ username } : { username : string }) {
     return (
@@ -12,7 +12,7 @@ const ProfilePicture = styled.p`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    background-color: #0093A3;
+    background-color: ${props => props.theme.colors.highlight};
     color: white;
     width: 40px;
     height: 40px;

@@ -1,6 +1,9 @@
 import { UserStory } from "../types";
 import styled from "styled-components";
 import { votingSystems } from "../App";
+import { Button } from "./Button";
+import { Theme } from "../types";
+import { themes } from "../themes";
 
 function convertLinesToUserStoryArray(lines : string) {
     return lines.split("\n").map((line : string) => ({
@@ -10,7 +13,7 @@ function convertLinesToUserStoryArray(lines : string) {
     )
 }
 
-function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, setUserStories, createRoom, setCurrentUserStory, joinRoom, setRoomCode } : { setRoomName : Function, setUsername : Function, setVotingSystem : Function, setUserStories : Function, createRoom : any, setCurrentUserStory : Function, joinRoom : Function, setRoomCode : Function }) {
+function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, setUserStories, createRoom, setCurrentUserStory, joinRoom, setRoomCode, setTheme } : { setRoomName : Function, setUsername : Function, setVotingSystem : Function, setUserStories : Function, createRoom : any, setCurrentUserStory : Function, joinRoom : Function, setRoomCode : Function, setTheme : Function }) {
     return (
         <Container>
             <InputContainer>
@@ -28,6 +31,11 @@ function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, s
                         return <option key={votingSystem} value={votingSystem}>{votingSystem.charAt(0).toUpperCase() + votingSystem.slice(1) + ` (${votingSystems[votingSystem].join(',')})`}</option>
                     })}
                 </Select>
+                <Select onChange={(event : any) => setTheme(themes.find(theme => theme.name == event.target.value)) }>
+                    {themes.map((theme : Theme) => {
+                        return <option key={theme.name} value={theme.name}>{theme.name.charAt(0).toUpperCase() + theme.name.slice(1)}</option>
+                    })}
+                </Select>
                 <TextArea onChange={(event : any) => {
                     const userStories : UserStory[] = convertLinesToUserStoryArray(event.target.value);
                     setUserStories(userStories);
@@ -43,7 +51,8 @@ const Container = styled.div`
     flex-direction: column;
     gap: 2rem;
     width: 30vw;
-    background-color: #f5f5f5;
+    background-color: ${({ theme }) => theme.colors.secondaryBackground};
+    border-radius: 0.5rem;
     padding: 2rem;
 `;
 
@@ -55,21 +64,41 @@ const InputContainer = styled.div`
 
 const Text = styled.p`
     margin: 0;
+    color: ${({theme}) => theme.colors.text}
 `;
 
 const Input = styled.input`
     padding: 0.5rem;
+    background-color: ${props => props.theme.colors.inputBackground};
+    color: ${props => props.theme.colors.text};
+    border: ${props => props.theme.colors.border} 1px solid;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+
+    &:focus {
+        outline: none;
+    }
 `
-const Button = styled.button`
-    padding: 0.5rem;
-`;
 
 const Select = styled.select`
-    padding: 0.5rem;
+    background-color: ${props => props.theme.colors.inputBackground};
+    color: ${props => props.theme.colors.text};
+    border: ${props => props.theme.colors.border} 1px solid;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
 `;
 
 const TextArea = styled.textarea`
-    padding: 0.5rem;
+    background-color: ${props => props.theme.colors.inputBackground};
+    color: ${props => props.theme.colors.text};
+    border: ${props => props.theme.colors.border} 1px solid;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    resize: none;
+
+    &:focus {
+        outline: none;
+    }
 `;
 
 export default PokerConfigurationScreen;

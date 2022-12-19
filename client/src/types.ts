@@ -12,4 +12,21 @@ type UserStory = {
     content: string
 }
 
-export type {User, UserStory}
+type Theme = {
+    name : string,
+    colors : {
+        background : string,
+        secondaryBackground : string,
+        highlight : string,
+        highlightText : string,
+        secondaryHighlight : string,
+        darkerHighlight : string,
+        text : string,
+        inputBackground : string,
+        border : string,
+        cardBackgroundActive: string,
+        cardBackgroundInactive: string
+    }
+}
+
+export type {User, UserStory, Theme}
