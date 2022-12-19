@@ -33,7 +33,7 @@ const CurrentUserStoryContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     background-color: #f5f5f5;
-    width: 40vw;
+    width: 80vw;
     padding: 2rem;
     box-sizing: border-box;
     border-radius: 0.5rem;

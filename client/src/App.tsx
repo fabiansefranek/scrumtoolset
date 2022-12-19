@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { findByLabelText } from '@testing-library/react';
+import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import PokerConfigurationScreen from './components/PokerConfigurationScreen';
 import PokerSessionScreen from './components/PokerSessionScreen';
 import { User, UserStory } from './types';
+import styled from 'styled-components';
 
 export const votingSystems : any = {
   fibonacci: ["?", "0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"],
@@ -142,11 +144,18 @@ function App() {
   }
 
   return (
-    <div>
+    <Container>
       {!isConnected && <PokerConfigurationScreen createRoom={createRoom} setRoomName={setRoomName} setUsername={setUsername} setUserStories={setUserStories} setVotingSystem={setVotingSystem} setCurrentUserStory={setCurrentUserStory} setRoomCode={setRoomCode} joinRoom={joinRoom} />}
       {isConnected && <PokerSessionScreen userList={userList} userStories={userStories} currentUserStory={currentUserStory} nextRound={nextRound} userIsModerator={userIsModerator} roomState={roomState} revealVotes={revealVotes} closeRoom={closeRoom} sendVote={vote} disconnect={disconnect} votingSystem={votingSystem} />}
-    </div>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+`;
 
 export default App;
