@@ -32,7 +32,7 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, s
 const Container = styled.div`
     background-color: ${props => props.theme.colors.secondaryBackground};
     width: 80vw;
-    padding: 3rem;
+    padding: 2rem;
     height: fit-content;
     box-sizing: border-box;
     border-radius: 0.25rem;
