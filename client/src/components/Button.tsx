@@ -1,5 +1,4 @@
-import React from 'react';
-import styled, { ThemeConsumer } from 'styled-components';
+import styled from 'styled-components';
 
 export const Button = styled.button`
     border: 0;

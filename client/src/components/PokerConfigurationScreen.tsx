@@ -31,7 +31,7 @@ function PokerConfigurationScreen({ setRoomName, setUsername, setVotingSystem, s
                         return <option key={votingSystem} value={votingSystem}>{votingSystem.charAt(0).toUpperCase() + votingSystem.slice(1) + ` (${votingSystems[votingSystem].join(',')})`}</option>
                     })}
                 </Select>
-                <Select onChange={(event : any) => setTheme(themes.find(theme => theme.name == event.target.value)) }>
+                <Select onChange={(event : any) => setTheme(themes.find(theme => theme.name === event.target.value)) }>
                     {themes.map((theme : Theme) => {
                         return <option key={theme.name} value={theme.name}>{theme.name.charAt(0).toUpperCase() + theme.name.slice(1)}</option>
                     })}
