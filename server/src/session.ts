@@ -1,14 +1,17 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, getNotEmptyVotes} from "./room";
+import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, getNotEmptyVotes, setRoomTheme} from "./room";
 import {connection, io} from "./index";
 
 export function start(options : any, socket : Socket) {
+    const roomCode = [...socket.rooms][1];
     const votingSystem : string = options.votingSystem;
     const userStories : any[] = options.userStories;
+    const roomTheme : string = options.theme;
 
+    setRoomTheme(roomCode, roomTheme);
     setVotingSystem(votingSystem, socket);
     addUserstories(userStories, socket);
-    setCurrentUserStoryId([...socket.rooms][1],-1)
+    setCurrentUserStoryId(roomCode,-1)
 }
 
 export async function nextRound(socket: Socket) {
@@ -32,7 +35,7 @@ export async function nextRound(socket: Socket) {
                 break;
             }
             case "waiting": {
-                if(await areVotesUnanimous(roomCode) == true || currentUserStoryId == -1) {
+                if(await areVotesUnanimous(roomCode) || currentUserStoryId == -1) {
                     setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                     io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
                 }

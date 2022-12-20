@@ -28,8 +28,9 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     const votingSystem : string = await getRoomVotingSystem(roomCode);
     const roomState : string = await getRoomState(roomCode);
     const currentUserStory : any = await getCurrentUserStory(roomCode);
+    const roomTheme : string = await getRoomTheme(roomCode);
     const current : any = (currentUserStory) ? currentUserStory : {name: "Waiting"};
-    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem, roomState: roomState, currentUserStory: current});
+    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem, roomState: roomState, currentUserStory: current, theme : roomTheme});
     await handleUserListUpdate(roomCode);
 }
 
@@ -169,6 +170,21 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
     });
 }
 
+function getRoomTheme(roomCode : string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT votingSystem FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
+            if (err) throw err;
+            resolve(rows[0].theme);
+        });
+    });
+}
+
+export function setRoomTheme(roomCode : string, theme : string) : void {
+    connection.query('UPDATE Room SET theme = ? WHERE id = ?', [theme, roomCode], (err, rows) => {
+        if (err) throw err;
+    });
+}
+
 export async function close(roomCode : string, socket : Socket) {
     const roomFound : boolean = await doesRoomExist(roomCode);
     if(!roomFound)  return socket.emit("room:notfound");
@@ -221,7 +237,7 @@ export function getVotes(roomCode : string) : Promise<any> {
 }
 
 function checkUserInput(input : string) : boolean {
-    return /^[a-zA-Z\u00F0-\u02AF0-9_\.]+$/.test(input); // lower case letters + upper case letters + umlauts + numbers + underscore + dot
+    return /^[a-zA-Z0-9_\.]+$/.test(input); // lower case letters + upper case letters + umlauts + numbers + underscore + dot
 }
 
 export function getNotEmptyVotes(roomCode : string) : Promise<any> {
