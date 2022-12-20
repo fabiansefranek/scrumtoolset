@@ -37,12 +37,6 @@ type RoomCreationBasePayload = {
 };
 
 type RoomCreationPayload = {
-    base : {
-        roomName: string,
-        username: string
-    }
-    options: {
-        votingSystem: string,
-        userStories: UserStory[],
-    }
+    base : RoomCreationBasePayload
+    options: RoomCreationOptionsPayload
 }
