@@ -7,6 +7,7 @@ import { Theme, User, UserStory } from './types';
 import styled from 'styled-components';
 import { light, dark } from './themes';
 import { ThemeProvider } from 'styled-components';
+import { themes } from './themes';
 
 export const votingSystems : any = {
   fibonacci: ["?", "0", "1", "2", "3", "5", "8", "13", "21", "34", "55", "89"],
@@ -40,6 +41,9 @@ function App() {
       setRoomCode(args.roomCode);
       setCurrentUserStory(args.currentUserStory);
       setRoomState(args.roomState);
+      console.log(args.theme);
+      const theme : Theme = themes.find((theme : Theme) => theme.name === args.theme)!;
+      setTheme(theme);
       setIsConnected(true);
     })
 
@@ -111,7 +115,7 @@ function App() {
 
   function createRoom() {
     const socket = connect();
-    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: (votingSystem) ? votingSystem : "fibonacci", userStories: userStories}};
+    const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: (votingSystem) ? votingSystem : "fibonacci", userStories: userStories, theme: theme.name}};
     socket.emit('room:create', payload);
     setUserIsModerator(true);
     console.log(`Create room with payload: ${JSON.stringify(payload)}`);
