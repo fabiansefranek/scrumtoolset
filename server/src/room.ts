@@ -1,8 +1,7 @@
 import {connection, io} from './index';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import {Socket} from "socket.io";
-import {start} from "./session";
-import { getCurrentUserStory } from './session';
+import {getCurrentUserStory, start} from "./session";
 
 
 export async function join(payload : any, socket : Socket, isModerator? : boolean) {
@@ -10,55 +9,52 @@ export async function join(payload : any, socket : Socket, isModerator? : boolea
     const username: string = payload.username;
     const now: number = Math.floor(Date.now() / 1000);
 
-    const roomFound = await doesRoomExist(roomCode);
+    const roomFound : boolean = await doesRoomExist(roomCode);
     if(!roomFound) return socket.emit("room:denied");
     if(!checkUserInput(username)) return socket.emit("room:denied");
 
-    if(typeof isModerator === "undefined") {
-        const moderatorNotExists : boolean = (await getOldestConnectionFromRoom(roomCode) == ""); //Checks if any user is connected
-        isModerator = moderatorNotExists;
+    if(isModerator === undefined) {
+        isModerator = (await getOldestConnectionFromRoom(roomCode) === "");
     }
     
     connection.query('INSERT INTO User(sessionId, username, createdAt , roomId, isModerator, state, vote) VALUES (?, ?, ?, ?, ?, ?, ?)', [socket.id, username, now, roomCode, isModerator, "voting", ""], (err, rows) => {
         if(err) throw err;
     });
 
-    if([...socket.rooms][1] != roomCode) //Please comment your code :)
-    socket.join(roomCode);
+    if([...socket.rooms][1] != roomCode) //Makes sure user doesn't join same room twice
+        socket.join(roomCode);
     const votingSystem : string = await getRoomVotingSystem(roomCode);
     const roomState : string = await getRoomState(roomCode);
-    const currentUserStory : any = await getCurrentUserStory(roomCode);
+    const currentUserStory : UserStory = await getCurrentUserStory(roomCode);
     const roomTheme : string = await getRoomTheme(roomCode);
-    const current : any = (currentUserStory) ? currentUserStory : {name: "Waiting"};
-    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem, roomState: roomState, currentUserStory: current, theme : roomTheme});
+    socket.emit("room:joined", {roomCode: roomCode, votingSystem : votingSystem, roomState: roomState, currentUserStory: (currentUserStory.id === undefined) ? currentUserStory : {name: "Waiting"}, theme : roomTheme});
     await handleUserListUpdate(roomCode);
 }
 
 export async function leave(socket : Socket) {
     const sessionId : string = socket.id;
-    const roomCode = [...socket.rooms][1];
-    const roomModerator = await getRoomModerator(roomCode);
+    const roomCode : string = [...socket.rooms][1];
+    const roomModeratorId : string = await getRoomModerator(roomCode);
 
-    const isModerator : boolean = (sessionId == roomModerator);
+    const isModerator : boolean = (sessionId === roomModeratorId);
     connection.query('DELETE FROM User WHERE sessionId = ?', [sessionId], (err, rows) => {
         if(err) throw err;
     });
 
     if(isModerator) {
-        const newModerator = await getOldestConnectionFromRoom(roomCode);
-        if(newModerator == "") return;
-        connection.query('UPDATE User SET isModerator = 1 WHERE sessionId = ?', [newModerator], (err, rows) => {
+        const newModeratorId : string = await getOldestConnectionFromRoom(roomCode);
+        if(newModeratorId === "") return;
+        connection.query('UPDATE User SET isModerator = 1 WHERE sessionId = ?', [newModeratorId], (err, rows) => {
             if(err) throw err;
         });
     }
-
     await handleUserListUpdate(roomCode);
 }
 
-export function create(payload : any, socket : Socket) {
+export function create(payload : any, socket : Socket) : void{
     const roomName: string = payload.base.roomName;
     const username: string = payload.base.username;
-    const options : any = payload.options;
+    const options : RoomCreationPayload = payload.options;
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
@@ -98,7 +94,7 @@ function getRoomModerator(roomCode : string) : Promise<string> {
     });
 }
 
-function getOldestConnectionFromRoom(roomCode : string) : Promise<String> {
+function getOldestConnectionFromRoom(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT sessionId FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC LIMIT 1', [roomCode], (err, rows) => {
             if (err) throw err;
