@@ -51,10 +51,4 @@ const Text = styled.p`
     color: ${props => props.theme.colors.text}
 `;
 
-const List = styled.ul`
-    list-style: none;
-    padding: 0;
-    color: ${props => props.theme.colors.text}
-`;
-
 export default PokerUserStoryContainer;

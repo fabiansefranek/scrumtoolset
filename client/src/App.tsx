@@ -1,11 +1,10 @@
-import { findByLabelText } from '@testing-library/react';
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import PokerConfigurationScreen from './components/PokerConfigurationScreen';
 import PokerSessionScreen from './components/PokerSessionScreen';
 import { Theme, User, UserStory } from './types';
 import styled from 'styled-components';
-import { light, dark } from './themes';
+import { light } from './themes';
 import { ThemeProvider } from 'styled-components';
 import { themes } from './themes';
 
