@@ -15,19 +15,23 @@ function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, s
             </UserAndCardContainer>
             <ButtonContainer>
                     {(userIsModerator) ? (roomState === "voting") 
-                        ? <Button onClick={() => nextRound()}>Karten aufdecken</Button>
+                        ? <CustomButton onClick={() => nextRound()}>Karten aufdecken</CustomButton>
                         : (roomState === "waiting") 
-                        ? <Button onClick={() => nextRound()}>
+                        ? <CustomButton onClick={() => nextRound()}>
                             {(userIsModerator && currentUserStory.name === "Waiting") ? 'Runde starten' : 'Nächste Runde' }
-                          </Button> 
-                        : <Button onClick={() => nextRound()}>Raum schließen</Button> 
+                          </CustomButton> 
+                        : <CustomButton onClick={() => nextRound()}>Raum schließen</CustomButton> 
                         : <></>}
-		            <Button onClick={() => disconnect()}>Raum verlassen</Button>
+		            <CustomButton onClick={() => disconnect()}>Raum verlassen</CustomButton>
             </ButtonContainer>
         </Container>
 
     );
 }
+
+const CustomButton = styled(Button)`
+  width: 9vw;
+`;
 
 const Container = styled.div`
     background-color: ${props => props.theme.colors.secondaryBackground};
