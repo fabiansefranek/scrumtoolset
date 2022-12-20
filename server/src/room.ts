@@ -172,7 +172,7 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
 
 function getRoomTheme(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
-        connection.query('SELECT votingSystem FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
+        connection.query('SELECT theme FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
             if (err) throw err;
             resolve(rows[0].theme);
         });
