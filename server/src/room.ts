@@ -4,7 +4,7 @@ import {Socket} from "socket.io";
 import {getCurrentUserStory, start} from "./session";
 
 
-export async function join(payload : any, socket : Socket, isModerator? : boolean) {
+export async function join(payload : RoomJoinPayload, socket : Socket, isModerator? : boolean) {
     const roomCode: string = payload.roomCode;
     const username: string = payload.username;
     const now: number = Math.floor(Date.now() / 1000);
@@ -55,7 +55,7 @@ export function create(payload : RoomCreationPayload, socket : Socket) : void{
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
-    if(!checkUserInput(payload.base.roomName)) return;
+    if(!checkUserInput(payload.base.roomName)) return; //TODO change to emit error when failing
     if(!checkUserInput(payload.base.username)) return;
 
     connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, payload.base.roomName,'waiting', now, ''], (err, rows) => {
@@ -117,10 +117,10 @@ export async function handleUserListUpdate(roomCode : string) : Promise<void> {
     io.in(roomCode).emit("room:userListUpdate", users)
 }
 
-export function handleVote(payload : any, socket : Socket) : void {
+export function handleVote(payload : RoomVotePayload, socket : Socket) : void {
     const sessionId : string = socket.id;
     const roomCode : string = [...socket.rooms][1];
-    const state : string = "voted";
+    const state : string = "voted"; //TODO add enum
     const vote : string = payload.vote;
 
     connection.query('UPDATE User SET state = ?, vote = ? WHERE sessionId = ?', [state, vote, sessionId], (err, rows) => {
@@ -182,7 +182,8 @@ export async function close(roomCode : string, socket : Socket) {
     if(!roomFound) return socket.emit("room:notfound");
 
     const sockets : any = await io.in(roomCode).fetchSockets();
-    let result = sockets.map((socket : Socket) => leave(socket)); // TODO: Rewrite to use .forEach() instead of .map()
+    socket.emit("room:closed")
+    let result = sockets.map((socket : Socket) => leave(socket)); // TODO: Rewrite to use .forEach() instead of .map() if find a way to resolve all promises
     await Promise.all(result);
     io.in(roomCode).disconnectSockets(true);
 
@@ -192,14 +193,14 @@ export async function close(roomCode : string, socket : Socket) {
     connection.query('DELETE FROM Room WHERE id = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
-    socket.emit("room:closed")
+
 }
 
-export function addUserstories(userStories : UserStory[], socket : Socket){
-    const userStory : any[] = userStories;
+export function addUserStories(userStories : UserStory[], socket : Socket){
+    const userStory : UserStory[] = userStories;
     const roomCode : string =[...socket.rooms][1];
     const data : any[] = [];
-    userStory.forEach((userStory) => {
+    userStory.forEach((userStory : UserStory) => { //TODO Rewrite for map()
         data.push([userStory.name, userStory.content, roomCode])
     })
     connection.query('INSERT INTO UserStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
@@ -214,11 +215,11 @@ export async function broadcastVotes(socket : Socket){
     console.log("Broadcast check:") // TODO: Remove console.log
     if(sessionId !== roomModerator) return;
     console.log("Broadcast TRUE") // TODO: Remove console.log
-    const votes : any = (await getVotes(roomCode)).map((vote : any) => {return {sessionId : vote.sessionId, vote : vote.vote}});
+    const votes : Vote[] = await getVotes(roomCode)
     io.in(roomCode).emit("room:revealedVotes", votes);
 }
 
-export function getVotes(roomCode : string) : Promise<any> { // TODO: Specify return type
+export function getVotes(roomCode : string) : Promise<Vote[]> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT sessionId, vote FROM User WHERE roomId LIKE ?', [roomCode], (err, rows) => {
             if (err) throw err;
@@ -228,18 +229,10 @@ export function getVotes(roomCode : string) : Promise<any> { // TODO: Specify re
 }
 
 function checkUserInput(input : string) : boolean {
-    return /^[a-zA-Z0-9_\.]+$/.test(input); // lower case letters + upper case letters + umlauts + numbers + underscore + dot
+    return /^[a-zA-Z0-9_\.]+$/.test(input); // lower case letters + upper case letters + nùmbers + underscore + dot
 }
 
-export function getNotEmptyVotes(roomCode : string) : Promise<any> { // TODO: Remove function and use getVotes() instead (with filter)
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT vote FROM User WHERE roomId LIKE ? AND vote != ""', [roomCode], (err, rows) => {
-            if (err) throw err;
-            resolve(rows);
-        });
-    });
 
-}
 
 
 

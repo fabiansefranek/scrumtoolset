@@ -19,11 +19,16 @@ type Room = {
 };
 
 type UserStory = {
-    id : number,
+    id? : number,
     name : string,
     content : string,
-    roomId : string
+    roomId? : string
 };
+
+type Vote = {
+    sessionId : string,
+    vote : string
+}
 
 type RoomCreationOptionsPayload = {
     votingSystem: string,
@@ -39,4 +44,13 @@ type RoomCreationBasePayload = {
 type RoomCreationPayload = {
     base : RoomCreationBasePayload
     options: RoomCreationOptionsPayload
+};
+
+type RoomJoinPayload = {
+    roomCode : string,
+    username : string
+};
+
+type RoomVotePayload = {
+    vote : string
 }

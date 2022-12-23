@@ -1,16 +1,16 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserstories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, getNotEmptyVotes, setRoomTheme, getVotes} from "./room";
+import {setVotingSystem, addUserStories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, setRoomTheme, getVotes} from "./room";
 import {connection, io} from "./index";
 
-export function start(options : any, socket : Socket) { // TODO: Implement startOptions type
-    const roomCode = [...socket.rooms][1];
+export function start(options : RoomCreationOptionsPayload, socket : Socket) { // TODO: Implement startOptions type
+    const roomCode : string = [...socket.rooms][1];
     const votingSystem : string = options.votingSystem;
     const userStories : UserStory[] = options.userStories;
     const roomTheme : string = options.theme;
 
     setRoomTheme(roomCode, roomTheme);
     setVotingSystem(votingSystem, socket);
-    addUserstories(userStories, socket);
+    addUserStories(userStories, socket);
     setCurrentUserStoryId(roomCode,-1)
 }
 
@@ -20,7 +20,7 @@ export async function nextRound(socket: Socket) {
     const userStories : UserStory[] = await getUserStories(roomCode);
     const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
     if(userStories.length - 1 == currentUserStoryId && currentState != "closeable") {
-        broadcastVotes(socket);
+        await broadcastVotes(socket);
         setRoomState(roomCode, "closeable"); // TODO: Use enum for room states
     }
     else {
@@ -72,7 +72,7 @@ function getCurrentUserStoryId(roomCode : string) : Promise<number>{
 export async function getCurrentUserStory(roomCode : string) : Promise<UserStory> {
     const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
     if(currentUserStoryId == -1) return {id: -1, roomId: roomCode, name: "Waiting", content: ""};
-    const userStoryId : number = (await getUserStories(roomCode))[currentUserStoryId].id || -97;
+    const userStoryId : number = (await getUserStories(roomCode))[currentUserStoryId].id || -97; //TODO replace -97 with error
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM UserStory WHERE id = ?', [userStoryId], (err, rows) => {
             if (err) throw err;
@@ -94,14 +94,14 @@ function resetVotes(roomCode : string) : void {
 }
 
 async function areVotesUnanimous(roomCode: string) : Promise<boolean> {
-    const rawVotes: any[] = await getNotEmptyVotes(roomCode); // TODO: Rewrite this to use getVotes and filter
-    const votes: any[] = rawVotes.map((vote: any) => {
-        return {vote: vote.vote}
-    });
-    if(votes.length === 0) return false;
+    const rawVotes: Vote[] = await getVotes(roomCode);
+    let votes : string[] = rawVotes.map((vote : Vote) => vote.vote)
+    votes = votes.filter((vote : string) => vote !== "")
     let flag: boolean = true;
-    votes.reduce((previousValue, currentValue) => {
-        if (previousValue.vote != currentValue.vote) flag = false;
+    if(votes.length == 0) return flag
+    votes.reduce((previousValue : string, currentValue : string) => {
+        if(previousValue !== currentValue) flag = false;
+        return currentValue;
     })
     return flag;
 }
