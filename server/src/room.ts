@@ -2,6 +2,7 @@ import {connection, io} from './index';
 import {v4 as uuidv4} from 'uuid';
 import {Socket} from "socket.io";
 import {getCurrentUserStory, start} from "./session";
+import {createUser} from "./models/userModel";
 
 
 export async function join(payload : RoomJoinPayload, socket : Socket, isModerator? : boolean) {
@@ -17,9 +18,7 @@ export async function join(payload : RoomJoinPayload, socket : Socket, isModerat
         isModerator = (await getOldestConnectionFromRoom(roomCode) === "");
     }
     
-    connection.query('INSERT INTO User(sessionId, username, createdAt , roomId, isModerator, state, vote) VALUES (?, ?, ?, ?, ?, ?, ?)', [socket.id, username, now, roomCode, isModerator, "voting", ""], (err, rows) => {
-        if(err) throw err;
-    });
+    createUser(socket.id, username, now, roomCode, isModerator);
 
     if([...socket.rooms][1] != roomCode) //Makes sure user doesn't join same room twice
         socket.join(roomCode);
