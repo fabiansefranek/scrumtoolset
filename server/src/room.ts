@@ -2,7 +2,7 @@ import {connection, io} from './index';
 import {v4 as uuidv4} from 'uuid';
 import {Socket} from "socket.io";
 import {getCurrentUserStory, start} from "./session";
-import {createUser} from "./models/userModel";
+import {createUser} from "./models/user";
 
 
 export async function join(payload : RoomJoinPayload, socket : Socket, isModerator? : boolean) {
@@ -36,13 +36,14 @@ export async function leave(socket : Socket) {
     const roomModeratorId : string = await getRoomModerator(roomCode);
 
     const isModerator : boolean = (sessionId === roomModeratorId);
-    connection.query('DELETE FROM User WHERE sessionId = ?', [sessionId], (err, rows) => {
+    connection.query('DELETE FROM User WHERE sessionId = ?', [sessionId], (err, rows) => { // deleteUser
         if(err) throw err;
     });
 
     if(isModerator) {
         const newModeratorId : string = await getOldestConnectionFromRoom(roomCode);
         if(newModeratorId === "") return;
+        // giveUserModeratorRights
         connection.query('UPDATE User SET isModerator = 1 WHERE sessionId = ?', [newModeratorId], (err, rows) => {
             if(err) throw err;
         });
@@ -54,9 +55,11 @@ export function create(payload : RoomCreationPayload, socket : Socket) : void{
     const roomCode: string = uuidv4();
     const now: number = Math.floor(Date.now() / 1000);
 
+
     if(!checkUserInput(payload.base.roomName)) return; //TODO change to emit error when failing
     if(!checkUserInput(payload.base.username)) return;
 
+    // createRoom
     connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, payload.base.roomName,'waiting', now, ''], (err, rows) => {
         if(err) throw err;
     });
@@ -66,6 +69,7 @@ export function create(payload : RoomCreationPayload, socket : Socket) : void{
     join({roomCode: roomCode, username: payload.base.username}, socket, true);
 }
 
+// doesRoomExist
 function doesRoomExist(roomCode : string) : Promise<boolean> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT id FROM Room WHERE id = ?', [roomCode], (err, rows) => {
@@ -78,6 +82,7 @@ function doesRoomExist(roomCode : string) : Promise<boolean> {
     });
 }
 
+// getRoomModerator
 function getRoomModerator(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT sessionId FROM User WHERE roomId LIKE ? AND isModerator = 1', [roomCode], (err, rows) => {
@@ -90,6 +95,7 @@ function getRoomModerator(roomCode : string) : Promise<string> {
     });
 }
 
+// getOldestUserInRoom
 function getOldestConnectionFromRoom(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT sessionId FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC LIMIT 1', [roomCode], (err, rows) => {
@@ -102,6 +108,7 @@ function getOldestConnectionFromRoom(roomCode : string) : Promise<string> {
     });
 }
 
+// getUsersInRoom
 function getUsersInRoom(roomCode : string) : Promise<User[]> { //Used to display all users
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC', [roomCode], (err, rows) => {
@@ -122,6 +129,7 @@ export function handleVote(payload : RoomVotePayload, socket : Socket) : void {
     const state : string = "voted"; //TODO add enum
     const vote : string = payload.vote;
 
+    //setUserVote
     connection.query('UPDATE User SET state = ?, vote = ? WHERE sessionId = ?', [state, vote, sessionId], (err, rows) => {
         if(err) throw err;
     });
@@ -129,7 +137,7 @@ export function handleVote(payload : RoomVotePayload, socket : Socket) : void {
     io.in(roomCode).emit("room:broadcastVote", {sessionId : sessionId, state : state});
 }
 
-
+// setRoomVotingSystem
 export function setVotingSystem(votingSystem : string, socket : Socket) : void {
     const roomCode : string =[...socket.rooms][1];
     connection.query('UPDATE Room SET votingSystem = ? WHERE id = ?', [votingSystem, roomCode], (err, rows) => {
@@ -137,6 +145,7 @@ export function setVotingSystem(votingSystem : string, socket : Socket) : void {
     });
 }
 
+// getRoomState
 export function getRoomState(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
@@ -146,12 +155,14 @@ export function getRoomState(roomCode : string) : Promise<string> {
     });
 }
 
+// setRoomState
 export function setRoomState(roomCode : string, state : string) : void {
     connection.query('UPDATE Room SET state = ? WHERE id = ?', [state, roomCode], (err, rows) => {
         if (err) throw err;
     });
 }
 
+// getRoomVotingSystem
 function getRoomVotingSystem(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT votingSystem FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
@@ -161,6 +172,8 @@ function getRoomVotingSystem(roomCode : string) : Promise<string> {
     });
 }
 
+
+// getRoomTheme
 function getRoomTheme(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT theme FROM Room WHERE id LIKE ?', [roomCode], (err, rows) => {
@@ -170,6 +183,7 @@ function getRoomTheme(roomCode : string) : Promise<string> {
     });
 }
 
+// setRoomTheme
 export function setRoomTheme(roomCode : string, theme : string) : void {
     connection.query('UPDATE Room SET theme = ? WHERE id = ?', [theme, roomCode], (err, rows) => {
         if (err) throw err;
@@ -186,9 +200,11 @@ export async function close(roomCode : string, socket : Socket) {
     await Promise.all(result);
     io.in(roomCode).disconnectSockets(true);
 
+    // deleteRoomUserStories
     connection.query('DELETE FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => { // TODO: Rewrite to use multiline query
         if(err) throw err;
     });
+    // deleteRoom
     connection.query('DELETE FROM Room WHERE id = ?', roomCode, (err, rows) => {
         if (err) throw err;
     });
@@ -202,6 +218,7 @@ export function addUserStories(userStories : UserStory[], socket : Socket){
     userStory.forEach((userStory : UserStory) => { //TODO Rewrite for map()
         data.push([userStory.name, userStory.content, roomCode])
     })
+    // addUserStories
     connection.query('INSERT INTO UserStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
         if (err) throw err;
     });
@@ -218,6 +235,7 @@ export async function broadcastVotes(socket : Socket){
     io.in(roomCode).emit("room:revealedVotes", votes);
 }
 
+// getUserVotes
 export function getVotes(roomCode : string) : Promise<Vote[]> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT sessionId, vote FROM User WHERE roomId LIKE ?', [roomCode], (err, rows) => {

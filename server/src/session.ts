@@ -51,6 +51,7 @@ export async function nextRound(socket: Socket) {
     io.in(roomCode).emit("room:stateUpdate", {roomState: newRoomState}); // TODO: Create type for room state update payload
 }
 
+// getUserStories
 export async function getUserStories(roomCode : string) : Promise<UserStory[]> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
@@ -60,6 +61,7 @@ export async function getUserStories(roomCode : string) : Promise<UserStory[]> {
     })
 }
 
+// getCurrentUserStoryId
 function getCurrentUserStoryId(roomCode : string) : Promise<number>{
     return new Promise((resolve, reject) => {
         connection.query('SELECT currentUserStory FROM Room WHERE id = ?', roomCode, (err, rows) => {
@@ -69,6 +71,7 @@ function getCurrentUserStoryId(roomCode : string) : Promise<number>{
     });
 }
 
+// getCurrentUserStory
 export async function getCurrentUserStory(roomCode : string) : Promise<UserStory> {
     const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
     if(currentUserStoryId == -1) return {id: -1, roomId: roomCode, name: "Waiting", content: ""};
@@ -81,12 +84,14 @@ export async function getCurrentUserStory(roomCode : string) : Promise<UserStory
     });
 }
 
+// setCurrentUserStoryId
 function setCurrentUserStoryId(roomCode : string, id : number) : void {
     connection.query('UPDATE Room SET currentUserStory = ? WHERE id = ?', [id, roomCode], (err, rows) => {
         if (err) throw err;
     });
 }
 
+// resetVotes
 function resetVotes(roomCode : string) : void {
     connection.query('UPDATE User SET vote = "", state = "voting" WHERE roomId = ?', roomCode, (err, rows) => {
         if (err) throw err;
