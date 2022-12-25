@@ -45,9 +45,9 @@ export function setRoomTheme(theme : string, roomCode : string) {
     });
 }
 
-export function createRoom(roomCode : string, roomName : string, roomState: string, roomVotingSystem : string) {
+export function createRoom(roomCode : string, roomName : string, roomState: string, roomVotingSystem : string, roomCurrentUserStory : number, roomTheme : string) {
     const now : number = Math.floor(Date.now() / 1000);
-    connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem) VALUES (?, ?, ?, ?, ?)', [roomCode, roomName, roomState, now, roomVotingSystem], (err, rows) => {
+    connection.query('INSERT INTO Room(id, displayName, state, createdAt, votingSystem, currentUserStory, theme) VALUES (?, ?, ?, ?, ?, ?, ?)', [roomCode, roomName, roomState, now, roomVotingSystem, roomCurrentUserStory, roomTheme], (err, rows) => {
         if(err) throw err;
     });
 }
@@ -59,18 +59,6 @@ export function deleteRoom(roomCode : string) {
 }
 
 export function doesRoomExist(roomCode : string) : Promise<boolean> {
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT id FROM Room WHERE id = ?', [roomCode], (err, rows) => {
-            if (err) throw err;
-            if (rows.length != 0)
-                resolve(true);
-            else
-                resolve(false);
-        });
-    });
-}
-
-export function getRoomModerator(roomCode : string) : Promise<boolean> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT id FROM Room WHERE id = ?', [roomCode], (err, rows) => {
             if (err) throw err;

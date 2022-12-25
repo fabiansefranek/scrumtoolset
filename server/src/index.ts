@@ -16,12 +16,12 @@ export const io = new Server({
 });
 
 io.on("connection",  (socket : Socket) => {
-    socket.on("room:join", (arg : any) => join(arg, socket));
-    socket.on("room:create", (arg : any) => create(arg, socket));
-    socket.on("room:vote", (arg : any) => handleVote(arg, socket));
-    socket.on("room:close", (arg : any) => close(arg, socket));
-    socket.on("disconnecting", (reason : any) => leave(socket));
-    socket.on("room:nextRound", (arg : any) => nextRound(socket));
+    socket.on("room:join", (arg : any) => join(arg, socket)); // TODO: Replace any with proper type
+    socket.on("room:create", (arg : any) => create(arg, socket)); // TODO: Replace any with proper type
+    socket.on("room:vote", (arg : any) => handleVote(arg, socket)); // TODO: Replace any with proper type
+    socket.on("room:close", (arg : any) => close(arg, socket)); // TODO: Replace any with proper type
+    socket.on("disconnecting", (reason : any) => leave(socket)); // TODO: Replace any with proper type
+    socket.on("room:nextRound", (arg : any) => nextRound(socket)); // TODO: Replace any with proper type
 });
 
 io.listen(parseInt(process.env.PORT!));

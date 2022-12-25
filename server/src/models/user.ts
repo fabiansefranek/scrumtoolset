@@ -12,7 +12,7 @@ export function deleteUser(sessionId: string) : void {
     });
 }
 
-export function getOldestUserInRoom(roomCode : string) : Promise<string> {
+export function getOldestConnectionFromRoom(roomCode : string) : Promise<string> {
     return new Promise((resolve, reject) => {
         connection.query('SELECT sessionId FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC LIMIT 1', [roomCode], (err, rows) => {
             if (err) throw err;
@@ -56,6 +56,18 @@ export function getUserVotes(roomCode : string) : Promise<Vote[]> {
         connection.query('SELECT sessionId, vote FROM User WHERE roomId LIKE ?', [roomCode], (err, rows) => {
             if (err) throw err;
             resolve(rows);
+        });
+    });
+}
+
+export function getRoomModerator(roomCode : string) : Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT sessionId FROM User WHERE roomId LIKE ? AND isModerator = 1', [roomCode], (err, rows) => {
+            if (err) throw err;
+            if (rows.length != 0)
+                resolve(rows[0].sessionId);
+            else
+                resolve("");
         });
     });
 }

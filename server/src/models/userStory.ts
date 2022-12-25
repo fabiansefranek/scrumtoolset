@@ -1,7 +1,10 @@
 import {connection} from "../index";
 
-export function addUserStories(userStories : any[]) {
-    connection.query('INSERT INTO UserStory (name, content, roomId) VALUES ?', [userStories], (err, rows) => {
+export function addUserStories(userStories : UserStory[], roomCode : string) {
+    const data : any[] = userStories.map((userStory : UserStory) => {
+        return [userStory.name, userStory.content, roomCode]
+    })
+    connection.query('INSERT INTO UserStory (name, content, roomId) VALUES ?', [data], (err, rows) => {
         if (err) throw err;
     });
 }
@@ -15,7 +18,7 @@ export function getUserStories(roomCode : string) : Promise<UserStory[]> {
     })
 }
 
-function getCurrentUserStoryId(roomCode : string) : Promise<number>{
+export function getCurrentUserStoryId(roomCode : string) : Promise<number>{
     return new Promise((resolve, reject) => {
         connection.query('SELECT currentUserStory FROM Room WHERE id = ?', roomCode, (err, rows) => {
             if (err) throw err;

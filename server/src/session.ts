@@ -1,18 +1,9 @@
 import {Socket} from "socket.io";
-import {setVotingSystem, addUserStories, getRoomState, setRoomState, close, broadcastVotes, handleUserListUpdate, setRoomTheme, getVotes} from "./room";
+import {close, broadcastVotes, handleUserListUpdate} from "./room";
 import {connection, io} from "./index";
-
-export function start(options : RoomCreationOptionsPayload, socket : Socket) { // TODO: Implement startOptions type
-    const roomCode : string = [...socket.rooms][1];
-    const votingSystem : string = options.votingSystem;
-    const userStories : UserStory[] = options.userStories;
-    const roomTheme : string = options.theme;
-
-    setRoomTheme(roomCode, roomTheme);
-    setVotingSystem(votingSystem, socket);
-    addUserStories(userStories, socket);
-    setCurrentUserStoryId(roomCode,-1)
-}
+import { getRoomState, setRoomState } from "./models/room";
+import { getUserVotes, resetUserVotes } from "./models/user";
+import { getCurrentUserStoryId, getUserStories, setCurrentUserStoryId } from "./models/userStory";
 
 export async function nextRound(socket: Socket) {
     const roomCode : string = [...socket.rooms][1];
@@ -21,7 +12,7 @@ export async function nextRound(socket: Socket) {
     const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
     if(userStories.length - 1 == currentUserStoryId && currentState != "closeable") {
         await broadcastVotes(socket);
-        setRoomState(roomCode, "closeable"); // TODO: Use enum for room states
+        setRoomState("closeable", roomCode); // TODO: Use enum for room states
     }
     else {
         switch (currentState) {
@@ -31,7 +22,7 @@ export async function nextRound(socket: Socket) {
             }
             case "voting": { // TODO: Use enum for room states
                 await broadcastVotes(socket); // ? Should this be await?
-                setRoomState(roomCode, "waiting"); // TODO: Use enum for room states
+                setRoomState("waiting", roomCode); // TODO: Use enum for room states
                 break;
             }
             case "waiting": { // TODO: Use enum for room states
@@ -39,8 +30,8 @@ export async function nextRound(socket: Socket) {
                     setCurrentUserStoryId(roomCode, currentUserStoryId + 1)
                     io.in(roomCode).emit("room:userStoryUpdate", {currentUserStory: userStories[currentUserStoryId + 1]})
                 }
-                resetVotes(roomCode);
-                setRoomState(roomCode, "voting");
+                resetUserVotes(roomCode);
+                setRoomState("voting", roomCode);
                 await handleUserListUpdate(roomCode); // ? Should this be await?
                 break;
 
@@ -51,55 +42,8 @@ export async function nextRound(socket: Socket) {
     io.in(roomCode).emit("room:stateUpdate", {roomState: newRoomState}); // TODO: Create type for room state update payload
 }
 
-// getUserStories
-export async function getUserStories(roomCode : string) : Promise<UserStory[]> {
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM UserStory WHERE roomId = ?', roomCode, (err, rows) => {
-            if (err) throw err;
-            resolve(rows)
-        })
-    })
-}
-
-// getCurrentUserStoryId
-function getCurrentUserStoryId(roomCode : string) : Promise<number>{
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT currentUserStory FROM Room WHERE id = ?', roomCode, (err, rows) => {
-            if (err) throw err;
-            resolve(rows[0].currentUserStory);
-        });
-    });
-}
-
-// getCurrentUserStory
-export async function getCurrentUserStory(roomCode : string) : Promise<UserStory> {
-    const currentUserStoryId : number = await getCurrentUserStoryId(roomCode);
-    if(currentUserStoryId == -1) return {id: -1, roomId: roomCode, name: "Waiting", content: ""};
-    const userStoryId : number = (await getUserStories(roomCode))[currentUserStoryId].id || -97; //TODO replace -97 with error
-    return new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM UserStory WHERE id = ?', [userStoryId], (err, rows) => {
-            if (err) throw err;
-            resolve(rows[0]);
-        });
-    });
-}
-
-// setCurrentUserStoryId
-function setCurrentUserStoryId(roomCode : string, id : number) : void {
-    connection.query('UPDATE Room SET currentUserStory = ? WHERE id = ?', [id, roomCode], (err, rows) => {
-        if (err) throw err;
-    });
-}
-
-// resetVotes
-function resetVotes(roomCode : string) : void {
-    connection.query('UPDATE User SET vote = "", state = "voting" WHERE roomId = ?', roomCode, (err, rows) => {
-        if (err) throw err;
-    });
-}
-
 async function areVotesUnanimous(roomCode: string) : Promise<boolean> {
-    const rawVotes: Vote[] = await getVotes(roomCode);
+    const rawVotes: Vote[] = await getUserVotes(roomCode);
     let votes : string[] = rawVotes.map((vote : Vote) => vote.vote)
     votes = votes.filter((vote : string) => vote !== "")
     let flag: boolean = true;
