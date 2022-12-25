@@ -25,6 +25,7 @@ import {
     getRoomVotingSystem,
 } from "./models/room";
 import { checkUserInput } from "./utils";
+import { VotingStates } from "./enums";
 
 export function create(payload: RoomCreationPayload, socket: Socket): void {
     const roomCode: string = uuidv4();

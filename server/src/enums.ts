@@ -1,9 +1,9 @@
-enum RoomStates {
+export enum RoomStates {
     WAITING = "waiting",
     VOTING = "voting",
     CLOSEABLE = "closeable",
 }
 
-enum VotingStates {
+export enum VotingStates {
     VOTED = "voted",
 }
