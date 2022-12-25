@@ -16,25 +16,22 @@ export async function nextRound(socket: Socket) {
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
     if (
         userStories.length - 1 == currentUserStoryId &&
-        currentState != "closeable"
+        currentState != RoomStates.CLOSEABLE
     ) {
         await broadcastVotes(socket);
-        setRoomState("closeable", roomCode); // TODO: Use enum for room states
+        setRoomState(RoomStates.CLOSEABLE, roomCode);
     } else {
         switch (currentState) {
-            case "closeable": {
-                // TODO: Use enum for room states
+            case RoomStates.CLOSEABLE: {
                 await close({ roomCode: roomCode }, socket); // ? Should this be await?
                 return;
             }
-            case "voting": {
-                // TODO: Use enum for room states
+            case RoomStates.VOTING: {
                 await broadcastVotes(socket); // ? Should this be await?
-                setRoomState("waiting", roomCode); // TODO: Use enum for room states
+                setRoomState(RoomStates.WAITING, roomCode);
                 break;
             }
-            case "waiting": {
-                // TODO: Use enum for room states
+            case RoomStates.WAITING: {
                 if (
                     (await areVotesUnanimous(roomCode)) ||
                     currentUserStoryId == -1
@@ -45,7 +42,7 @@ export async function nextRound(socket: Socket) {
                     });
                 }
                 resetUserVotes(roomCode);
-                setRoomState("voting", roomCode);
+                setRoomState(RoomStates.VOTING, roomCode);
                 await handleUserListUpdate(roomCode); // ? Should this be await?
                 break;
             }

@@ -124,7 +124,7 @@ export async function handleUserListUpdate(roomCode: string): Promise<void> {
 export function handleVote(payload: RoomVotePayload, socket: Socket): void {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
-    const state: string = "voted"; //TODO add enum
+    const state: string = VotingStates.VOTED;
     const vote: string = payload.vote;
 
     setUserVote(state, vote, sessionId);
