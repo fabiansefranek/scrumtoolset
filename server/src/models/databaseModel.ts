@@ -7,11 +7,11 @@
 //Set User.Moderator #
 //Get User.Moderator
 //Create Room #
-//Get Room.VotingSystem # 
+//Get Room.VotingSystem #
 //Set Room.VotingSystem #
-//Get Room.State # 
+//Get Room.State #
 //Set Room.State #
-//Get Room.Theme # 
+//Get Room.Theme #
 //Set Room.Theme #
 //Get Room.CurrentUserStoryId #
 //Set Room.CurrentUserStoryId #

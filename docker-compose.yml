@@ -1,37 +1,37 @@
 version: "1.29"
 services:
-  client:
-    build: 
-      context: ./client
-      dockerfile: ./Dockerfile
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./client/src:/src
-  server:
-    build:
-      context: ./server
-      dockerfile: ./Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./server/src:/src
-    depends_on:
-      db:
-        condition: service_healthy
-  db:
-    image: mariadb
-    ports:
-      - "3306:3306"
-    environment:
-      MARIADB_ROOT_PASSWORD: example
-      MARIADB_DATABASE: scrumtoolset
-    volumes:
-      - ./mariadb-data:/var/lib/mysql
-    healthcheck:
-      test: "mysqladmin ping -hlocalhost -uroot -pexample"
-      interval: 2s
-      timeout: 20s
-      retries: 10
+    client:
+        build:
+            context: ./client
+            dockerfile: ./Dockerfile
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./client/src:/src
+    server:
+        build:
+            context: ./server
+            dockerfile: ./Dockerfile
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./server/src:/src
+        depends_on:
+            db:
+                condition: service_healthy
+    db:
+        image: mariadb
+        ports:
+            - "3306:3306"
+        environment:
+            MARIADB_ROOT_PASSWORD: example
+            MARIADB_DATABASE: scrumtoolset
+        volumes:
+            - ./mariadb-data:/var/lib/mysql
+        healthcheck:
+            test: "mysqladmin ping -hlocalhost -uroot -pexample"
+            interval: 2s
+            timeout: 20s
+            retries: 10
 volumes:
-  mariadb-data:
+    mariadb-data:
