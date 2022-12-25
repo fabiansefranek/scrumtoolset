@@ -2,17 +2,17 @@ import { User } from "../types";
 import PokerProfilePicture from "./PokerProfilePicture";
 import styled from "styled-components";
 
-function PokerUser({ user, roomState } : { user : User, roomState : string }) {
-    return(
+function PokerUser({ user, roomState }: { user: User; roomState: string }) {
+    return (
         <Container key={user.sessionId}>
             <UserContainer>
                 <PokerProfilePicture username={user.username} />
                 <Username>{user.username}</Username>
             </UserContainer>
-            
-            <State>{(roomState === "voting") ? user.state : user.vote}</State>
+
+            <State>{roomState === "voting" ? user.state : user.vote}</State>
         </Container>
-    )
+    );
 }
 
 const Container = styled.div`
@@ -33,13 +33,13 @@ const UserContainer = styled.div`
 const Username = styled.p`
     margin: 0;
     text-transform: capitalize;
-    color: ${props => props.theme.colors.text};
+    color: ${(props) => props.theme.colors.text};
 `;
 
 const State = styled.p`
     margin: 0;
     text-transform: capitalize;
-    color: ${props => props.theme.colors.text};
+    color: ${(props) => props.theme.colors.text};
 `;
 
 export default PokerUser;

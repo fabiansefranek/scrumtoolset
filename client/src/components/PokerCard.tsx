@@ -1,22 +1,34 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
 function deriveHeight(width: number) {
-    return (width/2)*3;
+    return (width / 2) * 3;
 }
 
-function PokerCard({ text, active, sendVote } : { text : string, active : boolean, sendVote : Function }) {
-    const width : number = 50;
+function PokerCard({
+    text,
+    active,
+    sendVote,
+}: {
+    text: string;
+    active: boolean;
+    sendVote: Function;
+}) {
+    const width: number = 50;
     return (
-        <Card onClick={() => sendVote(text)} active={active} width={width}>
+        <Card
+            onClick={() => active && sendVote(text)}
+            active={active}
+            width={width}
+        >
             <CardText>{text}</CardText>
         </Card>
     );
 }
 
-const Card = styled.div.attrs((props : {width: number, active : boolean}) => props)`
-    width: ${props => props.width}px;
-    height: ${props => deriveHeight(props.width)}px;
+const Card = styled.div<{ width: number; active: boolean }>`
+    width: ${(props) => props.width}px;
+    height: ${(props) => deriveHeight(props.width)}px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -24,14 +36,17 @@ const Card = styled.div.attrs((props : {width: number, active : boolean}) => pro
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border-radius: 0.5rem;
     user-select: "none";
-    cursor: ${props => props.active ? "pointer" : "not-allowed"};
-    background-color: ${props => props.active ? props.theme.colors.cardBackgroundActive : props.theme.colors.cardBackgroundInactive};
+    cursor: ${(props) => (props.active ? "pointer" : "not-allowed")};
+    background-color: ${(props) =>
+        props.active
+            ? props.theme.colors.cardBackgroundActive
+            : props.theme.colors.cardBackgroundInactive};
     user-select: none;
 `;
 
 const CardText = styled.p`
     margin: 0;
-    color: ${props => props.theme.colors.text}
+    color: ${(props) => props.theme.colors.text};
 `;
 
 export default PokerCard;
