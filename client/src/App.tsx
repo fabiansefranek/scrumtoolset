@@ -8,6 +8,7 @@ import { light } from "./themes";
 import { ThemeProvider } from "styled-components";
 import { themes } from "./themes";
 import { useToast } from "./hooks/useToast";
+import { checkUserInput } from "./utils";
 
 export const votingSystems: any = {
     fibonacci: [
@@ -167,6 +168,12 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     }
 
     function createRoom() {
+        if (!checkUserInput(username))
+            return toast.error("Please enter a valid user name");
+        if (!checkUserInput(roomName))
+            return toast.error("Please enter a valid room name");
+        if (userStories.length === 0)
+            return toast.error("Please enter at least one user story");
         const socket = connect();
         const payload: object = {
             base: { roomName: roomName, username: username },
