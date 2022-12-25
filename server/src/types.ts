@@ -54,3 +54,11 @@ type RoomJoinPayload = {
 type RoomVotePayload = {
     vote : string
 }
+
+type RoomClosePayload = {
+    roomCode : string
+}
+
+type RoomNextRoundPayload = {
+    
+}

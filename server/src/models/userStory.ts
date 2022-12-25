@@ -1,7 +1,7 @@
 import {connection} from "../index";
 
 export function addUserStories(userStories : UserStory[], roomCode : string) {
-    const data : any[] = userStories.map((userStory : UserStory) => {
+    const data : string[][] = userStories.map((userStory : UserStory) => {
         return [userStory.name, userStory.content, roomCode]
     })
     connection.query('INSERT INTO UserStory (name, content, roomId) VALUES ?', [data], (err, rows) => {

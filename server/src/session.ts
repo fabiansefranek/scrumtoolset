@@ -17,7 +17,7 @@ export async function nextRound(socket: Socket) {
     else {
         switch (currentState) {
             case "closeable": { // TODO: Use enum for room states
-                await close(roomCode, socket); // ? Should this be await?
+                await close({roomCode: roomCode}, socket); // ? Should this be await?
                 return;
             }
             case "voting": { // TODO: Use enum for room states
@@ -39,7 +39,7 @@ export async function nextRound(socket: Socket) {
         }
     }
     const newRoomState : string = await getRoomState(roomCode);
-    io.in(roomCode).emit("room:stateUpdate", {roomState: newRoomState}); // TODO: Create type for room state update payload
+    io.in(roomCode).emit("room:stateUpdate", {roomState: newRoomState});
 }
 
 async function areVotesUnanimous(roomCode: string) : Promise<boolean> {

@@ -1,6 +1,6 @@
 import {connection, io} from './index';
 import {v4 as uuidv4} from 'uuid';
-import {Socket} from "socket.io";
+import {RemoteSocket, Socket} from "socket.io";
 import {createUser, deleteUser, giveUserModeratorRights, getOldestConnectionFromRoom, getRoomModerator, getUsersInRoom, setUserVote, getUserVotes} from "./models/user";
 import { addUserStories, deleteRoomUserStories, getCurrentUserStory } from './models/userStory';
 import {createRoom, deleteRoom, doesRoomExist, getRoomState, getRoomTheme, getRoomVotingSystem} from './models/room';
@@ -61,13 +61,14 @@ export async function leave(socket : Socket) {
     await handleUserListUpdate(roomCode);
 }
 
-export async function close(roomCode : string, socket : Socket) {
+export async function close(payload : RoomClosePayload, socket : Socket) {
+    const roomCode : string = payload.roomCode;
     const roomFound : boolean = await doesRoomExist(roomCode);
     if(!roomFound) return socket.emit("room:notfound");
 
-    const sockets : any = await io.in(roomCode).fetchSockets();
+    const sockets : any[] = await io.in(roomCode).fetchSockets();
     io.in(roomCode).emit("room:closed");
-    let result = sockets.map((socket : Socket) => leave(socket)); // TODO: Rewrite to use .forEach() instead of .map() if find a way to resolve all promises
+    let result = sockets.map((socket : Socket) => leave(socket));
     await Promise.all(result);
     io.in(roomCode).disconnectSockets(true);
 
@@ -96,9 +97,7 @@ export async function broadcastVotes(socket : Socket){
     const roomCode : string =[...socket.rooms][1];
     const sessionId : string = socket.id;
     const roomModerator : string = await getRoomModerator(roomCode);
-    console.log("Broadcast check:") // TODO: Remove console.log
     if(sessionId !== roomModerator) return;
-    console.log("Broadcast TRUE") // TODO: Remove console.log
     const votes : Vote[] = await getUserVotes(roomCode)
     io.in(roomCode).emit("room:revealedVotes", votes);
 }
