@@ -18,7 +18,9 @@ function PokerUser(props: Props) {
             <State>
                 {props.roomState === "voting"
                     ? props.user.state
-                    : props.user.vote}
+                    : props.user.vote
+                    ? props.user.vote
+                    : "Not voted"}
             </State>
         </Container>
     );
