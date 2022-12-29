@@ -3,4 +3,4 @@ node_modules
 .idea
 dist
 mariadb-data
-.vsconfig
+.vscode
