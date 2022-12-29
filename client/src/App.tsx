@@ -122,18 +122,8 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         });
 
         socket.on("room:closed", (args: any) => {
+            disconnect();
             toast.alert("The room was closed by the moderator");
-            setIsConnected(false);
-            setUsername("");
-            setRoomName("");
-            setVotingSystem("fibonacci");
-            setRoomCode("");
-            setRoomState("");
-            setUserStories([]);
-            setCurrentUserStory({ name: "", content: "" });
-            setUserList([]);
-            setUserIsModerator(false);
-            setTheme(light);
         });
 
         socket.on("error", (args: any) => {
@@ -155,6 +145,17 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     }, [socket, userList, toast, setTheme, userIsModerator]);
 
     function disconnect() {
+        setIsConnected(false);
+        setUsername("");
+        setRoomName("");
+        setVotingSystem("fibonacci");
+        setRoomCode("");
+        setRoomState("");
+        setUserStories([]);
+        setCurrentUserStory({ name: "", content: "" });
+        setUserList([]);
+        setUserIsModerator(false);
+        setTheme(light);
         toast.alert("You disconnected!");
         socket.disconnect();
         console.log("Disconnected from server");
@@ -215,7 +216,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
 
     function closeRoom() {
         if (!userIsModerator) throw new Error("User is not a moderator");
-        socket.emit("room:close", roomCode);
+        socket.emit("room:close", { roomCode: roomCode });
     }
 
     return (

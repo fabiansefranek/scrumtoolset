@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import Toast from "../components/Toast";
 import { ToastContext } from "../contexts/ToastContext";
 import styled from "styled-components";
-import "../index.css";
 import { ToastType } from "../types";
 
 type Props = {

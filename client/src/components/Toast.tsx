@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import styled, { keyframes } from "styled-components";
-import "../index.css";
 import { ToastType } from "../types";
 
 const ToastTypeImages: { [key: string]: string } = {
@@ -16,7 +15,6 @@ type Props = {
 
 function Toast(props: Props) {
     useEffect(() => {
-        console.log(props.toast.onClick);
         const timeout = setTimeout(() => {
             props.close();
         }, 2000);

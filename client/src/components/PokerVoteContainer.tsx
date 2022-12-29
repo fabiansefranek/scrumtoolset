@@ -58,6 +58,11 @@ function PokerVoteContainer(props: Props) {
                 <CustomButton onClick={() => props.disconnect()}>
                     Raum verlassen
                 </CustomButton>
+                {props.userIsModerator && props.roomState != "closeable" ? (
+                    <CustomButton onClick={() => props.closeRoom()}>
+                        Raum schließen
+                    </CustomButton>
+                ) : null}
             </ButtonContainer>
         </Container>
     );
