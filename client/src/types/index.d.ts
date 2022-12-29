@@ -29,4 +29,11 @@ type Theme = {
     };
 };
 
-export type { User, UserStory, Theme };
+type ToastType = {
+    id: number;
+    message: string;
+    type: string;
+    onClick?: Function;
+};
+
+export type { User, UserStory, Theme, ToastType };
