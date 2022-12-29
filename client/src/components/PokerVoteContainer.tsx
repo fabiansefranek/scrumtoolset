@@ -1,21 +1,13 @@
+import styled from "styled-components";
 import React from "react";
-import { User, UserStory } from "../types";
+
 import PokerCardContainer from "./PokerCardContainer";
 import PokerUserContainer from "./PokerUserContainer";
+import { User, UserStory } from "../types";
 import { votingSystems } from "../App";
-import styled from "styled-components";
 import { Button } from "./Button";
 
-function PokerVoteContainer({
-    userList,
-    nextRound,
-    userIsModerator,
-    roomState,
-    sendVote,
-    disconnect,
-    votingSystem,
-    currentUserStory,
-}: {
+type Props = {
     userList: User[];
     nextRound: Function;
     userIsModerator: Boolean;
@@ -26,39 +18,44 @@ function PokerVoteContainer({
     disconnect: Function;
     votingSystem: any;
     currentUserStory: UserStory;
-}) {
+};
+
+function PokerVoteContainer(props: Props) {
     return (
         <Container>
             <UserAndCardContainer>
-                <PokerUserContainer userList={userList} roomState={roomState} />
+                <PokerUserContainer
+                    userList={props.userList}
+                    roomState={props.roomState}
+                />
                 <PokerCardContainer
-                    cards={votingSystems[votingSystem]}
-                    roomState={roomState}
-                    sendVote={sendVote}
+                    cards={votingSystems[props.votingSystem]}
+                    roomState={props.roomState}
+                    sendVote={props.sendVote}
                 />
             </UserAndCardContainer>
             <ButtonContainer>
-                {userIsModerator ? (
-                    roomState === "voting" ? (
-                        <CustomButton onClick={() => nextRound()}>
+                {props.userIsModerator ? (
+                    props.roomState === "voting" ? (
+                        <CustomButton onClick={() => props.nextRound()}>
                             Karten aufdecken
                         </CustomButton>
-                    ) : roomState === "waiting" ? (
-                        <CustomButton onClick={() => nextRound()}>
-                            {userIsModerator &&
-                            currentUserStory.name === "Waiting"
+                    ) : props.roomState === "waiting" ? (
+                        <CustomButton onClick={() => props.nextRound()}>
+                            {props.userIsModerator &&
+                            props.currentUserStory.name === "Waiting"
                                 ? "Runde starten"
                                 : "Nächste Runde"}
                         </CustomButton>
                     ) : (
-                        <CustomButton onClick={() => nextRound()}>
+                        <CustomButton onClick={() => props.nextRound()}>
                             Raum schließen
                         </CustomButton>
                     )
                 ) : (
                     <></>
                 )}
-                <CustomButton onClick={() => disconnect()}>
+                <CustomButton onClick={() => props.disconnect()}>
                     Raum verlassen
                 </CustomButton>
             </ButtonContainer>

@@ -2,15 +2,24 @@ import { User } from "../types";
 import PokerProfilePicture from "./PokerProfilePicture";
 import styled from "styled-components";
 
-function PokerUser({ user, roomState }: { user: User; roomState: string }) {
+type Props = {
+    user: User;
+    roomState: string;
+};
+
+function PokerUser(props: Props) {
     return (
-        <Container key={user.sessionId}>
+        <Container key={props.user.sessionId}>
             <UserContainer>
-                <PokerProfilePicture username={user.username} />
-                <Username>{user.username}</Username>
+                <PokerProfilePicture username={props.user.username} />
+                <Username>{props.user.username}</Username>
             </UserContainer>
 
-            <State>{roomState === "voting" ? user.state : user.vote}</State>
+            <State>
+                {props.roomState === "voting"
+                    ? props.user.state
+                    : props.user.vote}
+            </State>
         </Container>
     );
 }

@@ -3,21 +3,19 @@ import { UserStory } from "../types";
 import styled from "styled-components";
 import { Button } from "./Button";
 
-function PokerUserStoryContainer({
-    userStories,
-    currentUserStory,
-    userIsModerator,
-}: {
+type Props = {
     userStories: UserStory[];
     currentUserStory: UserStory;
     userIsModerator: Boolean;
-}) {
+};
+
+function PokerUserStoryContainer(props: Props) {
     const [showUserStories, setShowUserStories] = useState<boolean>(false);
     return (
         <React.Fragment>
             <CurrentUserStoryContainer>
-                <Text>{currentUserStory.name}</Text>
-                {userIsModerator && (
+                <Text>{props.currentUserStory.name}</Text>
+                {props.userIsModerator && (
                     <Button
                         onClick={() => setShowUserStories(!showUserStories)}
                     >
@@ -31,7 +29,7 @@ function PokerUserStoryContainer({
                 <AllUserstoriesContainer>
                     <Text>Alle Userstories</Text>
                     <Text>
-                        {userStories.map(
+                        {props.userStories.map(
                             (userStory: UserStory) => userStory.name + ","
                         )}
                     </Text>

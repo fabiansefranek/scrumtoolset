@@ -3,19 +3,7 @@ import PokerUserStoryContainer from "./PokerUserStoryContainer";
 import { User, UserStory } from "../types";
 import styled from "styled-components";
 
-function PokerSessionScreen({
-    userList,
-    userStories,
-    currentUserStory,
-    nextRound,
-    userIsModerator,
-    roomState,
-    revealVotes,
-    closeRoom,
-    sendVote,
-    disconnect,
-    votingSystem,
-}: {
+type Props = {
     userList: User[];
     userStories: UserStory[];
     currentUserStory: UserStory;
@@ -27,25 +15,27 @@ function PokerSessionScreen({
     sendVote: Function;
     disconnect: Function;
     votingSystem: any;
-}) {
+};
+
+function PokerSessionScreen(props: Props) {
     return (
         <Container>
             <PokerUserStoryContainer
-                userStories={userStories}
-                currentUserStory={currentUserStory}
-                userIsModerator={userIsModerator}
+                userStories={props.userStories}
+                currentUserStory={props.currentUserStory}
+                userIsModerator={props.userIsModerator}
             />
             <PokerVoteContainer
-                userList={userList}
-                nextRound={nextRound}
-                userIsModerator={userIsModerator}
-                roomState={roomState}
-                revealVotes={revealVotes}
-                closeRoom={closeRoom}
-                sendVote={sendVote}
-                disconnect={disconnect}
-                votingSystem={votingSystem}
-                currentUserStory={currentUserStory}
+                userList={props.userList}
+                nextRound={props.nextRound}
+                userIsModerator={props.userIsModerator}
+                roomState={props.roomState}
+                revealVotes={props.revealVotes}
+                closeRoom={props.closeRoom}
+                sendVote={props.sendVote}
+                disconnect={props.disconnect}
+                votingSystem={props.votingSystem}
+                currentUserStory={props.currentUserStory}
             />
         </Container>
     );

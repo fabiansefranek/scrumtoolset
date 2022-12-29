@@ -4,13 +4,14 @@ import Toast from "../components/Toast";
 import { ToastContext } from "../contexts/ToastContext";
 import styled from "styled-components";
 import "../index.css";
+import { ToastType } from "../types";
 
 type Props = {
-    children: any;
+    children: React.ReactNode;
 };
 
 export function ToastProvider(props: Props) {
-    const [toasts, setToasts] = useState<any[]>([]);
+    const [toasts, setToasts] = useState<ToastType[]>([]);
 
     const open = (message: string, type: string, onClick?: Function) => {
         const toast = {
@@ -26,12 +27,12 @@ export function ToastProvider(props: Props) {
         open(message, "success", onClick);
     };
 
-    const error = (message: string) => {
-        open(message, "error");
+    const error = (message: string, onClick?: Function) => {
+        open(message, "error", onClick);
     };
 
-    const alert = (message: string) => {
-        open(message, "alert");
+    const alert = (message: string, onClick?: Function) => {
+        open(message, "alert", onClick);
     };
 
     const close = (id: number) => {
@@ -49,7 +50,6 @@ export function ToastProvider(props: Props) {
                         <Toast
                             key={toast.id}
                             toast={toast}
-                            onClick={toast.onClick ? toast.onClick : null}
                             close={() => close(toast.id)}
                         />
                     ))}

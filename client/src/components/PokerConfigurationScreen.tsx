@@ -12,17 +12,7 @@ function convertLinesToUserStoryArray(lines: string): UserStory[] {
     }));
 }
 
-function PokerConfigurationScreen({
-    setRoomName,
-    setUsername,
-    setVotingSystem,
-    setUserStories,
-    createRoom,
-    setCurrentUserStory,
-    joinRoom,
-    setRoomCode,
-    setTheme,
-}: {
+type Props = {
     setRoomName: Function;
     setUsername: Function;
     setVotingSystem: Function;
@@ -32,35 +22,45 @@ function PokerConfigurationScreen({
     joinRoom: Function;
     setRoomCode: Function;
     setTheme: Function;
-}) {
+};
+
+function PokerConfigurationScreen(props: Props) {
     return (
         <Container>
             <InputContainer>
                 <Text>Raum beitreten</Text>
                 <Input
                     placeholder="Benutzername"
-                    onChange={(event: any) => setUsername(event.target.value)}
+                    onChange={(event: any) =>
+                        props.setUsername(event.target.value)
+                    }
                 />
                 <Input
                     type="text"
                     placeholder="Raum Code"
-                    onInput={(event: any) => setRoomCode(event.target.value)}
+                    onInput={(event: any) =>
+                        props.setRoomCode(event.target.value)
+                    }
                 />
-                <Button onClick={() => joinRoom()}>Beitreten</Button>
+                <Button onClick={() => props.joinRoom()}>Beitreten</Button>
             </InputContainer>
             <InputContainer>
                 <Text>Raum erstellen</Text>
                 <Input
                     placeholder="Benutzername"
-                    onChange={(event: any) => setUsername(event.target.value)}
+                    onChange={(event: any) =>
+                        props.setUsername(event.target.value)
+                    }
                 />
                 <Input
                     placeholder="Raum Name"
-                    onChange={(event: any) => setRoomName(event.target.value)}
+                    onChange={(event: any) =>
+                        props.setRoomName(event.target.value)
+                    }
                 />
                 <Select
                     onChange={(event: any) =>
-                        setVotingSystem(event.target.value)
+                        props.setVotingSystem(event.target.value)
                     }
                 >
                     {Object.keys(votingSystems).map((votingSystem: string) => {
@@ -77,7 +77,7 @@ function PokerConfigurationScreen({
                 </Select>
                 <Select
                     onChange={(event: any) =>
-                        setTheme(
+                        props.setTheme(
                             themes.find(
                                 (theme) => theme.name === event.target.value
                             )
@@ -97,11 +97,11 @@ function PokerConfigurationScreen({
                     onChange={(event: any) => {
                         const userStories: UserStory[] =
                             convertLinesToUserStoryArray(event.target.value);
-                        setUserStories(userStories);
+                        props.setUserStories(userStories);
                     }}
                     placeholder="Userstories"
                 ></TextArea>
-                <Button onClick={createRoom}>Erstellen</Button>
+                <Button onClick={props.createRoom}>Erstellen</Button>
             </InputContainer>
         </Container>
     );

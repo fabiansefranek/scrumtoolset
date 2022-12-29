@@ -2,15 +2,14 @@ import { User } from "../types";
 import PokerUser from "./PokerUser";
 import styled from "styled-components";
 
-function PokerUserContainer({
-    userList,
-    roomState,
-}: {
+type Props = {
     userList: User[];
     roomState: string;
-}) {
+};
+
+function PokerUserContainer(props: Props) {
     const getNumberOfVotes = () => {
-        return userList.reduce((count: number, user: User) => {
+        return props.userList.reduce((count: number, user: User) => {
             if (user.state === "voted") {
                 return count + 1;
             }
@@ -22,17 +21,19 @@ function PokerUserContainer({
         <Container>
             <Text>
                 Punkte{" "}
-                {roomState === "voting"
-                    ? ` - ${getNumberOfVotes()}/${userList.length} Stimmen`
+                {props.roomState === "voting"
+                    ? ` - ${getNumberOfVotes()}/${
+                          props.userList.length
+                      } Stimmen`
                     : null}
             </Text>
             <Users>
-                {userList.map((user: User) => {
+                {props.userList.map((user: User) => {
                     return (
                         <PokerUser
                             key={user.sessionId}
                             user={user}
-                            roomState={roomState}
+                            roomState={props.roomState}
                         />
                     );
                 })}

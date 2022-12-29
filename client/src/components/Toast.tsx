@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import "../index.css";
+import { ToastType } from "../types";
 
 const ToastTypeImages: { [key: string]: string } = {
     success: "check",
@@ -9,13 +10,13 @@ const ToastTypeImages: { [key: string]: string } = {
 };
 
 type Props = {
-    toast: any;
+    toast: ToastType;
     close: Function;
-    onClick: Function;
 };
 
-const Toast = (props: Props) => {
+function Toast(props: Props) {
     useEffect(() => {
+        console.log(props.toast.onClick);
         const timeout = setTimeout(() => {
             props.close();
         }, 2000);
@@ -25,7 +26,12 @@ const Toast = (props: Props) => {
     }, [props]);
 
     return (
-        <Container onClick={() => props.onClick()}>
+        <Container
+            toast={props.toast}
+            onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                props.toast.onClick && props.toast.onClick()
+            }
+        >
             <img
                 src={`${process.env.PUBLIC_URL}/${
                     ToastTypeImages[props.toast.type]
@@ -35,7 +41,7 @@ const Toast = (props: Props) => {
             {props.toast.message}
         </Container>
     );
-};
+}
 
 const slideFromRight = keyframes`
     from {
@@ -46,7 +52,7 @@ const slideFromRight = keyframes`
     }
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ toast: ToastType }>`
     display: flex;
     flex-direction: row;
     gap: 0.75rem;
@@ -60,7 +66,8 @@ const Container = styled.div`
     border-radius: 0.25rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     max-width: 20vw;
-    cursor: ${(props) => (props.onClick ? "pointer" : "default")};
+    cursor: ${(props) =>
+        props.toast.onClick !== undefined ? "pointer" : "default"};
 `;
 
 export default Toast;

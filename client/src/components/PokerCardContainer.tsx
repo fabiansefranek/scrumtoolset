@@ -2,26 +2,24 @@ import React from "react";
 import PokerCard from "./PokerCard";
 import styled from "styled-components";
 
-function PokerCardContainer({
-    cards,
-    roomState,
-    sendVote,
-}: {
+type Props = {
     cards: string[];
     roomState: string;
     sendVote: Function;
-}) {
+};
+
+function PokerCardContainer(props: Props) {
     return (
         <Container>
             <Text>Karten</Text>
-            <Cards cards={cards}>
-                {cards.map((card: string) => {
+            <Cards cards={props.cards}>
+                {props.cards.map((card: string) => {
                     return (
                         <PokerCard
                             key={card}
                             text={card}
-                            sendVote={sendVote}
-                            active={roomState === "voting" ? true : false}
+                            sendVote={props.sendVote}
+                            active={props.roomState === "voting" ? true : false}
                         />
                     );
                 })}

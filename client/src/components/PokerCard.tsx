@@ -5,23 +5,21 @@ function deriveHeight(width: number) {
     return (width / 2) * 3;
 }
 
-function PokerCard({
-    text,
-    active,
-    sendVote,
-}: {
+type Props = {
     text: string;
     active: boolean;
     sendVote: Function;
-}) {
+};
+
+function PokerCard(props: Props) {
     const width: number = 50;
     return (
         <Card
-            onClick={() => active && sendVote(text)}
-            active={active}
+            onClick={() => props.active && props.sendVote(props.text)}
+            active={props.active}
             width={width}
         >
-            <CardText>{text}</CardText>
+            <CardText>{props.text}</CardText>
         </Card>
     );
 }
