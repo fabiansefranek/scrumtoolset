@@ -1,15 +1,18 @@
 type User = {
     sessionId: string;
     username: string;
+    createdAt?: number;
+    roomId?: string;
+    isModerator?: number;
     state: string;
     vote?: string;
-    isModerator?: number;
 };
 
 type UserStory = {
     id?: number;
     name: string;
     content: string;
+    roomId?: string;
 };
 
 type Theme = {
