@@ -40,7 +40,7 @@ function App() {
       setRoomCode(args.roomCode);
       setCurrentUserStory(args.currentUserStory);
       setRoomState(args.roomState);
-      console.log(args.theme);
+      setVotingSystem(args.votingSystem)
       const theme : Theme = themes.find((theme : Theme) => theme.name === args.theme)!;
       setTheme(theme);
       setIsConnected(true);
@@ -114,6 +114,7 @@ function App() {
 
   function createRoom() {
     const socket = connect();
+    console.log(userStories)
     const payload : object = {base: {roomName: roomName, username: username}, options: {votingSystem: (votingSystem) ? votingSystem : "fibonacci", userStories: userStories, theme: theme.name}};
     socket.emit('room:create', payload);
     setUserIsModerator(true);
