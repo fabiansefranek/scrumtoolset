@@ -1,31 +1,34 @@
-import { connection, io } from "./index";
+import { io } from "../index";
+import { Socket } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
-import { RemoteSocket, Socket } from "socket.io";
-import {
-    createUser,
-    deleteUser,
-    giveUserModeratorRights,
-    getOldestConnectionFromRoom,
-    getRoomModerator,
-    getUsersInRoom,
-    setUserVote,
-    getUserVotes,
-} from "./models/user";
+import { checkUserInput } from "../utils";
+import { createRoom, deleteRoom } from "../models/room";
 import {
     addUserStories,
-    deleteRoomUserStories,
     getCurrentUserStory,
-} from "./models/userStory";
+    deleteRoomUserStories,
+    getUserStories,
+    getCurrentUserStoryId,
+    setCurrentUserStoryId,
+} from "../models/userStory";
 import {
-    createRoom,
-    deleteRoom,
     doesRoomExist,
+    getRoomVotingSystem,
     getRoomState,
     getRoomTheme,
-    getRoomVotingSystem,
-} from "./models/room";
-import { checkUserInput } from "./utils";
-import { VotingStates } from "./enums";
+    setRoomState,
+} from "../models/room";
+import {
+    getOldestConnectionFromRoom,
+    createUser,
+    deleteUser,
+    getRoomModerator,
+    giveUserModeratorRights,
+    getUsersInRoom,
+    resetUserVotes,
+} from "../models/user";
+import { RoomStates } from "../constants/enums";
+import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
 
 export function create(payload: RoomCreationPayload, socket: Socket): void {
     const roomCode: string = uuidv4();
@@ -122,25 +125,45 @@ export async function handleUserListUpdate(roomCode: string): Promise<void> {
     io.in(roomCode).emit("room:userListUpdate", users);
 }
 
-export function handleVote(payload: RoomVotePayload, socket: Socket): void {
-    const sessionId: string = socket.id;
+export async function nextRound(socket: Socket) {
     const roomCode: string = [...socket.rooms][1];
-    const state: string = VotingStates.VOTED;
-    const vote: string = payload.vote;
-
-    setUserVote(state, vote, sessionId);
-
-    io.in(roomCode).emit("room:broadcastVote", {
-        sessionId: sessionId,
-        state: state,
-    });
-}
-
-export async function broadcastVotes(socket: Socket) {
-    const roomCode: string = [...socket.rooms][1];
-    const sessionId: string = socket.id;
-    const roomModerator: string = await getRoomModerator(roomCode);
-    if (sessionId !== roomModerator) return;
-    const votes: Vote[] = await getUserVotes(roomCode);
-    io.in(roomCode).emit("room:revealedVotes", votes);
+    const currentState: string = await getRoomState(roomCode);
+    const userStories: UserStory[] = await getUserStories(roomCode);
+    const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
+    if (
+        userStories.length - 1 == currentUserStoryId &&
+        currentState != RoomStates.CLOSEABLE
+    ) {
+        await broadcastVotes(socket);
+        setRoomState(RoomStates.CLOSEABLE, roomCode);
+    } else {
+        switch (currentState) {
+            case RoomStates.CLOSEABLE: {
+                await close({ roomCode: roomCode }, socket); // ? Should this be await?
+                return;
+            }
+            case RoomStates.VOTING: {
+                await broadcastVotes(socket); // ? Should this be await?
+                setRoomState(RoomStates.WAITING, roomCode);
+                break;
+            }
+            case RoomStates.WAITING: {
+                if (
+                    (await areVotesUnanimous(roomCode)) ||
+                    currentUserStoryId == -1
+                ) {
+                    setCurrentUserStoryId(roomCode, currentUserStoryId + 1);
+                    io.in(roomCode).emit("room:userStoryUpdate", {
+                        currentUserStory: userStories[currentUserStoryId + 1],
+                    });
+                }
+                resetUserVotes(roomCode);
+                setRoomState(RoomStates.VOTING, roomCode);
+                await handleUserListUpdate(roomCode); // ? Should this be await?
+                break;
+            }
+        }
+    }
+    const newRoomState: string = await getRoomState(roomCode);
+    io.in(roomCode).emit("room:stateUpdate", { roomState: newRoomState });
 }
