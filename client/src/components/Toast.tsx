@@ -1,39 +1,71 @@
-import { useState, useEffect } from "react";
-import styled, {keyframes} from "styled-components"
+import React, { useEffect } from "react";
+import styled, { keyframes } from "styled-components";
+import { ToastType } from "../types";
 
-export default function ToastList({text} : {text: string}) {
-    const [visible, setVisible] = useState<boolean>(true);
+const ToastTypeImages: { [key: string]: string } = {
+    success: "check",
+    error: "x-circle",
+    alert: "alert-triangle",
+};
 
+type Props = {
+    toast: ToastType;
+    close: Function;
+};
+
+function Toast(props: Props) {
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setVisible(false);
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, []);
+        const timeout = setTimeout(() => {
+            props.close();
+        }, 2000);
+        return () => {
+            clearTimeout(timeout);
+        };
+    }, [props]);
 
     return (
-        visible ? <Container>{text}</Container> : null
+        <Container
+            toast={props.toast}
+            onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+                props.toast.onClick && props.toast.onClick()
+            }
+        >
+            <img
+                src={`${process.env.PUBLIC_URL}/${
+                    ToastTypeImages[props.toast.type]
+                }.svg`}
+                alt={`${props.toast.type} icon`}
+            />
+            {props.toast.message}
+        </Container>
     );
 }
 
-const toastAnimation = keyframes`
+const slideFromRight = keyframes`
     from {
         transform: translateX(100%);
     }
     to {
-        transform: translateX(0);
+        transform: translateY(0);
     }
 `;
 
-const Container = styled.div`
+const Container = styled.div<{ toast: ToastType }>`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    gap: 0.75rem;
     align-items: center;
     width: fit-content;
-    padding: 0.75rem 1.5rem;
-    background-color: #fff;
-    color: #000;
-    border-radius: 5px;
+    padding: 0.75rem 0.75rem;
+    font-size: medium;
+    background-color: ${(props) => props.theme.colors.cardBackgroundActive};
+    color: ${(props) => props.theme.colors.text};
+    animation: ${slideFromRight} 0.5s ease-in-out;
+    border-radius: 0.25rem;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    animation: ${toastAnimation} 0.3s ease-in-out;
+    max-width: 20vw;
+    cursor: ${(props) =>
+        props.toast.onClick !== undefined ? "pointer" : "default"};
 `;
+
+export default Toast;

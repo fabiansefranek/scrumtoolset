@@ -1,10 +1,12 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
-function PokerProfilePicture({ username } : { username : string }) {
-    return (
-        <ProfilePicture>{username.charAt(0)}</ProfilePicture>
-    );
+type Props = {
+    username: string;
+};
+
+function PokerProfilePicture(props: Props) {
+    return <ProfilePicture>{props.username.charAt(0)}</ProfilePicture>;
 }
 
 const ProfilePicture = styled.p`
@@ -12,7 +14,7 @@ const ProfilePicture = styled.p`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    background-color: ${props => props.theme.colors.highlight};
+    background-color: ${(props) => props.theme.colors.highlight};
     color: white;
     width: 40px;
     height: 40px;

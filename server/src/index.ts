@@ -1,14 +1,8 @@
 import { Server, Socket } from "socket.io";
 import * as dotenv from "dotenv";
-import { connect, setup } from "./database/connection";
-import {
-    join,
-    create,
-    leave,
-    close,
-    nextRound,
-} from "./controllers/room.controller";
-import { handleVote } from "./controllers/vote.controller";
+import { connect, setup } from "./db";
+import { join, create, leave, handleVote, close } from "./room";
+import { nextRound } from "./session";
 
 dotenv.config();
 

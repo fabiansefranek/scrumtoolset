@@ -1,40 +1,79 @@
-import React from 'react';
-import { User, UserStory } from '../types';
-import PokerCardContainer from './PokerCardContainer';
-import PokerUserContainer from './PokerUserContainer';
-import { votingSystems } from '../App';
-import styled from 'styled-components';
-import { Button } from './Button';
+import styled from "styled-components";
+import React from "react";
 
-function PokerVoteContainer({ userList, nextRound, userIsModerator, roomState, sendVote, disconnect, votingSystem, currentUserStory } : { userList : User[], nextRound : Function, userIsModerator : Boolean, roomState : string, revealVotes : Function, closeRoom : Function, sendVote : Function, disconnect : Function, votingSystem : any, currentUserStory : UserStory }) {
+import PokerCardContainer from "./PokerCardContainer";
+import PokerUserContainer from "./PokerUserContainer";
+import { User, UserStory } from "../types";
+import { votingSystems } from "../App";
+import { Button } from "./Button";
+
+type Props = {
+    userList: User[];
+    nextRound: Function;
+    userIsModerator: Boolean;
+    roomState: string;
+    revealVotes: Function;
+    closeRoom: Function;
+    sendVote: Function;
+    disconnect: Function;
+    votingSystem: any;
+    currentUserStory: UserStory;
+};
+
+function PokerVoteContainer(props: Props) {
     return (
         <Container>
             <UserAndCardContainer>
-                <PokerUserContainer userList={userList} roomState={roomState} />
-                <PokerCardContainer cards={votingSystems[votingSystem]} roomState={roomState} sendVote={sendVote}/>
+                <PokerUserContainer
+                    userList={props.userList}
+                    roomState={props.roomState}
+                />
+                <PokerCardContainer
+                    cards={votingSystems[props.votingSystem]}
+                    roomState={props.roomState}
+                    sendVote={props.sendVote}
+                />
             </UserAndCardContainer>
             <ButtonContainer>
-                    {(userIsModerator) ? (roomState === "voting") 
-                        ? <CustomButton onClick={() => nextRound()}>Karten aufdecken</CustomButton>
-                        : (roomState === "waiting") 
-                        ? <CustomButton onClick={() => nextRound()}>
-                            {(userIsModerator && currentUserStory.name === "Waiting") ? 'Runde starten' : 'Nächste Runde' }
-                          </CustomButton> 
-                        : <CustomButton onClick={() => nextRound()}>Raum schließen</CustomButton> 
-                        : <></>}
-		            <CustomButton onClick={() => disconnect()}>Raum verlassen</CustomButton>
+                {props.userIsModerator ? (
+                    props.roomState === "voting" ? (
+                        <CustomButton onClick={() => props.nextRound()}>
+                            Karten aufdecken
+                        </CustomButton>
+                    ) : props.roomState === "waiting" ? (
+                        <CustomButton onClick={() => props.nextRound()}>
+                            {props.userIsModerator &&
+                            props.currentUserStory.name === "Waiting"
+                                ? "Runde starten"
+                                : "Nächste Runde"}
+                        </CustomButton>
+                    ) : (
+                        <CustomButton onClick={() => props.nextRound()}>
+                            Raum schließen
+                        </CustomButton>
+                    )
+                ) : (
+                    <></>
+                )}
+                <CustomButton onClick={() => props.disconnect()}>
+                    Raum verlassen
+                </CustomButton>
+                {props.userIsModerator && props.roomState !== "closeable" ? (
+                    <CustomButton onClick={() => props.closeRoom()}>
+                        Raum schließen
+                    </CustomButton>
+                ) : null}
             </ButtonContainer>
         </Container>
-
     );
 }
 
 const CustomButton = styled(Button)`
-  width: 9vw;
+    width: 9vw;
 `;
 
 const Container = styled.div`
-    background-color: ${props => props.theme.colors.secondaryBackground};
+    background-color: ${(props) => props.theme.colors.secondaryBackground};
     width: 80vw;
     padding: 2rem;
     height: fit-content;
