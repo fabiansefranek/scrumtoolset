@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import PokerConfigurationScreen from "./components/PokerConfigurationScreen";
 import PokerSessionScreen from "./components/PokerSessionScreen";
-import { Theme, ToastType, User, UserStory } from "./types";
+import { Theme, User, UserStory } from "./types";
 import styled from "styled-components";
 import { light } from "./themes";
 import { ThemeProvider } from "styled-components";
