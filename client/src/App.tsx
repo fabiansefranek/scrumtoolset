@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import PokerConfigurationScreen from "./components/PokerConfigurationScreen";
 import PokerSessionScreen from "./components/PokerSessionScreen";
-import { Theme, User, UserStory } from "./types";
+import { Theme, ToastType, User, UserStory } from "./types";
 import styled from "styled-components";
 import { light } from "./themes";
 import { ThemeProvider } from "styled-components";
@@ -55,6 +55,9 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
 
         socket.on("room:joined", (args: any) => {
             console.log(`Joined room and got payload: ${JSON.stringify(args)}`);
+            toast.success(`Click to copy the roomcode: ${args.roomCode}`, () =>
+                navigator.clipboard.writeText(args.roomCode)
+            );
             setRoomCode(args.roomCode);
             setCurrentUserStory(args.currentUserStory);
             setRoomState(args.roomState);
@@ -64,10 +67,6 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             )!;
             setTheme(theme);
             setIsConnected(true);
-            toast.success(
-                `Joined room. Here's the room code: ${args.roomCode}`,
-                () => navigator.clipboard.writeText(args.roomCode)
-            );
         });
 
         socket.on("room:userListUpdate", (args: any) => {
@@ -76,8 +75,8 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
                     .sessionId;
             if (socket.id === moderatorSessionId && !userIsModerator) {
                 setUserIsModerator(true);
-                toast.alert("You are now a moderator");
                 console.warn("You are now a moderator");
+                toast.alert("You are now a moderator");
             }
             console.log(
                 `The user list updated. Payload: ${JSON.stringify(args)}`
@@ -103,7 +102,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         });
 
         socket.on("room:stateUpdate", (args: any) => {
-            console.log(`Room state updated to ${JSON.stringify(args)}`);
+            console.log(`Room state updated. Payload: ${JSON.stringify(args)}`);
             setRoomState(args.roomState);
         });
 
@@ -127,7 +126,6 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         });
 
         socket.on("error", (args: any) => {
-            toast.error("Error! Check console for more details.");
             console.error(JSON.parse(args));
         });
 
@@ -138,7 +136,6 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             socket.off("room:userStoryUpdate");
             socket.off("room:stateUpdate");
             socket.off("room:revealedVotes");
-            socket.off("room:closed");
             socket.off("disconnect");
             socket.off("error");
         };
@@ -191,7 +188,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
 
     function joinRoom() {
         const socket = connect();
-        const payload: any = { roomCode: roomCode, username: username };
+        const payload: object = { roomCode: roomCode, username: username };
         socket.emit("room:join", payload);
         setUserIsModerator(false);
         console.log(
