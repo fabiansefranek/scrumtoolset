@@ -1,7 +1,7 @@
 import { io } from "../index";
 import { Socket } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
-import { checkUserInput } from "../utils";
+import { checkUserInput, generateWordSlug } from "../utils";
 import { createRoom, deleteRoom } from "../models/room";
 import {
     addUserStories,
@@ -31,7 +31,7 @@ import { RoomStates } from "../constants/enums";
 import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
 
 export function create(payload: RoomCreationPayload, socket: Socket): void {
-    const roomCode: string = uuidv4();
+    const roomCode: string = generateWordSlug(3, "-");
     const now: number = Math.floor(Date.now() / 1000);
 
     if (!checkUserInput(payload.base.roomName)) return; //TODO change to emit error when failing
