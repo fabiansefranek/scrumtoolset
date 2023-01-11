@@ -1,14 +1,23 @@
 import { Socket } from "socket.io";
 
 export async function handleErrors(
-    arg: any,
     socket: Socket,
-    callback: Function
+    callback: Function,
+    payload?: any
 ) {
     try {
-        await callback(arg, socket);
-    } catch (error: any) {
-        console.error("ERROR: " + error.message);
-        socket.emit("error", error.message);
+        if (payload) {
+            await callback(payload, socket);
+        } else {
+            await callback(socket);
+        }
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error(`${error.message}: ${error.stack}}`);
+            socket.emit("error", {
+                name: error.name,
+                message: error.message,
+            });
+        }
     }
 }
