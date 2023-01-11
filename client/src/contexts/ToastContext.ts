@@ -1,3 +1,11 @@
 import { createContext } from "react";
 
-export const ToastContext = createContext<any>(null);
+type ToastContextType = {
+    success: Function;
+    error: Function;
+    alert: Function;
+};
+
+export const ToastContext = createContext<ToastContextType>(
+    {} as ToastContextType
+);
