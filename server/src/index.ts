@@ -9,6 +9,7 @@ import {
     nextRound,
 } from "./controllers/room.controller";
 import { handleVote } from "./controllers/vote.controller";
+import { handleErrors } from "./middleware/error.middleware";
 
 dotenv.config();
 
@@ -22,7 +23,9 @@ export const io = new Server({
 });
 
 io.on("connection", (socket: Socket) => {
-    socket.on("room:join", (arg: RoomJoinPayload) => join(arg, socket));
+    socket.on("room:join", (arg: RoomJoinPayload) =>
+        handleErrors(arg, socket, join)
+    );
     socket.on("room:create", (arg: RoomCreationPayload) => create(arg, socket));
     socket.on("room:vote", (arg: RoomVotePayload) => handleVote(arg, socket));
     socket.on("room:close", (arg: RoomClosePayload) => close(arg, socket));
