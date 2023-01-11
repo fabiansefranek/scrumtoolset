@@ -126,8 +126,14 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         });
 
         socket.on("error", (args: any) => {
-            console.error(JSON.parse(args));
+            console.error(args);
         });
+
+        socket.on("connect_error", (err: any) => console.error(err));
+
+        socket.on("connect_failed", (err: any) => console.error(err));
+
+        socket.on("disconnect", (err: any) => console.error(JSON.parse(err)));
 
         return () => {
             socket.off("room:joined");
@@ -139,6 +145,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             socket.off("disconnect");
             socket.off("error");
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket, userList, toast, setTheme, userIsModerator]);
 
     function disconnect() {
