@@ -58,5 +58,3 @@ type RoomVotePayload = {
 type RoomClosePayload = {
     roomCode: string;
 };
-
-type RoomNextRoundPayload = {};

@@ -10,6 +10,7 @@ import {
 } from "./controllers/room.controller";
 import { handleVote } from "./controllers/vote.controller";
 import { handleErrors } from "./middleware/error.middleware";
+import { DisconnectReason } from "socket.io/dist/socket";
 
 dotenv.config();
 
@@ -23,16 +24,22 @@ export const io = new Server({
 });
 
 io.on("connection", (socket: Socket) => {
-    socket.on("room:join", (arg: RoomJoinPayload) =>
-        handleErrors(arg, socket, join)
+    socket.on("room:join", (payload: RoomJoinPayload) =>
+        handleErrors(socket, join, payload)
     );
-    socket.on("room:create", (arg: RoomCreationPayload) => create(arg, socket));
-    socket.on("room:vote", (arg: RoomVotePayload) => handleVote(arg, socket));
-    socket.on("room:close", (arg: RoomClosePayload) => close(arg, socket));
-    socket.on("disconnecting", (reason: string) => leave(socket));
-    socket.on("room:nextRound", (arg: RoomNextRoundPayload) =>
-        nextRound(socket)
+    socket.on("room:create", (payload: RoomCreationPayload) =>
+        handleErrors(socket, create, payload)
     );
+    socket.on("room:vote", (payload: RoomVotePayload) =>
+        handleErrors(socket, handleVote, payload)
+    );
+    socket.on("room:close", (payload: RoomClosePayload) =>
+        handleErrors(socket, close, payload)
+    );
+    socket.on("disconnecting", (reason: DisconnectReason) =>
+        handleErrors(socket, leave)
+    );
+    socket.on("room:nextRound", () => handleErrors(socket, nextRound));
 });
 
 io.listen(parseInt(process.env.PORT!));
