@@ -3,7 +3,9 @@ import styled from "styled-components";
 import { votingSystems } from "../App";
 import { Button } from "./Button";
 import { Theme } from "../types";
-import { themes } from "../themes";
+import { themes } from "../constants/themes";
+import { useLanguage } from "../hooks/useLanguage";
+import { RoomStates } from "../constants/enums";
 
 function convertLinesToUserStoryArray(lines: string): UserStory[] {
     return lines.split("\n").map((line: string) => ({
@@ -25,35 +27,38 @@ type Props = {
 };
 
 function PokerConfigurationScreen(props: Props) {
+    const language = useLanguage();
     return (
         <Container>
             <InputContainer>
-                <Text>Raum beitreten</Text>
+                <Text>{language.strings.join_room}</Text>
                 <Input
-                    placeholder="Benutzername"
+                    placeholder={language.strings.username}
                     onChange={(event: any) =>
                         props.setUsername(event.target.value)
                     }
                 />
                 <Input
                     type="text"
-                    placeholder="Raum Code"
+                    placeholder={language.strings.room.code}
                     onInput={(event: any) =>
                         props.setRoomCode(event.target.value)
                     }
                 />
-                <Button onClick={() => props.joinRoom()}>Beitreten</Button>
+                <Button onClick={() => props.joinRoom()}>
+                    {language.strings.buttons.join}
+                </Button>
             </InputContainer>
             <InputContainer>
-                <Text>Raum erstellen</Text>
+                <Text>{language.strings.create_room}</Text>
                 <Input
-                    placeholder="Benutzername"
+                    placeholder={language.strings.username}
                     onChange={(event: any) =>
                         props.setUsername(event.target.value)
                     }
                 />
                 <Input
-                    placeholder="Raum Name"
+                    placeholder={language.strings.room.name}
                     onChange={(event: any) =>
                         props.setRoomName(event.target.value)
                     }
@@ -66,8 +71,7 @@ function PokerConfigurationScreen(props: Props) {
                     {Object.keys(votingSystems).map((votingSystem: string) => {
                         return (
                             <option key={votingSystem} value={votingSystem}>
-                                {votingSystem.charAt(0).toUpperCase() +
-                                    votingSystem.slice(1) +
+                                {votingSystem.capitalize() +
                                     ` (${votingSystems[votingSystem].join(
                                         ","
                                     )})`}
@@ -87,8 +91,11 @@ function PokerConfigurationScreen(props: Props) {
                     {themes.map((theme: Theme) => {
                         return (
                             <option key={theme.name} value={theme.name}>
-                                {theme.name.charAt(0).toUpperCase() +
-                                    theme.name.slice(1)}
+                                {
+                                    language.strings.theme[
+                                        theme.name.toLowerCase()
+                                    ]
+                                }
                             </option>
                         );
                     })}
@@ -101,7 +108,9 @@ function PokerConfigurationScreen(props: Props) {
                     }}
                     placeholder="Userstories"
                 ></TextArea>
-                <Button onClick={props.createRoom}>Erstellen</Button>
+                <Button onClick={props.createRoom}>
+                    {language.strings.buttons.create}
+                </Button>
             </InputContainer>
         </Container>
     );

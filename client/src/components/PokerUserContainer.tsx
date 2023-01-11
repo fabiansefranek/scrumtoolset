@@ -1,16 +1,22 @@
-import { User } from "../types";
+import { User, UserStory } from "../types";
 import PokerUser from "./PokerUser";
 import styled from "styled-components";
+import { RoomStates } from "../constants/enums";
+import { LanguageContext } from "../contexts/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 
 type Props = {
     userList: User[];
     roomState: string;
+    currentUserStory: UserStory;
 };
 
 function PokerUserContainer(props: Props) {
+    const language = useLanguage();
+
     const getNumberOfVotes = () => {
         return props.userList.reduce((count: number, user: User) => {
-            if (user.state === "voted") {
+            if (user.state === RoomStates.Voted) {
                 return count + 1;
             }
             return count;
@@ -20,11 +26,11 @@ function PokerUserContainer(props: Props) {
     return (
         <Container>
             <Text>
-                Punkte{" "}
-                {props.roomState === "voting"
-                    ? ` - ${getNumberOfVotes()}/${
-                          props.userList.length
-                      } Stimmen`
+                {language.strings.points}{" "}
+                {props.roomState === RoomStates.Voting
+                    ? ` - ${getNumberOfVotes()}/${props.userList.length} ${
+                          language.strings.votes
+                      }`
                     : null}
             </Text>
             <Users>
@@ -34,6 +40,7 @@ function PokerUserContainer(props: Props) {
                             key={user.sessionId}
                             user={user}
                             roomState={props.roomState}
+                            currentUserStory={props.currentUserStory}
                         />
                     );
                 })}

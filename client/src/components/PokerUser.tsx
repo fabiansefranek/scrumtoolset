@@ -1,13 +1,19 @@
-import { User } from "../types";
+import { User, UserStory } from "../types";
 import PokerProfilePicture from "./PokerProfilePicture";
 import styled from "styled-components";
+import { useLanguage } from "../hooks/useLanguage";
+import { RoomStates } from "../constants/enums";
 
 type Props = {
     user: User;
     roomState: string;
+    currentUserStory: UserStory;
 };
 
 function PokerUser(props: Props) {
+    const language = useLanguage();
+    console.log(props.currentUserStory.name);
+
     return (
         <Container key={props.user.sessionId}>
             <UserContainer>
@@ -16,11 +22,13 @@ function PokerUser(props: Props) {
             </UserContainer>
 
             <State>
-                {props.roomState === "voting"
-                    ? props.user.state
+                {props.currentUserStory.name === "Waiting"
+                    ? ""
+                    : props.roomState === RoomStates.Voting
+                    ? language.strings.userState[props.user.state]
                     : props.user.vote
                     ? props.user.vote
-                    : "Not voted"}
+                    : language.strings.userState.not_voted}
             </State>
         </Container>
     );

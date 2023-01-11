@@ -6,6 +6,8 @@ import PokerUserContainer from "./PokerUserContainer";
 import { User, UserStory } from "../types";
 import { votingSystems } from "../App";
 import { Button } from "./Button";
+import { useLanguage } from "../hooks/useLanguage";
+import { RoomStates } from "../constants/enums";
 
 type Props = {
     userList: User[];
@@ -21,12 +23,15 @@ type Props = {
 };
 
 function PokerVoteContainer(props: Props) {
+    const language = useLanguage();
+
     return (
         <Container>
             <UserAndCardContainer>
                 <PokerUserContainer
                     userList={props.userList}
                     roomState={props.roomState}
+                    currentUserStory={props.currentUserStory}
                 />
                 <PokerCardContainer
                     cards={votingSystems[props.votingSystem]}
@@ -36,31 +41,32 @@ function PokerVoteContainer(props: Props) {
             </UserAndCardContainer>
             <ButtonContainer>
                 {props.userIsModerator ? (
-                    props.roomState === "voting" ? (
+                    props.roomState === RoomStates.Voting ? (
                         <CustomButton onClick={() => props.nextRound()}>
-                            Karten aufdecken
+                            {language.strings.buttons.reveal_votes}
                         </CustomButton>
-                    ) : props.roomState === "waiting" ? (
+                    ) : props.roomState === RoomStates.Waiting ? (
                         <CustomButton onClick={() => props.nextRound()}>
                             {props.userIsModerator &&
                             props.currentUserStory.name === "Waiting"
-                                ? "Runde starten"
-                                : "Nächste Runde"}
+                                ? language.strings.buttons.start_round
+                                : language.strings.buttons.next_round}
                         </CustomButton>
                     ) : (
                         <CustomButton onClick={() => props.nextRound()}>
-                            Raum schließen
+                            {language.strings.buttons.close_room}
                         </CustomButton>
                     )
                 ) : (
                     <></>
                 )}
                 <CustomButton onClick={() => props.disconnect()}>
-                    Raum verlassen
+                    {language.strings.buttons.leave_room}
                 </CustomButton>
-                {props.userIsModerator && props.roomState !== "closeable" ? (
+                {props.userIsModerator &&
+                props.roomState !== RoomStates.Closeable ? (
                     <CustomButton onClick={() => props.closeRoom()}>
-                        Raum schließen
+                        {language.strings.buttons.close_room}
                     </CustomButton>
                 ) : null}
             </ButtonContainer>

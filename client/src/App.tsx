@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import PokerConfigurationScreen from "./components/PokerConfigurationScreen";
 import PokerSessionScreen from "./components/PokerSessionScreen";
-import { Theme, User, UserStory } from "./types";
+import { Theme, User, UserStory, ErrorObject } from "./types";
 import styled from "styled-components";
-import { light } from "./themes";
+import { light } from "./constants/themes";
 import { ThemeProvider } from "styled-components";
-import { themes } from "./themes";
+import { themes } from "./constants/themes";
 import { useToast } from "./hooks/useToast";
 import { checkUserInput } from "./utils";
+import { useLanguage } from "./hooks/useLanguage";
+import { Languages } from "./constants/enums";
 
 export const votingSystems: any = {
     fibonacci: [
@@ -45,6 +47,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     const [userList, setUserList] = useState<User[]>([]);
     const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
     const toast = useToast();
+    const language = useLanguage();
 
     useEffect(() => {
         if (socket === null) return;
@@ -125,15 +128,16 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             toast.alert("The room was closed by the moderator");
         });
 
-        socket.on("error", (args: any) => {
-            console.error(args);
+        socket.on("error", (error: ErrorObject) => {
+            toast.error(error.message);
+            console.error(error);
         });
 
         socket.on("connect_error", (err: any) => console.error(err));
 
         socket.on("connect_failed", (err: any) => console.error(err));
 
-        socket.on("disconnect", (err: any) => console.error(JSON.parse(err)));
+        socket.on("disconnect", (err: any) => console.error(err));
 
         return () => {
             socket.off("room:joined");

@@ -1,6 +1,8 @@
 import React from "react";
 import PokerCard from "./PokerCard";
 import styled from "styled-components";
+import { useLanguage } from "../hooks/useLanguage";
+import { RoomStates } from "../constants/enums";
 
 type Props = {
     cards: string[];
@@ -9,9 +11,11 @@ type Props = {
 };
 
 function PokerCardContainer(props: Props) {
+    const language = useLanguage();
+
     return (
         <Container>
-            <Text>Karten</Text>
+            <Text>{language.strings.cards}</Text>
             <Cards cards={props.cards}>
                 {props.cards.map((card: string) => {
                     return (
@@ -19,7 +23,11 @@ function PokerCardContainer(props: Props) {
                             key={card}
                             text={card}
                             sendVote={props.sendVote}
-                            active={props.roomState === "voting" ? true : false}
+                            active={
+                                props.roomState === RoomStates.Voting
+                                    ? true
+                                    : false
+                            }
                         />
                     );
                 })}

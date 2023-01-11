@@ -1,3 +1,11 @@
+import { StringMappingType } from "typescript";
+
+declare global {
+    interface String {
+        capitalize(): string;
+    }
+}
+
 type User = {
     sessionId: string;
     username: string;
@@ -39,4 +47,60 @@ type ToastType = {
     onClick?: Function;
 };
 
-export type { User, UserStory, Theme, ToastType };
+type ErrorObject = {
+    message: string;
+    stack: string;
+};
+
+type LanguageObject = {
+    cards: string;
+    points: string;
+    votes: string;
+    join_room: string;
+    create_room: string;
+    username: string;
+    all_userstories: string;
+    roomState: {
+        voting: string;
+    };
+    userState: {
+        [index: string]: string;
+        not_voted: string;
+        voted: string;
+    };
+    buttons: {
+        reveal_votes: string;
+        leave_room: string;
+        close_room: string;
+        show_userstories: string;
+        hide_userstories: string;
+        join: string;
+        create: string;
+        next_round: string;
+        start_round: string;
+    };
+    room: {
+        name: string;
+        code: string;
+    };
+    theme: {
+        [index: string]: string;
+        dark: string;
+        light: string;
+    };
+};
+
+type LanguageStringsType = {
+    en: LanguageObject;
+    de: LanguageObject;
+};
+
+export type {
+    User,
+    UserStory,
+    Theme,
+    ToastType,
+    ErrorObject,
+    LanguageObject,
+    LanguageStringsType,
+};

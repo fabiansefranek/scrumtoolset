@@ -1,7 +1,10 @@
-import { Theme } from "./types";
+import { LanguageContext } from "../contexts/LanguageContext";
+import { LanguageProvider } from "../providers/LanguageProvider";
+import { Theme } from "../types";
+import languageStrings from "./languageStrings";
 
 export const light: Theme = {
-    name: "hell",
+    name: languageStrings.en.theme.light,
     colors: {
         background: "#fff",
         secondaryBackground: "#f3f3f3",
@@ -18,7 +21,7 @@ export const light: Theme = {
 };
 
 export const dark: Theme = {
-    name: "dunkel",
+    name: languageStrings.en.theme.dark,
     colors: {
         background: "#101010",
         secondaryBackground: "#212121",
