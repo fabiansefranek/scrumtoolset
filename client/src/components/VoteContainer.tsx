@@ -1,10 +1,8 @@
 import styled from "styled-components";
-import React from "react";
-
-import PokerCardContainer from "./PokerCardContainer";
-import PokerUserContainer from "./PokerUserContainer";
+import CardContainer from "./CardContainer";
+import UserList from "./UserList";
 import { User, UserStory } from "../types";
-import { votingSystems } from "../App";
+import { votingSystems } from "../constants/enums";
 import { Button } from "./Button";
 import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
@@ -18,22 +16,22 @@ type Props = {
     closeRoom: Function;
     sendVote: Function;
     disconnect: Function;
-    votingSystem: any;
+    votingSystem: string;
     currentUserStory: UserStory;
 };
 
-function PokerVoteContainer(props: Props) {
+function VoteContainer(props: Props) {
     const language = useLanguage();
 
     return (
         <Container>
             <UserAndCardContainer>
-                <PokerUserContainer
+                <UserList
                     userList={props.userList}
                     roomState={props.roomState}
                     currentUserStory={props.currentUserStory}
                 />
-                <PokerCardContainer
+                <CardContainer
                     cards={votingSystems[props.votingSystem]}
                     roomState={props.roomState}
                     sendVote={props.sendVote}
@@ -57,9 +55,7 @@ function PokerVoteContainer(props: Props) {
                             {language.strings.buttons.close_room}
                         </CustomButton>
                     )
-                ) : (
-                    <></>
-                )}
+                ) : null}
                 <CustomButton onClick={() => props.disconnect()}>
                     {language.strings.buttons.leave_room}
                 </CustomButton>
@@ -101,4 +97,4 @@ const ButtonContainer = styled.div`
     gap: 1rem;
 `;
 
-export default PokerVoteContainer;
+export default VoteContainer;

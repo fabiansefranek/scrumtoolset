@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, MouseEvent } from "react";
 import styled, { keyframes } from "styled-components";
 import { ToastType } from "../types";
 
@@ -14,19 +14,21 @@ type Props = {
 };
 
 function Toast(props: Props) {
+    // destruct props
+    const { close }: Props = props;
     useEffect(() => {
         const timeout = setTimeout(() => {
-            props.close();
+            close();
         }, 2000);
         return () => {
             clearTimeout(timeout);
         };
-    }, [props]);
+    }, [close]);
 
     return (
         <Container
             toast={props.toast}
-            onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+            onClick={(e: MouseEvent<HTMLDivElement>) =>
                 props.toast.onClick && props.toast.onClick()
             }
         >

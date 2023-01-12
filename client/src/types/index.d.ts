@@ -1,5 +1,3 @@
-import { StringMappingType } from "typescript";
-
 declare global {
     interface String {
         capitalize(): string;
@@ -21,6 +19,11 @@ type UserStory = {
     name: string;
     content: string;
     roomId?: string;
+};
+
+type Vote = {
+    sessionId: string;
+    vote: string;
 };
 
 type Theme = {
@@ -108,14 +111,22 @@ type ApplicationError = {
     critical: boolean;
 };
 
+type RoomJoinedPayload = {
+    roomCode: string;
+    votingSystem: string;
+    roomState: string;
+    currentUserStory: UserStory;
+    theme: string;
+};
+
 export type {
     User,
     UserStory,
     Theme,
     ToastType,
-    ErrorObject,
-    LanguageObject,
+    ApplicationError,
+    RoomJoinedPayload,
+    Vote,
     LanguageStringsType,
+    LanguageObject
 };
-
-export type { User, UserStory, Theme, ToastType, ApplicationError };

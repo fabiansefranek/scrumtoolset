@@ -1,5 +1,5 @@
 import { User, UserStory } from "../types";
-import PokerProfilePicture from "./PokerProfilePicture";
+import ProfilePicture from "./ProfilePicture";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
@@ -10,16 +10,16 @@ type Props = {
     currentUserStory: UserStory;
 };
 
-function PokerUser(props: Props) {
+function UserContainer(props: Props) {
     const language = useLanguage();
     console.log(props.currentUserStory.name);
 
     return (
         <Container key={props.user.sessionId}>
-            <UserContainer>
-                <PokerProfilePicture username={props.user.username} />
+            <NameAndPictureContainer>
+                <ProfilePicture username={props.user.username} />
                 <Username>{props.user.username}</Username>
-            </UserContainer>
+            </NameAndPictureContainer>
 
             <State>
                 {props.currentUserStory.name === "Waiting"
@@ -42,7 +42,7 @@ const Container = styled.div`
     width: 100%;
 `;
 
-const UserContainer = styled.div`
+const NameAndPictureContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -61,4 +61,4 @@ const State = styled.p`
     color: ${(props) => props.theme.colors.text};
 `;
 
-export default PokerUser;
+export default UserContainer;
