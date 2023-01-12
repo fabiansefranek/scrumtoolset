@@ -4,13 +4,20 @@ import PokerConfigurationScreen from "./components/PokerConfigurationScreen";
 import PokerSessionScreen from "./components/PokerSessionScreen";
 import { ApplicationError, Theme, User, UserStory } from "./types";
 import styled from "styled-components";
-import { light } from "./themes";
+import { light } from "./constants/themes";
 import { ThemeProvider } from "styled-components";
-import { themes } from "./themes";
+import { themes } from "./constants/themes";
 import { useToast } from "./hooks/useToast";
 import { checkUserInput } from "./utils";
+import { useLanguage } from "./hooks/useLanguage";
+import { Languages } from "./constants/enums";
 
-export const votingSystems: any = {
+export const votingSystems: {
+    [index: string]: string[];
+    fibonacci: string[];
+    scrum: string[];
+    tshirts: string[];
+} = {
     fibonacci: [
         "?",
         "0",
@@ -45,6 +52,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     const [userList, setUserList] = useState<User[]>([]);
     const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
     const toast = useToast();
+    const language = useLanguage();
 
     useEffect(() => {
         if (socket === null) return;
@@ -55,8 +63,9 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
 
         socket.on("room:joined", (args: any) => {
             console.log(`Joined room and got payload: ${JSON.stringify(args)}`);
-            toast.success(`Click to copy the roomcode: ${args.roomCode}`, () =>
-                navigator.clipboard.writeText(args.roomCode)
+            toast.success(
+                `${language.strings.notifications.copy_roomcode} ${args.roomCode}`,
+                () => navigator.clipboard.writeText(args.roomCode)
             );
             setRoomCode(args.roomCode);
             setCurrentUserStory(args.currentUserStory);
@@ -70,13 +79,14 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         });
 
         socket.on("room:userListUpdate", (args: any) => {
+            console.log(args);
             const moderatorSessionId: string =
                 args[args.findIndex((user: User) => user.isModerator === 1)]
                     .sessionId;
             if (socket.id === moderatorSessionId && !userIsModerator) {
                 setUserIsModerator(true);
                 console.warn("You are now a moderator");
-                toast.alert("You are now a moderator");
+                toast.alert(language.strings.notifications.now_a_moderator);
             }
             console.log(
                 `The user list updated. Payload: ${JSON.stringify(args)}`
@@ -122,18 +132,15 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
 
         socket.on("room:closed", (args: any) => {
             disconnect();
-            toast.alert("The room was closed by the moderator");
-        });
-
-        socket.on("room:closed", (args: any) => {
-            disconnect();
-            toast.alert("The room was closed by the moderator");
+            toast.alert(
+                language.strings.notifications.room_closed_by_moderator
+            );
         });
 
         socket.on("error", (error: ApplicationError) => {
             error.critical
-                ? toast.error(error.message)
-                : toast.alert(error.message);
+                ? toast.error(language.strings.notifications[error.message])
+                : toast.alert(language.strings.notifications[error.message]);
             console.error(error);
         });
 
@@ -174,7 +181,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         setUserList([]);
         setUserIsModerator(false);
         setTheme(light);
-        toast.alert("You disconnected!");
+        toast.alert(language.strings.notifications.disconnected);
         socket.disconnect();
         console.log("Disconnected from server");
     }
@@ -188,20 +195,30 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
 
     function createRoom() {
         if (!checkUserInput(username))
-            return toast.error("Please enter a valid user name");
+            return toast.error(
+                language.strings.notifications.user_name_invalid
+            );
         if (!checkUserInput(roomName))
-            return toast.error("Please enter a valid room name");
+            return toast.error(
+                language.strings.notifications.room_name_invalid
+            );
         if (userStories.length === 0)
-            return toast.error("Please enter at least one user story");
+            return toast.error(
+                language.strings.notifications.missing_userstory
+            );
         const socket = connect();
         const payload: object = {
             base: { roomName: roomName, username: username },
             options: {
-                votingSystem: votingSystem ? votingSystem : "fibonacci",
+                votingSystem: votingSystem
+                    ? votingSystem
+                    : votingSystems.fibonacci,
                 userStories: userStories,
                 theme: theme.name,
             },
         };
+        console.log(userStories);
+        console.log(payload);
         socket.emit("room:create", payload);
         setUserIsModerator(true);
         console.log(`Create room with payload: ${JSON.stringify(payload)}`);
@@ -222,18 +239,27 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     }
 
     function nextRound() {
-        if (!userIsModerator) throw new Error("User is not a moderator");
+        if (!userIsModerator) {
+            toast.error(language.strings.notifications.must_be_moderator);
+            return;
+        }
         socket.emit("room:nextRound");
     }
 
     function revealVotes() {
-        if (!userIsModerator) throw new Error("User is not a moderator");
+        if (!userIsModerator) {
+            toast.error(language.strings.notifications.must_be_moderator);
+            return;
+        }
         console.log("reveal votes");
         socket.emit("room:revealVotes");
     }
 
     function closeRoom() {
-        if (!userIsModerator) throw new Error("User is not a moderator");
+        if (!userIsModerator) {
+            toast.error(language.strings.notifications.must_be_moderator);
+            return;
+        }
         socket.emit("room:close", { roomCode: roomCode });
     }
 

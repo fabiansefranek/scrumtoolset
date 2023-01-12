@@ -68,9 +68,8 @@ const Container = styled.div`
     top: 0;
     right: 0;
     overflow: hidden;
-    height: 100%;
+    height: fit-content;
     padding: 1rem;
     box-sizing: border-box;
     width: fit-content;
-    //TODO: make non clickable (pointer-events: none)
 `;

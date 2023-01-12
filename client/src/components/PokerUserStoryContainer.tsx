@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { UserStory } from "../types";
 import styled from "styled-components";
 import { Button } from "./Button";
+import { useLanguage } from "../hooks/useLanguage";
 
 type Props = {
     userStories: UserStory[];
@@ -11,6 +12,8 @@ type Props = {
 
 function PokerUserStoryContainer(props: Props) {
     const [showUserStories, setShowUserStories] = useState<boolean>(false);
+    const language = useLanguage();
+
     return (
         <React.Fragment>
             <CurrentUserStoryContainer>
@@ -20,18 +23,18 @@ function PokerUserStoryContainer(props: Props) {
                         onClick={() => setShowUserStories(!showUserStories)}
                     >
                         {showUserStories
-                            ? "Userstories verstecken"
-                            : "Userstories anzeigen"}
+                            ? language.strings.buttons.hide_userstories
+                            : language.strings.buttons.show_userstories}
                     </Button>
                 )}
             </CurrentUserStoryContainer>
             {showUserStories && (
                 <AllUserstoriesContainer>
-                    <Text>Alle Userstories</Text>
+                    <Text>{language.strings.all_userstories}</Text>
                     <Text>
-                        {props.userStories.map(
-                            (userStory: UserStory) => userStory.name + ","
-                        )}
+                        {props.userStories
+                            .map((userStory: UserStory) => userStory.name)
+                            .join(",")}
                     </Text>
                 </AllUserstoriesContainer>
             )}

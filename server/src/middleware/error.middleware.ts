@@ -20,6 +20,3 @@ export async function handleErrors(
         }
     }
 }
-
-//UTIL for handeling notifications as errors
-
