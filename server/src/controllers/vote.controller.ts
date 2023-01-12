@@ -13,8 +13,8 @@ export function handleVote(payload: RoomVotePayload, socket: Socket): void {
 
     io.in(roomCode).emit("room:broadcastVote", {
         sessionId: sessionId,
-        state: state,
-    });
+        vote: state,
+    } as Vote);
 }
 
 export async function broadcastVotes(socket: Socket) {
