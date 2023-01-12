@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import PokerConfigurationScreen from "./components/PokerConfigurationScreen";
 import PokerSessionScreen from "./components/PokerSessionScreen";
-import { Theme, User, UserStory, ErrorObject } from "./types";
+import { ApplicationError, Theme, User, UserStory } from "./types";
 import styled from "styled-components";
 import { light } from "./constants/themes";
 import { ThemeProvider } from "styled-components";
@@ -128,16 +128,29 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             toast.alert("The room was closed by the moderator");
         });
 
-        socket.on("error", (error: ErrorObject) => {
-            toast.error(error.message);
+        socket.on("room:closed", (args: any) => {
+            disconnect();
+            toast.alert("The room was closed by the moderator");
+        });
+
+        socket.on("error", (error: ApplicationError) => {
+            error.critical
+                ? toast.error(error.message)
+                : toast.alert(error.message);
             console.error(error);
         });
 
-        socket.on("connect_error", (err: any) => console.error(err));
+        socket.on("connect_error", (error: Error) => {
+            console.error(error);
+        });
 
-        socket.on("connect_failed", (err: any) => console.error(err));
+        socket.on("connect_failed", (arg: any) => {
+            console.error(arg);
+        });
 
-        socket.on("disconnect", (err: any) => console.error(err));
+        socket.on("disconnect", (arg: any) =>
+            console.log(`Disconnected: ${arg}`)
+        );
 
         return () => {
             socket.off("room:joined");

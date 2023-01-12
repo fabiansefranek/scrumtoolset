@@ -47,11 +47,6 @@ type ToastType = {
     onClick?: Function;
 };
 
-type ErrorObject = {
-    message: string;
-    stack: string;
-};
-
 type LanguageObject = {
     cards: string;
     points: string;
@@ -95,6 +90,12 @@ type LanguageStringsType = {
     de: LanguageObject;
 };
 
+type ApplicationError = {
+    name: string;
+    message: string;
+    critical: boolean;
+};
+
 export type {
     User,
     UserStory,
@@ -104,3 +105,5 @@ export type {
     LanguageObject,
     LanguageStringsType,
 };
+
+export type { User, UserStory, Theme, ToastType, ApplicationError };
