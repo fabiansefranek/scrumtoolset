@@ -72,5 +72,4 @@ const Container = styled.div`
     padding: 1rem;
     box-sizing: border-box;
     width: fit-content;
-    //TODO: make non clickable (pointer-events: none)
 `;

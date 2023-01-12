@@ -88,9 +88,9 @@ export async function join(
 
     createUser(socket.id, username, now, roomCode, isModerator);
 
-    if ([...socket.rooms][1] != roomCode)
-        //Makes sure user doesn't join same room twice
-        socket.join(roomCode);
+    //Makes sure user doesn't join same room twice
+    if ([...socket.rooms][1] != roomCode) socket.join(roomCode);
+
     const votingSystem: string = await getRoomVotingSystem(roomCode);
     const roomState: string = await getRoomState(roomCode);
     const currentUserStory: UserStory = await getCurrentUserStory(roomCode);

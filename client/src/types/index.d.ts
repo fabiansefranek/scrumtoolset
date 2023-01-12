@@ -83,6 +83,18 @@ type LanguageObject = {
         dark: string;
         light: string;
     };
+    notifications: {
+        [index: string]: string;
+        user_name_invalid: string;
+        room_name_invalid: string;
+        missing_userstory: string;
+        revote_started: string;
+        copy_roomcode: string;
+        now_a_moderator: string;
+        room_closed_by_moderator: string;
+        must_be_moderator: string;
+        disconnected: string;
+    };
 };
 
 type LanguageStringsType = {

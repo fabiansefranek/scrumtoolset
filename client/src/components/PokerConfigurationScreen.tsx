@@ -8,10 +8,14 @@ import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
 
 function convertLinesToUserStoryArray(lines: string): UserStory[] {
-    return lines.split("\n").map((line: string) => ({
-        name: line.split(";")[0],
-        content: line.split(";")[1],
-    }));
+    if (lines.length === 0) return [];
+    return lines
+        .trim()
+        .split("\n")
+        .map((line: string) => ({
+            name: line.split(";")[0],
+            content: line.split(";")[1],
+        }));
 }
 
 type Props = {
