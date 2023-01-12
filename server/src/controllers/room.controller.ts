@@ -29,13 +29,15 @@ import {
 } from "../models/user";
 import { RoomStates } from "../constants/enums";
 import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
+import {ApplicationError} from "../errors/application.error";
+import {sendAsError} from "../middleware/error.middleware";
 
 export function create(payload: RoomCreationPayload, socket: Socket): void {
     const roomCode: string = generateWordSlug(3, "-");
     const now: number = Math.floor(Date.now() / 1000);
 
-    if (!checkUserInput(payload.base.roomName)) return; //TODO change to emit error when failing
-    if (!checkUserInput(payload.base.username)) return;
+    if (!checkUserInput(payload.base.roomName)) throw new ApplicationError("Room name mustn't contain special characters ",true); //TODO change to emit error when failing
+    if (!checkUserInput(payload.base.username)) throw new ApplicationError("Username mustn't contain special characters ", true);
 
     createRoom(
         roomCode,
@@ -45,6 +47,7 @@ export function create(payload: RoomCreationPayload, socket: Socket): void {
         -1,
         payload.options.theme
     );
+    if(payload.options.userStories.length === 0) throw new ApplicationError("Please enter at least one kebap ([Name] : [Detail])", true);
     addUserStories(payload.options.userStories, roomCode);
 
     socket.join(roomCode);
@@ -62,7 +65,7 @@ export async function join(
 
     const roomFound: boolean = await doesRoomExist(roomCode);
     if (!roomFound) return socket.emit("room:denied");
-    if (!checkUserInput(username)) return socket.emit("room:denied");
+    if (!checkUserInput(username)) throw new ApplicationError("Username mustn't contain special characters ", true);
 
     if (isModerator === undefined) {
         isModerator = (await getOldestConnectionFromRoom(roomCode)) === "";
@@ -157,6 +160,8 @@ export async function nextRound(socket: Socket) {
                         currentUserStory: userStories[currentUserStoryId + 1],
                     });
                 }
+                else
+                    sendAsError(socket,new ApplicationError("Votes were not unanimous. Vote again.", false));
                 resetUserVotes(roomCode);
                 setRoomState(RoomStates.VOTING, roomCode);
                 await handleUserListUpdate(roomCode); // ? Should this be await?

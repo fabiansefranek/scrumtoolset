@@ -19,7 +19,17 @@ export async function handleErrors(
             socket.emit("error", {
                 name: error.name,
                 message: error.message,
+                critical : error.critical
             });
         }
     }
+}
+
+//UTIL for handeling notifications as errors
+export function sendAsError(socket : Socket, error : ApplicationError) {
+    socket.emit("error", {
+        name: error.name,
+        message: error.message,
+        critical : error.critical
+    });
 }
