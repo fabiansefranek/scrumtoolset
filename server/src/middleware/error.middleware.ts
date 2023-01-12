@@ -4,7 +4,7 @@ import { ApplicationError } from "../errors/application.error";
 export async function handleErrors(
     socket: Socket,
     callback: Function,
-    payload?: any
+    payload?: unknown
 ) {
     try {
         if (payload) {

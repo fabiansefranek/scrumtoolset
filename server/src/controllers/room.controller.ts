@@ -171,9 +171,10 @@ export async function nextRound(socket: Socket) {
                     currentUserStoryId == -1
                 ) {
                     setCurrentUserStoryId(roomCode, currentUserStoryId + 1);
-                    io.in(roomCode).emit("room:userStoryUpdate", {
-                        currentUserStory: userStories[currentUserStoryId + 1],
-                    });
+                    io.in(roomCode).emit(
+                        "room:userStoryUpdate",
+                        userStories[currentUserStoryId + 1]
+                    );
                 } else
                     new ApplicationError(
                         ApplicationErrorMessages.REVOTE_STARTED,
@@ -187,5 +188,5 @@ export async function nextRound(socket: Socket) {
         }
     }
     const newRoomState: string = await getRoomState(roomCode);
-    io.in(roomCode).emit("room:stateUpdate", { roomState: newRoomState });
+    io.in(roomCode).emit("room:stateUpdate", newRoomState);
 }
