@@ -16,20 +16,10 @@ export async function handleErrors(
         if (error instanceof Error)
             console.error(`[${error.name}] ${error.message}: ${error.stack}}`);
         if (error instanceof ApplicationError) {
-            socket.emit("error", {
-                name: error.name,
-                message: error.message,
-                critical : error.critical
-            });
+            error.send(socket);
         }
     }
 }
 
 //UTIL for handeling notifications as errors
-export function sendAsError(socket : Socket, error : ApplicationError) {
-    socket.emit("error", {
-        name: error.name,
-        message: error.message,
-        critical : error.critical
-    });
-}
+
