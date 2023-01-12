@@ -30,7 +30,6 @@ import {
 import {ApplicationErrorMessages, RoomStates} from "../constants/enums";
 import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
 import {ApplicationError} from "../errors/application.error";
-import {sendAsError} from "../middleware/error.middleware";
 
 export function create(payload: RoomCreationPayload, socket: Socket): void {
     const roomCode: string = generateWordSlug(3, "-");
@@ -161,7 +160,7 @@ export async function nextRound(socket: Socket) {
                     });
                 }
                 else
-                    sendAsError(socket,new ApplicationError(ApplicationErrorMessages.REVOTE_STARTED, false));
+                    new ApplicationError(ApplicationErrorMessages.REVOTE_STARTED,false).send(socket)
                 resetUserVotes(roomCode);
                 setRoomState(RoomStates.VOTING, roomCode);
                 await handleUserListUpdate(roomCode); // ? Should this be await?
