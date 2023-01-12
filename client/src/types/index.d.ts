@@ -39,4 +39,10 @@ type ToastType = {
     onClick?: Function;
 };
 
-export type { User, UserStory, Theme, ToastType };
+type ApplicationError = {
+    name: string;
+    message: string;
+    critical: boolean;
+};
+
+export type { User, UserStory, Theme, ToastType, ApplicationError };
