@@ -1,11 +1,11 @@
 import { UserStory } from "../types";
 import styled from "styled-components";
-import { votingSystems } from "../App";
+import { votingSystems } from "../constants/enums";
 import { Button } from "./Button";
 import { Theme } from "../types";
 import { themes } from "../constants/themes";
 import { useLanguage } from "../hooks/useLanguage";
-import { RoomStates } from "../constants/enums";
+import { ChangeEvent } from "react";
 
 function convertLinesToUserStoryArray(lines: string): UserStory[] {
     if (lines.length === 0) return [];
@@ -23,14 +23,14 @@ type Props = {
     setUsername: Function;
     setVotingSystem: Function;
     setUserStories: Function;
-    createRoom: any;
+    createRoom: Function;
     setCurrentUserStory: Function;
     joinRoom: Function;
     setRoomCode: Function;
     setTheme: Function;
 };
 
-function PokerConfigurationScreen(props: Props) {
+function ConfigurationScreen(props: Props) {
     const language = useLanguage();
     return (
         <Container>
@@ -38,14 +38,14 @@ function PokerConfigurationScreen(props: Props) {
                 <Text>{language.strings.join_room}</Text>
                 <Input
                     placeholder={language.strings.username}
-                    onChange={(event: any) =>
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         props.setUsername(event.target.value)
                     }
                 />
                 <Input
                     type="text"
                     placeholder={language.strings.room.code}
-                    onInput={(event: any) =>
+                    onInput={(event: ChangeEvent<HTMLInputElement>) =>
                         props.setRoomCode(event.target.value)
                     }
                 />
@@ -57,18 +57,18 @@ function PokerConfigurationScreen(props: Props) {
                 <Text>{language.strings.create_room}</Text>
                 <Input
                     placeholder={language.strings.username}
-                    onChange={(event: any) =>
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         props.setUsername(event.target.value)
                     }
                 />
                 <Input
                     placeholder={language.strings.room.name}
-                    onChange={(event: any) =>
+                    onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         props.setRoomName(event.target.value)
                     }
                 />
                 <Select
-                    onChange={(event: any) =>
+                    onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                         props.setVotingSystem(event.target.value)
                     }
                 >
@@ -84,7 +84,7 @@ function PokerConfigurationScreen(props: Props) {
                     })}
                 </Select>
                 <Select
-                    onChange={(event: any) =>
+                    onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                         props.setTheme(
                             themes.find(
                                 (theme) => theme.name === event.target.value
@@ -105,14 +105,14 @@ function PokerConfigurationScreen(props: Props) {
                     })}
                 </Select>
                 <TextArea
-                    onChange={(event: any) => {
+                    onChange={(event: ChangeEvent<HTMLTextAreaElement>) => {
                         const userStories: UserStory[] =
                             convertLinesToUserStoryArray(event.target.value);
                         props.setUserStories(userStories);
                     }}
                     placeholder="Userstories"
                 ></TextArea>
-                <Button onClick={props.createRoom}>
+                <Button onClick={() => props.createRoom()}>
                     {language.strings.buttons.create}
                 </Button>
             </InputContainer>
@@ -175,4 +175,4 @@ const TextArea = styled.textarea`
     }
 `;
 
-export default PokerConfigurationScreen;
+export default ConfigurationScreen;

@@ -11,20 +11,20 @@ type Props = {
     sendVote: Function;
 };
 
-function PokerCard(props: Props) {
+function Card(props: Props) {
     const width: number = 50;
     return (
-        <Card
+        <Container
             onClick={() => props.active && props.sendVote(props.text)}
             active={props.active}
             width={width}
         >
-            <CardText>{props.text}</CardText>
-        </Card>
+            <Text>{props.text}</Text>
+        </Container>
     );
 }
 
-const Card = styled.div<{ width: number; active: boolean }>`
+const Container = styled.div<{ width: number; active: boolean }>`
     width: ${(props) => props.width}px;
     height: ${(props) => deriveHeight(props.width)}px;
     display: flex;
@@ -42,9 +42,9 @@ const Card = styled.div<{ width: number; active: boolean }>`
     user-select: none;
 `;
 
-const CardText = styled.p`
+const Text = styled.p`
     margin: 0;
     color: ${(props) => props.theme.colors.text};
 `;
 
-export default PokerCard;
+export default Card;

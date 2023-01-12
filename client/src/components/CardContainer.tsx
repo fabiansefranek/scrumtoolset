@@ -1,5 +1,5 @@
 import React from "react";
-import PokerCard from "./PokerCard";
+import Card from "./Card";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
@@ -10,7 +10,7 @@ type Props = {
     sendVote: Function;
 };
 
-function PokerCardContainer(props: Props) {
+function CardContainer(props: Props) {
     const language = useLanguage();
 
     return (
@@ -19,7 +19,7 @@ function PokerCardContainer(props: Props) {
             <Cards cards={props.cards}>
                 {props.cards.map((card: string) => {
                     return (
-                        <PokerCard
+                        <Card
                             key={card}
                             text={card}
                             sendVote={props.sendVote}
@@ -47,7 +47,7 @@ const Text = styled.p`
     color: ${(props) => props.theme.colors.text};
 `;
 
-const Cards = styled.div.attrs((props: { cards: any[] }) => props)`
+const Cards = styled.div.attrs((props: { cards: string[] }) => props)`
     display: grid;
     gap: 0.75rem;
     grid-template-columns: ${(props) =>
@@ -58,4 +58,4 @@ const Cards = styled.div.attrs((props: { cards: any[] }) => props)`
             : "1fr 1fr 1fr 1fr"};
 `;
 
-export default PokerCardContainer;
+export default CardContainer;

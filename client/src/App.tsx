@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
-import io from "socket.io-client";
-import PokerConfigurationScreen from "./components/PokerConfigurationScreen";
-import PokerSessionScreen from "./components/PokerSessionScreen";
-import { ApplicationError, Theme, User, UserStory } from "./types";
+import io, { Socket } from "socket.io-client";
+import ConfigurationScreen from "./components/ConfigurationScreen";
+import SessionScreen from "./components/SessionScreen";
+import {
+    Theme,
+    User,
+    UserStory,
+    ApplicationError,
+    RoomJoinedPayload,
+    Vote,
+} from "./types";
 import styled from "styled-components";
 import { light } from "./constants/themes";
 import { ThemeProvider } from "styled-components";
@@ -10,34 +17,10 @@ import { themes } from "./constants/themes";
 import { useToast } from "./hooks/useToast";
 import { checkUserInput } from "./utils";
 import { useLanguage } from "./hooks/useLanguage";
-import { Languages } from "./constants/enums";
-
-export const votingSystems: {
-    [index: string]: string[];
-    fibonacci: string[];
-    scrum: string[];
-    tshirts: string[];
-} = {
-    fibonacci: [
-        "?",
-        "0",
-        "1",
-        "2",
-        "3",
-        "5",
-        "8",
-        "13",
-        "21",
-        "34",
-        "55",
-        "89",
-    ],
-    scrum: ["?", "0", "0.5", "1", "2", "3", "5", "8", "13", "20", "40", "100"],
-    tshirts: ["?", "xs", "s", "m", "l", "xl"],
-};
+import { votingSystems } from "./constants/enums";
 
 function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
-    const [socket, setSocket] = useState<any>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [username, setUsername] = useState<string>("");
     const [roomName, setRoomName] = useState<string>("");
@@ -45,10 +28,9 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     const [roomCode, setRoomCode] = useState<string>("");
     const [roomState, setRoomState] = useState<string>("");
     const [userStories, setUserStories] = useState<UserStory[]>([]);
-    const [currentUserStory, setCurrentUserStory] = useState<UserStory>({
-        name: "",
-        content: "",
-    });
+    const [currentUserStory, setCurrentUserStory] = useState<UserStory>(
+        {} as UserStory
+    );
     const [userList, setUserList] = useState<User[]>([]);
     const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
     const toast = useToast();
@@ -61,7 +43,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             setIsConnected(false);
         });
 
-        socket.on("room:joined", (args: any) => {
+        socket.on("room:joined", (args: RoomJoinedPayload) => {
             console.log(`Joined room and got payload: ${JSON.stringify(args)}`);
             toast.success(
                 `${language.strings.notifications.copy_roomcode} ${args.roomCode}`,
@@ -78,10 +60,9 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             setIsConnected(true);
         });
 
-        socket.on("room:userListUpdate", (args: any) => {
-            console.log(args);
+        socket.on("room:userListUpdate", (users: User[]) => {
             const moderatorSessionId: string =
-                args[args.findIndex((user: User) => user.isModerator === 1)]
+                users[users.findIndex((user: User) => user.isModerator === 1)]
                     .sessionId;
             if (socket.id === moderatorSessionId && !userIsModerator) {
                 setUserIsModerator(true);
@@ -89,37 +70,38 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
                 toast.alert(language.strings.notifications.now_a_moderator);
             }
             console.log(
-                `The user list updated. Payload: ${JSON.stringify(args)}`
+                `The user list updated. Payload: ${JSON.stringify(users)}`
             );
-            setUserList(args);
+            setUserList(users);
         });
 
-        socket.on("room:broadcastVote", (args: any) => {
+        socket.on("room:broadcastVote", (vote: Vote) => {
             let tempUserList: User[] = [...userList];
             tempUserList[
                 tempUserList.findIndex(
-                    (user) => user.sessionId === args.sessionId
+                    (user) => user.sessionId === vote.sessionId
                 )
-            ].state = args.state;
+            ].state = vote.vote;
             setUserList(tempUserList);
-            console.log(`Someone voted. Payload: ${JSON.stringify(args)}`);
+            console.log(`Someone voted. Payload: ${JSON.stringify(vote)}`);
         });
 
-        socket.on("room:userStoryUpdate", (args: any) => {
-            setCurrentUserStory(args.currentUserStory);
+        socket.on("room:userStoryUpdate", (userStory: UserStory) => {
+            setCurrentUserStory(userStory);
             setRoomState("voting");
-            console.log(`New round! Payload: ${JSON.stringify(args)}`);
+            console.log(`New round! Payload: ${JSON.stringify(userStory)}`);
         });
 
-        socket.on("room:stateUpdate", (args: any) => {
-            console.log(`Room state updated. Payload: ${JSON.stringify(args)}`);
-            setRoomState(args.roomState);
+        socket.on("room:stateUpdate", (roomState: string) => {
+            console.log(
+                `Room state updated. Payload: ${JSON.stringify(roomState)}`
+            );
+            setRoomState(roomState);
         });
 
-        socket.on("room:revealedVotes", (args: any) => {
+        socket.on("room:revealedVotes", (votes: Vote[]) => {
             let tempUserList: User[] = [...userList];
-            console.warn(args);
-            args.forEach((vote: any) => {
+            votes.forEach((vote: Vote) => {
                 tempUserList[
                     tempUserList.findIndex(
                         (user) => user.sessionId === vote.sessionId
@@ -130,7 +112,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             console.info(`Votes were revealed!`);
         });
 
-        socket.on("room:closed", (args: any) => {
+        socket.on("room:closed", () => {
             disconnect();
             toast.alert(
                 language.strings.notifications.room_closed_by_moderator
@@ -148,12 +130,8 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             console.error(error);
         });
 
-        socket.on("connect_failed", (arg: any) => {
-            console.error(arg);
-        });
-
-        socket.on("disconnect", (arg: any) =>
-            console.log(`Disconnected: ${arg}`)
+        socket.on("disconnect", (reason: string) =>
+            console.log(`Disconnected: ${reason}`)
         );
 
         return () => {
@@ -167,7 +145,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             socket.off("error");
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [socket, userList, toast, setTheme, userIsModerator]);
+    }, [socket, userList, toast, setTheme, userIsModerator, language]);
 
     function disconnect() {
         setIsConnected(false);
@@ -182,7 +160,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         setUserIsModerator(false);
         setTheme(light);
         toast.alert(language.strings.notifications.disconnected);
-        socket.disconnect();
+        socket?.disconnect();
         console.log("Disconnected from server");
     }
 
@@ -235,7 +213,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     }
 
     function vote(text: string) {
-        socket.emit("room:vote", { state: "voted", vote: text });
+        socket?.emit("room:vote", { state: "voted", vote: text });
     }
 
     function nextRound() {
@@ -243,7 +221,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             toast.error(language.strings.notifications.must_be_moderator);
             return;
         }
-        socket.emit("room:nextRound");
+        socket?.emit("room:nextRound");
     }
 
     function revealVotes() {
@@ -252,7 +230,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             return;
         }
         console.log("reveal votes");
-        socket.emit("room:revealVotes");
+        socket?.emit("room:revealVotes");
     }
 
     function closeRoom() {
@@ -260,14 +238,14 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             toast.error(language.strings.notifications.must_be_moderator);
             return;
         }
-        socket.emit("room:close", { roomCode: roomCode });
+        socket?.emit("room:close", { roomCode: roomCode });
     }
 
     return (
         <ThemeProvider theme={theme}>
             <Container>
                 {!isConnected && (
-                    <PokerConfigurationScreen
+                    <ConfigurationScreen
                         createRoom={createRoom}
                         setRoomName={setRoomName}
                         setUsername={setUsername}
@@ -280,7 +258,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
                     />
                 )}
                 {isConnected && (
-                    <PokerSessionScreen
+                    <SessionScreen
                         userList={userList}
                         userStories={userStories}
                         currentUserStory={currentUserStory}

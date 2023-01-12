@@ -1,8 +1,7 @@
 import { User, UserStory } from "../types";
-import PokerUser from "./PokerUser";
+import UserContainer from "./UserContainer";
 import styled from "styled-components";
 import { RoomStates } from "../constants/enums";
-import { LanguageContext } from "../contexts/LanguageContext";
 import { useLanguage } from "../hooks/useLanguage";
 
 type Props = {
@@ -11,7 +10,7 @@ type Props = {
     currentUserStory: UserStory;
 };
 
-function PokerUserContainer(props: Props) {
+function UserList(props: Props) {
     const language = useLanguage();
 
     const getNumberOfVotes = () => {
@@ -36,7 +35,7 @@ function PokerUserContainer(props: Props) {
             <Users>
                 {props.userList.map((user: User) => {
                     return (
-                        <PokerUser
+                        <UserContainer
                             key={user.sessionId}
                             user={user}
                             roomState={props.roomState}
@@ -71,4 +70,4 @@ const Users = styled.div`
     max-height: 100%;
 `;
 
-export default PokerUserContainer;
+export default UserList;

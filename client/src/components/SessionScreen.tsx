@@ -1,5 +1,5 @@
-import PokerVoteContainer from "./PokerVoteContainer";
-import PokerUserStoryContainer from "./PokerUserStoryContainer";
+import VoteContainer from "./VoteContainer";
+import UserStoryContainer from "./UserStoryContainer";
 import { User, UserStory } from "../types";
 import styled from "styled-components";
 
@@ -14,18 +14,18 @@ type Props = {
     closeRoom: Function;
     sendVote: Function;
     disconnect: Function;
-    votingSystem: any;
+    votingSystem: string;
 };
 
-function PokerSessionScreen(props: Props) {
+function SessionScreen(props: Props) {
     return (
         <Container>
-            <PokerUserStoryContainer
+            <UserStoryContainer
                 userStories={props.userStories}
                 currentUserStory={props.currentUserStory}
                 userIsModerator={props.userIsModerator}
             />
-            <PokerVoteContainer
+            <VoteContainer
                 userList={props.userList}
                 nextRound={props.nextRound}
                 userIsModerator={props.userIsModerator}
@@ -50,4 +50,4 @@ const Container = styled.div`
     height: 100%;
 `;
 
-export default PokerSessionScreen;
+export default SessionScreen;

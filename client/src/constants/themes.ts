@@ -1,5 +1,3 @@
-import { LanguageContext } from "../contexts/LanguageContext";
-import { LanguageProvider } from "../providers/LanguageProvider";
 import { Theme } from "../types";
 import languageStrings from "./languageStrings";
 

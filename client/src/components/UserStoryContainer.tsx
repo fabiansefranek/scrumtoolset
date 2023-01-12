@@ -10,7 +10,7 @@ type Props = {
     userIsModerator: Boolean;
 };
 
-function PokerUserStoryContainer(props: Props) {
+function UserStoryContainer(props: Props) {
     const [showUserStories, setShowUserStories] = useState<boolean>(false);
     const language = useLanguage();
 
@@ -68,4 +68,4 @@ const Text = styled.p`
     color: ${(props) => props.theme.colors.text};
 `;
 
-export default PokerUserStoryContainer;
+export default UserStoryContainer;

@@ -1,15 +1,14 @@
-import React from "react";
 import styled from "styled-components";
 
 type Props = {
     username: string;
 };
 
-function PokerProfilePicture(props: Props) {
-    return <ProfilePicture>{props.username.charAt(0)}</ProfilePicture>;
+function ProfilePicture(props: Props) {
+    return <Paragraph>{props.username.charAt(0)}</Paragraph>;
 }
 
-const ProfilePicture = styled.p`
+const Paragraph = styled.p`
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -24,4 +23,4 @@ const ProfilePicture = styled.p`
     text-transform: capitalize;
 `;
 
-export default PokerProfilePicture;
+export default ProfilePicture;
