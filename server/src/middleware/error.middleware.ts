@@ -16,7 +16,7 @@ export async function handleErrors(
         if (error instanceof Error)
             console.error(`[${error.name}] ${error.message}: ${error.stack}}`);
         if (error instanceof ApplicationError) {
-            error.send(socket);
+            error.send(socket, false);
         }
     }
 }

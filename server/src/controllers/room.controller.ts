@@ -179,7 +179,7 @@ export async function nextRound(socket: Socket) {
                     new ApplicationError(
                         ApplicationErrorMessages.REVOTE_STARTED,
                         false
-                    ).send(socket);
+                    ).send(socket, true);
                 resetUserVotes(roomCode);
                 setRoomState(RoomStates.VOTING, roomCode);
                 await handleUserListUpdate(roomCode); // ? Should this be await?
