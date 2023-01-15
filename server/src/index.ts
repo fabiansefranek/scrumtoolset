@@ -55,7 +55,7 @@ io.on("connection", (socket: Socket) => {
         })
     );
     socket.on("disconnecting", (reason: DisconnectReason) =>
-        handleErrors(join, {
+        handleErrors(leave, {
             socket: socket,
         })
     );
