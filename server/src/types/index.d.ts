@@ -61,7 +61,7 @@ type RoomClosePayload = {
     roomCode: string;
 };
 
-type errorHandlerPayload = {
+type ErrorHandlerPayload = {
     socket: Socket;
     args?: unknown;
 };

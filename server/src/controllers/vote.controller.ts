@@ -2,6 +2,7 @@ import { io } from "../index";
 import { Socket } from "socket.io";
 import { setUserVote, getRoomModerator, getUserVotes } from "../models/user";
 import { VotingStates } from "../constants/enums";
+import { RoomVotePayload, Vote } from "../types";
 
 export function handleVote(payload: RoomVotePayload, socket: Socket): void {
     const sessionId: string = socket.id;

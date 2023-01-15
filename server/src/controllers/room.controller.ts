@@ -30,8 +30,15 @@ import {
 import { ApplicationErrorMessages, RoomStates } from "../constants/enums";
 import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
 import { ApplicationError } from "../errors/application.error";
+import {
+    RoomClosePayload,
+    RoomCreationPayload,
+    RoomJoinPayload,
+    User,
+    UserStory,
+} from "../types";
 
-export function create(payload: RoomCreationPayload, socket: Socket): void {
+export function create(socket: Socket, payload: RoomCreationPayload): void {
     const roomCode: string = generateWordSlug(3, "-");
     const now: number = Math.floor(Date.now() / 1000);
 
@@ -62,12 +69,12 @@ export function create(payload: RoomCreationPayload, socket: Socket): void {
     addUserStories(payload.options.userStories, roomCode);
 
     socket.join(roomCode);
-    join({ roomCode: roomCode, username: payload.base.username }, socket, true);
+    join(socket, { roomCode: roomCode, username: payload.base.username }, true);
 }
 
 export async function join(
-    payload: RoomJoinPayload,
     socket: Socket,
+    payload: RoomJoinPayload,
     isModerator?: boolean
 ) {
     const roomCode: string = payload.roomCode;
@@ -123,7 +130,7 @@ export async function leave(socket: Socket) {
     await handleUserListUpdate(roomCode);
 }
 
-export async function close(payload: RoomClosePayload, socket: Socket) {
+export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
     if (!roomFound) return socket.emit("room:notfound");
@@ -157,7 +164,7 @@ export async function nextRound(socket: Socket) {
     } else {
         switch (currentState) {
             case RoomStates.CLOSEABLE: {
-                await close({ roomCode: roomCode }, socket); // ? Should this be await?
+                await close(socket, { roomCode: roomCode }); // ? Should this be await?
                 return;
             }
             case RoomStates.VOTING: {

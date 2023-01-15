@@ -1,4 +1,5 @@
 import { connection } from "../index";
+import { User, Vote } from "../types";
 
 export function createUser(
     sessionId: string,

@@ -1,4 +1,5 @@
 import { connection } from "../index";
+import { UserStory } from "../types";
 
 export function addUserStories(userStories: UserStory[], roomCode: string) {
     const data: string[][] = userStories.map((userStory: UserStory) => {
