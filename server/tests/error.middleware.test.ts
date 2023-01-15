@@ -1,7 +1,7 @@
 import { describe, expect, test } from "@jest/globals";
 import { ApplicationErrorMessages } from "../src/constants/enums";
 import { ApplicationError } from "../src/errors/application.error";
-import { handleError, handleErrors } from "../src/middleware/error.middleware";
+import { handleErrors } from "../src/middleware/error.middleware";
 
 describe("error middleware", () => {
     test("error middleware should catch Error", async () => {
@@ -9,7 +9,7 @@ describe("error middleware", () => {
             throw new Error();
         }).toThrowError(Error);
         expect(() => {
-            handleError(() => {
+            handleErrors(() => {
                 throw new Error();
             });
         }).not.toThrowError(Error);
@@ -21,7 +21,7 @@ describe("error middleware", () => {
         }).toThrowError(ApplicationError);
 
         expect(() => {
-            handleError(() => {
+            handleErrors(() => {
                 throw new ApplicationError(
                     ApplicationErrorMessages.MISSING_USERSTORY,
                     false
