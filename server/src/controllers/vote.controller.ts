@@ -4,7 +4,7 @@ import { setUserVote, getRoomModerator, getUserVotes } from "../models/user";
 import { VotingStates } from "../constants/enums";
 import { RoomVotePayload, Vote } from "../types";
 
-export function handleVote(payload: RoomVotePayload, socket: Socket): void {
+export function handleVote(socket: Socket, payload: RoomVotePayload): void {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
     const state: string = VotingStates.VOTED;
