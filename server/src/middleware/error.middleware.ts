@@ -1,9 +1,9 @@
 import { ApplicationError } from "../errors/application.error";
-import { errorHandlerPayload } from "../types";
+import { ErrorHandlerPayload } from "../types";
 
 export async function handleErrors(
     callback: Function,
-    payload?: errorHandlerPayload
+    payload?: ErrorHandlerPayload
 ) {
     try {
         payload
