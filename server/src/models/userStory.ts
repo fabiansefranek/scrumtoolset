@@ -1,43 +1,41 @@
+import { RowDataPacket } from "mysql2";
 import { connection } from "../index";
-import { UserStory } from "../types";
+import { User, UserStory } from "../types";
 
-export function addUserStories(userStories: UserStory[], roomCode: string) {
+export async function addUserStories(
+    userStories: UserStory[],
+    roomCode: string
+): Promise<void> {
     const data: string[][] = userStories.map((userStory: UserStory) => {
         return [userStory.name, userStory.content, roomCode];
     });
-    connection.query(
+    await connection.query(
         "INSERT INTO UserStory (name, content, roomId) VALUES ?",
-        [data],
-        (err, rows) => {
-            if (err) throw err;
-        }
+        [data]
     );
 }
 
-export function getUserStories(roomCode: string): Promise<UserStory[]> {
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT * FROM UserStory WHERE roomId = ?",
-            [roomCode],
-            (err, rows) => {
-                if (err) throw err;
-                resolve(rows);
-            }
-        );
+export async function getUserStories(roomCode: string): Promise<UserStory[]> {
+    const [rows] = await connection.query<RowDataPacket[]>(
+        "SELECT * FROM UserStory WHERE roomId = ?",
+        [roomCode]
+    );
+    return rows.map((row: RowDataPacket) => {
+        return {
+            id: row.id,
+            name: row.name,
+            content: row.content,
+            roomId: row.roomId,
+        } as UserStory;
     });
 }
 
-export function getCurrentUserStoryId(roomCode: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT currentUserStory FROM Room WHERE id = ?",
-            roomCode,
-            (err, rows) => {
-                if (err) throw err;
-                resolve(rows[0].currentUserStory);
-            }
-        );
-    });
+export async function getCurrentUserStoryId(roomCode: string): Promise<number> {
+    const [rows] = await connection.query<RowDataPacket[]>(
+        "SELECT currentUserStory FROM Room WHERE id = ?",
+        [roomCode]
+    );
+    return rows[0].currentUserStory;
 }
 
 export async function getCurrentUserStory(
@@ -48,37 +46,25 @@ export async function getCurrentUserStory(
         return { id: -1, roomId: roomCode, name: "Waiting", content: "" };
     const userStoryId: number =
         (await getUserStories(roomCode))[currentUserStoryId].id || -97; //TODO replace -97 with error
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT * FROM UserStory WHERE id = ?",
-            [userStoryId],
-            (err, rows) => {
-                if (err) throw err;
-                resolve(rows[0]);
-            }
-        );
-    });
+    const [rows] = await connection.query<RowDataPacket[]>(
+        "SELECT * FROM UserStory WHERE id = ?",
+        [userStoryId]
+    );
+    return rows[0] as UserStory;
 }
 
-export function setCurrentUserStoryId(
+export async function setCurrentUserStoryId(
     roomCode: string,
     userStoryId: number
-): void {
-    connection.query(
+): Promise<void> {
+    await connection.query(
         "UPDATE Room SET currentUserStory = ? WHERE id = ?",
-        [userStoryId, roomCode],
-        (err, rows) => {
-            if (err) throw err;
-        }
+        [userStoryId, roomCode]
     );
 }
 
-export function deleteRoomUserStories(roomCode: string) {
-    connection.query(
-        "DELETE FROM UserStory WHERE roomId = ?",
-        [roomCode],
-        (err, rows) => {
-            if (err) throw err;
-        }
-    );
+export async function deleteRoomUserStories(roomCode: string): Promise<void> {
+    await connection.query("DELETE FROM UserStory WHERE roomId = ?", [
+        roomCode,
+    ]);
 }

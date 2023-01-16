@@ -17,11 +17,16 @@ import {
     RoomJoinPayload,
     RoomVotePayload,
 } from "./types";
+import mysql from "mysql2/promise";
 
 dotenv.config();
 
-export const connection = connect();
-setup(connection);
+export let connection: mysql.Connection;
+
+connect().then((con: mysql.Connection) => {
+    setup(con);
+    connection = con;
+});
 
 export const io = new Server({
     cors: {
