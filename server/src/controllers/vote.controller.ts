@@ -21,7 +21,8 @@ export function handleVote(socket: Socket, payload: RoomVotePayload): void {
 export async function broadcastVotes(socket: Socket) {
     const roomCode: string = [...socket.rooms][1];
     const sessionId: string = socket.id;
-    const roomModerator: string = await getRoomModerator(roomCode);
+    const roomModerator: string | undefined = await getRoomModerator(roomCode);
+    if (!roomModerator) return; // TODO: Handle this error
     if (sessionId !== roomModerator) return;
     const votes: Vote[] = await getUserVotes(roomCode);
     io.in(roomCode).emit("room:revealedVotes", votes);

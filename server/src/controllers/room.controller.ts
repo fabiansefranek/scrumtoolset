@@ -115,7 +115,10 @@ export async function join(
 export async function leave(socket: Socket) {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
-    const roomModeratorId: string = await getRoomModerator(roomCode);
+    const roomModeratorId: string | undefined = await getRoomModerator(
+        roomCode
+    );
+    if (roomModeratorId === undefined) return; // TODO: handle this case
     const isModerator: boolean = sessionId === roomModeratorId;
 
     deleteUser(sessionId);
