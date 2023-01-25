@@ -1,6 +1,5 @@
 import { io } from "../index";
 import { Socket } from "socket.io";
-import { v4 as uuidv4 } from "uuid";
 import { checkUserInput, generateWordSlug } from "../utils";
 import { createRoom, deleteRoom } from "../models/room";
 import {
@@ -136,7 +135,7 @@ export async function leave(socket: Socket) {
 export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
-    if (!roomFound) return socket.emit("room:notfound");
+    if (!roomFound) return socket.emit("room:notfound"); // TODO: throw application error
 
     const sockets: any[] = await io.in(roomCode).fetchSockets();
     io.in(roomCode).emit("room:closed");
