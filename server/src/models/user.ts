@@ -30,11 +30,12 @@ export async function deleteUser(sessionId: string): Promise<void> {
 
 export async function getOldestConnectionFromRoom(
     roomCode: string
-): Promise<string> {
+): Promise<string | undefined> {
     const [rows] = await connection.query<RowDataPacket[]>(
         "SELECT sessionId FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC LIMIT 1",
         [roomCode]
     );
+    if(rows.length == 0) return undefined
     return rows[0].sessionId;
 }
 

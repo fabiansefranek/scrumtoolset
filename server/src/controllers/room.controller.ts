@@ -123,11 +123,12 @@ export async function leave(socket: Socket) {
     deleteUser(sessionId);
 
     if (isModerator) {
-        const newModeratorId: string = await getOldestConnectionFromRoom(
+        const newModeratorId: string | undefined = await getOldestConnectionFromRoom(
             roomCode
         );
         if (newModeratorId === "") return;
-        giveUserModeratorRights(newModeratorId);
+        if(newModeratorId)
+        await giveUserModeratorRights(newModeratorId);
     }
     await handleUserListUpdate(roomCode);
 }
