@@ -16,7 +16,7 @@ export function addUserStories(userStories: UserStory[], roomCode: string) {
 export function getUserStories(roomCode: string): Promise<UserStory[]> {
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM UserStory WHERE roomId = ?",
+            "SELECT * FROM UserStory WHERE roomId = ? ORDER BY id ASC",
             [roomCode],
             (err, rows) => {
                 if (err) throw err;
@@ -39,7 +39,7 @@ export function getCurrentUserStoryId(roomCode: string): Promise<number> {
     });
 }
 
-export async function getCurrentUserStory(
+/*export async function getCurrentUserStory(
     roomCode: string
 ): Promise<UserStory> {
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
@@ -57,15 +57,36 @@ export async function getCurrentUserStory(
             }
         );
     });
+}*/
+
+export async function getUserStory(userStoryId : number) : Promise<UserStory> {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM UserStory WHERE id = ?",
+            [userStoryId],
+            (err, rows) => {
+                if (err) throw err;
+                resolve(rows[0]);
+            }
+        );
+    });
+}
+
+export async function getCurrentUserStory(roomCode : string) : Promise<UserStory> {
+    const currentId : number = await getCurrentUserStoryId(roomCode)
+    if(currentId == -1)
+        return { id: -1, roomId: roomCode, name: "Waiting", content: "" };
+    const userStories : UserStory[] = await getUserStories(roomCode);
+    return userStories[currentId];
 }
 
 export function setCurrentUserStoryId(
     roomCode: string,
-    userStoryId: number
+    offset: number
 ): void {
     connection.query(
         "UPDATE Room SET currentUserStory = ? WHERE id = ?",
-        [userStoryId, roomCode],
+        [offset, roomCode],
         (err, rows) => {
             if (err) throw err;
         }
@@ -80,4 +101,8 @@ export function deleteRoomUserStories(roomCode: string) {
             if (err) throw err;
         }
     );
+}
+
+export async function checkDone(roomcode: string): Promise<boolean> {
+    return (await getCurrentUserStoryId(roomcode)) > (await getUserStories(roomcode)).length
 }

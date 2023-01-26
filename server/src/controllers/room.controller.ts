@@ -5,11 +5,11 @@ import { checkUserInput, generateWordSlug } from "../utils";
 import { createRoom, deleteRoom } from "../models/room";
 import {
     addUserStories,
-    getCurrentUserStory,
     deleteRoomUserStories,
     getUserStories,
+    getCurrentUserStory,
     getCurrentUserStoryId,
-    setCurrentUserStoryId,
+    setCurrentUserStoryId, checkDone,
 } from "../models/userStory";
 import {
     doesRoomExist,
@@ -148,9 +148,10 @@ export async function nextRound(socket: Socket) {
     const currentState: string = await getRoomState(roomCode);
     const userStories: UserStory[] = await getUserStories(roomCode);
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
+    console.log(await checkDone(roomCode))
     if (
-        userStories.length - 1 == currentUserStoryId &&
-        currentState != RoomStates.CLOSEABLE
+        currentState != RoomStates.CLOSEABLE &&
+        await checkDone(roomCode)
     ) {
         await broadcastVotes(socket);
         setRoomState(RoomStates.CLOSEABLE, roomCode);
