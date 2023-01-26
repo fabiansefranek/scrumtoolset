@@ -89,3 +89,11 @@ export async function doesRoomExist(roomCode: string): Promise<boolean> {
     );
     return rows.length != 0;
 }
+
+export async function getRoomName(roomCode: string): Promise<void> {
+    const [rows] = await connection.query<RowDataPacket[]>(
+        "SELECT displayName FROM Room WHERE id = ?",
+        [roomCode]
+    );
+    return rows[0].displayName;
+}

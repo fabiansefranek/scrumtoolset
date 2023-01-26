@@ -15,6 +15,7 @@ type Props = {
     sendVote: Function;
     disconnect: Function;
     votingSystem: string;
+    roomName: string;
 };
 
 function SessionScreen(props: Props) {
@@ -24,6 +25,7 @@ function SessionScreen(props: Props) {
                 userStories={props.userStories}
                 currentUserStory={props.currentUserStory}
                 userIsModerator={props.userIsModerator}
+                roomName={props.roomName}
             />
             <VoteContainer
                 userList={props.userList}

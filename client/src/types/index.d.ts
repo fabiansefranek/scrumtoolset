@@ -58,6 +58,7 @@ type LanguageObject = {
     create_room: string;
     username: string;
     all_userstories: string;
+    waiting_for_moderator_to_start: string;
     roomState: {
         voting: string;
     };
@@ -117,6 +118,7 @@ type RoomJoinedPayload = {
     roomState: string;
     currentUserStory: UserStory;
     theme: string;
+    roomName: string;
 };
 
 export type {
@@ -128,5 +130,5 @@ export type {
     RoomJoinedPayload,
     Vote,
     LanguageStringsType,
-    LanguageObject
+    LanguageObject,
 };

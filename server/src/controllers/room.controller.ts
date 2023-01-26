@@ -1,7 +1,7 @@
 import { io } from "../index";
 import { Socket } from "socket.io";
 import { checkUserInput, generateWordSlug } from "../utils";
-import { createRoom, deleteRoom } from "../models/room";
+import { createRoom, deleteRoom, getRoomName } from "../models/room";
 import {
     addUserStories,
     getCurrentUserStory,
@@ -88,6 +88,8 @@ export async function join(
             true
         );
 
+    const roomName = await getRoomName(roomCode);
+
     if (isModerator === undefined) {
         isModerator = (await getOldestConnectionFromRoom(roomCode)) === "";
     }
@@ -102,6 +104,7 @@ export async function join(
     const currentUserStory: UserStory = await getCurrentUserStory(roomCode);
     const roomTheme: string = await getRoomTheme(roomCode);
     socket.emit("room:joined", {
+        roomName: roomName,
         roomCode: roomCode,
         votingSystem: votingSystem,
         roomState: roomState,
