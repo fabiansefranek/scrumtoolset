@@ -148,10 +148,10 @@ export async function nextRound(socket: Socket) {
     const currentState: string = await getRoomState(roomCode);
     const userStories: UserStory[] = await getUserStories(roomCode);
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
-    console.log(await checkDone(roomCode))
+    const isDone : boolean = await checkDone(roomCode);
     if (
         currentState != RoomStates.CLOSEABLE &&
-        await checkDone(roomCode)
+        isDone
     ) {
         await broadcastVotes(socket);
         setRoomState(RoomStates.CLOSEABLE, roomCode);

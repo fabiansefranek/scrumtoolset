@@ -104,5 +104,5 @@ export function deleteRoomUserStories(roomCode: string) {
 }
 
 export async function checkDone(roomcode: string): Promise<boolean> {
-    return (await getCurrentUserStoryId(roomcode)) > (await getUserStories(roomcode)).length
+    return (await getCurrentUserStoryId(roomcode)) >= ((await getUserStories(roomcode)).length -1)
 }
