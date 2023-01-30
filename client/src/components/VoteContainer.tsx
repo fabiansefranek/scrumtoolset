@@ -133,8 +133,8 @@ const LogoText = styled.h1`
 `;
 
 const Logo = styled.img`
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     filter: ${({ theme }) =>
         theme.name === "Dark" ? "invert(1)" : "invert(0)"};
 `;
