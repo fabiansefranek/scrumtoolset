@@ -38,7 +38,6 @@ function ConfigurationScreen(props: Props) {
                 <Logo src={`${process.env.PUBLIC_URL}/cards.png`} />
                 <LogoText>Scrum Poker</LogoText>
             </LogoContainer>
-
             <InputContainer>
                 <Text>{language.strings.join_room}</Text>
                 <Input
@@ -139,26 +138,6 @@ const Container = styled.div`
     padding: 2rem;
 `;
 
-const LogoContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    align-items: center;
-    user-select: none;
-`;
-
-const LogoText = styled.h1`
-    margin: 0;
-    color: ${({ theme }) => theme.colors.text};
-`;
-
-const Logo = styled.img`
-    width: 40px;
-    height: 40px;
-    filter: ${({ theme }) =>
-        theme.name === "Dark" ? "invert(1)" : "invert(0)"};
-`;
-
 const InputContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -207,6 +186,30 @@ const TextArea = styled.textarea`
     &:focus {
         outline: none;
     }
+`;
+
+const LogoContainer = styled.div`
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    user-select: none;
+    opacity: 0.3;
+`;
+
+const LogoText = styled.h1`
+    margin: 0;
+    color: ${({ theme }) => theme.colors.text};
+`;
+
+const Logo = styled.img`
+    width: 30px;
+    height: 30px;
+    filter: ${({ theme }) =>
+        theme.name === "Dark" ? "invert(1)" : "invert(0)"};
 `;
 
 export default ConfigurationScreen;
