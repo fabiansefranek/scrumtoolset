@@ -107,14 +107,11 @@ describe("test suite: room controller", () => {
 
         socket.emit("room:create", creationPayload);
         socket.on("room:joined", (response) => {
-            console.log("Socket joined room");
             joinPayload.roomCode = response.roomCode;
-            console.log(joinPayload);
             otherSocket.emit("room:join", joinPayload);
         });
 
         otherSocket.on("room:joined", (response) => {
-            console.log("Other socket joined room");
             expect(response.roomCode).toBe(joinPayload.roomCode);
             expect(response.roomState).toBe("waiting");
             expect(response.currentUserStory.id).toBe(-1);
@@ -166,7 +163,6 @@ describe("test suite: room controller", () => {
         });
 
         socket.on("room:broadcastVote", (response) => {
-            console.log(response);
             expect(response.sessionId).toBe(otherSocket.id);
             expect(response.vote).toBe("voted");
             otherSocket.disconnect();
@@ -212,11 +208,57 @@ describe("test suite: room controller", () => {
 
         otherSocket.on("room:joined", (response) => {
             socket.emit("room:close", closePayload);
-            console.log(response);
         });
 
         otherSocket.on("room:closed", (response) => {
             done();
         });
     });
+
+    test("test: disconnecting", (done) => {
+        const creationPayload: RoomCreationPayload = {
+            base: {
+                username: faker.name.firstName(),
+                roomName: faker.name.firstName(),
+            },
+            options: {
+                votingSystem: faker.helpers.arrayElement([
+                    "fibonacci",
+                    "tshirt",
+                    "scrum",
+                ]),
+                userStories: [
+                    {
+                        name: faker.git.commitMessage(),
+                        content: faker.hacker.phrase(),
+                    },
+                ],
+                theme: faker.helpers.arrayElement(["dark", "light"]),
+            },
+        };
+        const joinPayload: RoomJoinPayload = {
+            roomCode: "",
+            username: faker.name.firstName(),
+        };
+
+        socket.emit("room:create", creationPayload);
+        socket.on("room:joined", (response) => {
+            joinPayload.roomCode = response.roomCode;
+            otherSocket.emit("room:join", joinPayload);
+        });
+
+        let disconnected: boolean = false;
+
+        otherSocket.on("room:joined", (response) => {
+            socket.disconnect();
+        });
+
+        otherSocket.on("room:userListUpdate", (response) => {
+            if (response.length != 1) return;
+            expect(response[0].isModerator).toBe(1);
+            done();
+        });
+    });
+
+    // TODO: test if other user receives moderator status when moderator leaves room (disconnecting event)
 });
