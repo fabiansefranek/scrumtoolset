@@ -2,8 +2,9 @@ import { io } from "../index";
 import { Socket } from "socket.io";
 import { setUserVote, getRoomModerator, getUserVotes } from "../models/user";
 import { VotingStates } from "../constants/enums";
+import { RoomVotePayload, Vote } from "../types";
 
-export function handleVote(payload: RoomVotePayload, socket: Socket): void {
+export function handleVote(socket: Socket, payload: RoomVotePayload): void {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
     const state: string = VotingStates.VOTED;
@@ -20,7 +21,8 @@ export function handleVote(payload: RoomVotePayload, socket: Socket): void {
 export async function broadcastVotes(socket: Socket) {
     const roomCode: string = [...socket.rooms][1];
     const sessionId: string = socket.id;
-    const roomModerator: string = await getRoomModerator(roomCode);
+    const roomModerator: string | undefined = await getRoomModerator(roomCode);
+    if (!roomModerator) return; // TODO: Handle this error
     if (sessionId !== roomModerator) return;
     const votes: Vote[] = await getUserVotes(roomCode);
     io.in(roomCode).emit("room:revealedVotes", votes);

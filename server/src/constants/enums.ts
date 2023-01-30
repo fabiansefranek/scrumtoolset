@@ -6,12 +6,12 @@ export enum RoomStates {
 
 export enum VotingStates {
     VOTED = "voted",
+    VOTING = "voting",
 }
 
 export enum ApplicationErrorMessages {
     USER_NAME_INVALID = "user_name_invalid",
     ROOM_NAME_INVALID = "room_name_invalid",
     MISSING_USERSTORY = "missing_userstory",
-    REVOTE_STARTED = "revote_started"
+    REVOTE_STARTED = "revote_started",
 }
-

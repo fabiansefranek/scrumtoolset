@@ -1,3 +1,5 @@
+import { Socket } from "socket.io";
+
 type User = {
     sessionId: string;
     username: string;
@@ -57,4 +59,9 @@ type RoomVotePayload = {
 
 type RoomClosePayload = {
     roomCode: string;
+};
+
+type ErrorHandlerPayload = {
+    socket: Socket;
+    args?: unknown;
 };
