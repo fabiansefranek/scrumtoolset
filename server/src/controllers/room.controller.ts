@@ -1,8 +1,7 @@
 import { io } from "../index";
 import { Socket } from "socket.io";
-import { v4 as uuidv4 } from "uuid";
 import { checkUserInput, generateWordSlug } from "../utils";
-import { createRoom, deleteRoom } from "../models/room";
+import { createRoom, deleteRoom, getRoomName } from "../models/room";
 import {
     addUserStories,
     getCurrentUserStory,
@@ -89,6 +88,8 @@ export async function join(
             true
         );
 
+    const roomName = await getRoomName(roomCode);
+
     if (isModerator === undefined) {
         isModerator = (await getOldestConnectionFromRoom(roomCode)) === "";
     }
@@ -103,6 +104,7 @@ export async function join(
     const currentUserStory: UserStory = await getCurrentUserStory(roomCode);
     const roomTheme: string = await getRoomTheme(roomCode);
     socket.emit("room:joined", {
+        roomName: roomName,
         roomCode: roomCode,
         votingSystem: votingSystem,
         roomState: roomState,
@@ -124,11 +126,12 @@ export async function leave(socket: Socket) {
     deleteUser(sessionId);
 
     if (isModerator) {
-        const newModeratorId: string = await getOldestConnectionFromRoom(
+        const newModeratorId: string | undefined = await getOldestConnectionFromRoom(
             roomCode
         );
         if (newModeratorId === "") return;
-        giveUserModeratorRights(newModeratorId);
+        if(newModeratorId)
+        await giveUserModeratorRights(newModeratorId);
     }
     await handleUserListUpdate(roomCode);
 }
@@ -136,7 +139,7 @@ export async function leave(socket: Socket) {
 export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
-    if (!roomFound) return socket.emit("room:notfound");
+    if (!roomFound) return socket.emit("room:notfound"); // TODO: throw application error
 
     const sockets: any[] = await io.in(roomCode).fetchSockets();
     io.in(roomCode).emit("room:closed");

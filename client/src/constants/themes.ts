@@ -4,8 +4,8 @@ import languageStrings from "./languageStrings";
 export const light: Theme = {
     name: languageStrings.en.theme.light,
     colors: {
-        background: "#fff",
-        secondaryBackground: "#f3f3f3",
+        background: "#fbfbfb",
+        secondaryBackground: "#ffffff",
         highlight: "#0093A3",
         highlightText: "#fff",
         secondaryHighlight: "#dadada",

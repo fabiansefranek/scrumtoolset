@@ -58,6 +58,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             )!;
             setTheme(theme);
             setIsConnected(true);
+            setRoomName(args.roomName);
         });
 
         socket.on("room:userListUpdate", (users: User[]) => {
@@ -270,6 +271,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
                         sendVote={vote}
                         disconnect={disconnect}
                         votingSystem={votingSystem}
+                        roomName={roomName}
                     />
                 )}
             </Container>

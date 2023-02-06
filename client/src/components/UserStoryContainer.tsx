@@ -8,6 +8,7 @@ type Props = {
     userStories: UserStory[];
     currentUserStory: UserStory;
     userIsModerator: Boolean;
+    roomName: string;
 };
 
 function UserStoryContainer(props: Props) {
@@ -17,7 +18,14 @@ function UserStoryContainer(props: Props) {
     return (
         <React.Fragment>
             <CurrentUserStoryContainer>
-                <Text>{props.currentUserStory.name}</Text>
+                <RoomNameAndCurrentStoryContainer>
+                    <RoomName>{props.roomName}</RoomName>
+                    <Text>
+                        {props.currentUserStory.id === -1
+                            ? language.strings.waiting_for_moderator_to_start
+                            : `Userstory: ${props.currentUserStory.name}`}
+                    </Text>
+                </RoomNameAndCurrentStoryContainer>
                 {props.userIsModerator && (
                     <Button
                         onClick={() => setShowUserStories(!showUserStories)}
@@ -50,7 +58,8 @@ const CurrentUserStoryContainer = styled.div`
     width: 80vw;
     padding: 2rem;
     box-sizing: border-box;
-    border-radius: 0.25rem;
+    border-radius: 0.3rem;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     background-color: ${(props) => props.theme.colors.secondaryBackground};
     color: ${(props) => props.theme.colors.text};
 `;
@@ -61,11 +70,23 @@ const AllUserstoriesContainer = styled.div`
     border-radius: 0.25rem;
     padding: 2rem;
     box-sizing: border-box;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 `;
 
 const Text = styled.p`
     margin: 0;
     color: ${(props) => props.theme.colors.text};
+`;
+
+const RoomName = styled.h3`
+    margin: 0;
+    color: ${(props) => props.theme.colors.text};
+`;
+
+const RoomNameAndCurrentStoryContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 `;
 
 export default UserStoryContainer;

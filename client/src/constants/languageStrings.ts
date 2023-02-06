@@ -9,6 +9,7 @@ const strings: LanguageStringsType = {
         create_room: "Create Room",
         username: "Username",
         all_userstories: "All User Stories",
+        waiting_for_moderator_to_start: "Waiting for moderator to start round",
         roomState: {
             voting: "Voting",
         },
@@ -57,6 +58,8 @@ const strings: LanguageStringsType = {
         join_room: "Raum beitreten",
         create_room: "Raum erstellen",
         username: "Benutzername",
+        waiting_for_moderator_to_start:
+            "Der Moderator hat die Runde noch nicht gestartet",
         roomState: {
             voting: "Stimmen werden abgegeben",
         },
@@ -89,7 +92,7 @@ const strings: LanguageStringsType = {
             missing_userstory: "Bitte mindestens eine User Story eingeben",
             revote_started:
                 "Abstimmung wird wiederholt, da keine Einigkeit herrschte",
-            copy_roomcode: "Click to copy the room code:",
+            copy_roomcode: "Hier klicken um den Raumcode zu kopieren:",
             now_a_moderator: "Sie sind nun ein Moderator",
             room_closed_by_moderator:
                 "Der Raum wurde vom Moderator geschlossen",
