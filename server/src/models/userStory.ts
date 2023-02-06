@@ -39,26 +39,6 @@ export function getCurrentUserStoryId(roomCode: string): Promise<number> {
     });
 }
 
-/*export async function getCurrentUserStory(
-    roomCode: string
-): Promise<UserStory> {
-    const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
-    if (currentUserStoryId == -1)
-        return { id: -1, roomId: roomCode, name: "Waiting", content: "" };
-    const userStoryId: number =
-        (await getUserStories(roomCode))[currentUserStoryId].id || -97; //TODO replace -97 with error
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT * FROM UserStory WHERE id = ?",
-            [userStoryId],
-            (err, rows) => {
-                if (err) throw err;
-                resolve(rows[0]);
-            }
-        );
-    });
-}*/
-
 export async function getUserStory(userStoryId : number) : Promise<UserStory> {
     return new Promise((resolve, reject) => {
         connection.query(
