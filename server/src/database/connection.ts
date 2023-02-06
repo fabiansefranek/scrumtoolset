@@ -1,7 +1,7 @@
-import mysql from "mysql2/promise";
+import mysql from "mysql";
 
-export async function connect(): Promise<mysql.Connection> {
-    return await mysql.createConnection({
+export function connect() {
+    return mysql.createConnection({
         host: "db",
         user: "root",
         password: "example",
@@ -9,17 +9,25 @@ export async function connect(): Promise<mysql.Connection> {
     });
 }
 
-export async function setup(con: mysql.Connection) {
+export function setup(con: mysql.Connection) {
     //Takes a connection and creates the database scheme there
-    await con.query("CREATE DATABASE IF NOT EXISTS scrumtoolset;");
-    await con.query("USE scrumtoolset;");
-    await con.query(
-        "CREATE TABLE IF NOT EXISTS Room( id varchar(255) primary key, displayName varchar(255) not null, state varchar(255) not null, createdAt int not null, votingSystem varchar(255), currentUserStory int, theme varchar(255) );"
+    con.connect();
+    con.query(
+        "CREATE TABLE IF NOT EXISTS Room( id varchar(255) primary key, displayName varchar(255) not null, state varchar(255) not null, createdAt int not null, votingSystem varchar(255), currentUserStory int, theme varchar(255) );",
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
-    await con.query(
-        "CREATE TABLE IF NOT EXISTS User ( sessionId varchar(255) not null, username varchar(255) not null, createdAt int not null, roomId varchar(255), isModerator BOOLEAN, state varchar(255), vote varchar(255), PRIMARY KEY (sessionId), FOREIGN KEY (roomId) REFERENCES Room(id) );"
+    con.query(
+        "CREATE TABLE IF NOT EXISTS User ( sessionId varchar(255) not null, username varchar(255) not null, createdAt int not null, roomId varchar(255), isModerator BOOLEAN, state varchar(255), vote varchar(255), PRIMARY KEY (sessionId), FOREIGN KEY (roomId) REFERENCES Room(id) );",
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
-    await con.query(
-        "CREATE TABLE IF NOT EXISTS UserStory ( id int AUTO_INCREMENT PRIMARY KEY, name varchar(255) not null, content varchar(500), roomId varchar(255) not null);"
+    con.query(
+        "CREATE TABLE IF NOT EXISTS UserStory ( id int AUTO_INCREMENT PRIMARY KEY, name varchar(255) not null, content varchar(500), roomId varchar(255) not null);",
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
 }

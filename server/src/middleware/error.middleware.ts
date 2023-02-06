@@ -1,21 +1,22 @@
+import { Socket } from "socket.io";
 import { ApplicationError } from "../errors/application.error";
-import { ErrorHandlerPayload } from "../types";
 
 export async function handleErrors(
+    socket: Socket,
     callback: Function,
-    payload?: ErrorHandlerPayload
+    payload?: unknown
 ) {
     try {
-        payload
-            ? payload.args
-                ? await callback(payload.socket, payload.args)
-                : await callback(payload.socket)
-            : await callback();
+        if (payload) {
+            await callback(payload, socket);
+        } else {
+            await callback(socket);
+        }
     } catch (error: unknown) {
         if (error instanceof Error)
             console.error(`[${error.name}] ${error.message}: ${error.stack}}`);
-        if (error instanceof ApplicationError && payload !== undefined) {
-            error.send(payload!.socket, false);
+        if (error instanceof ApplicationError) {
+            error.send(socket, false);
         }
     }
 }

@@ -1,108 +1,112 @@
-import { RowDataPacket } from "mysql2";
-import { VotingStates } from "../constants/enums";
 import { connection } from "../index";
-import { User, Vote } from "../types";
 
-export async function createUser(
+export function createUser(
     sessionId: string,
     username: string,
     now: number,
     roomCode: string,
     isModerator: boolean
-): Promise<void> {
-    await connection.query(
+) {
+    connection.query(
         "INSERT INTO User(sessionId, username, createdAt , roomId, isModerator, state, vote) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [
-            sessionId,
-            username,
-            now,
-            roomCode,
-            isModerator,
-            VotingStates.VOTING,
-            "",
-        ]
+        [sessionId, username, now, roomCode, isModerator, "voting", ""],
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
 }
 
-export async function deleteUser(sessionId: string): Promise<void> {
-    await connection.query("DELETE FROM User WHERE sessionId = ?", sessionId);
+export function deleteUser(sessionId: string): void {
+    connection.query(
+        "DELETE FROM User WHERE sessionId = ?",
+        [sessionId],
+        (err, rows) => {
+            if (err) throw err;
+        }
+    );
 }
 
-export async function getOldestConnectionFromRoom(
-    roomCode: string
-): Promise<string> {
-    const [rows] = await connection.query<RowDataPacket[]>(
-        "SELECT sessionId FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC LIMIT 1",
-        [roomCode]
-    );
-    return rows[0].sessionId;
-}
-
-export async function getUsersInRoom(roomCode: string): Promise<User[]> {
-    const [rows] = await connection.query<RowDataPacket[]>(
-        "SELECT * FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC",
-        [roomCode]
-    );
-    return rows.map((row: RowDataPacket) => {
-        return {
-            sessionId: row.sessionId,
-            username: row.username,
-            createdAt: row.createdAt,
-            roomId: row.roomId,
-            isModerator: row.isModerator,
-            state: row.state,
-            vote: row.vote,
-        } as User;
+export function getOldestConnectionFromRoom(roomCode: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT sessionId FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC LIMIT 1",
+            [roomCode],
+            (err, rows) => {
+                if (err) throw err;
+                if (rows.length != 0) resolve(rows[0].sessionId);
+                else resolve("");
+            }
+        );
     });
 }
 
-export async function setUserVote(
-    state: string,
-    vote: string,
-    sessionId: string
-): Promise<void> {
-    await connection.query(
+export function getUsersInRoom(roomCode: string): Promise<User[]> {
+    //Used to display all users
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM User WHERE roomId LIKE ? ORDER BY createdAt ASC",
+            [roomCode],
+            (err, rows) => {
+                if (err) throw err;
+                resolve(rows);
+            }
+        );
+    });
+}
+
+export function setUserVote(state: string, vote: string, sessionId: string) {
+    connection.query(
         "UPDATE User SET state = ?, vote = ? WHERE sessionId = ?",
-        [state, vote, sessionId]
+        [state, vote, sessionId],
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
 }
 
-export async function giveUserModeratorRights(
-    sessionId: string
-): Promise<void> {
-    await connection.query(
+export function giveUserModeratorRights(sessionId: string) {
+    connection.query(
         "UPDATE User SET isModerator = 1 WHERE sessionId = ?",
-        [sessionId]
+        [sessionId],
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
 }
 
-export async function resetUserVotes(roomCode: string): Promise<void> {
-    await connection.query(
-        "UPDATE User SET vote = '', state = 'voting' WHERE roomId = ?",
-        [roomCode]
+export function resetUserVotes(roomCode: string): void {
+    connection.query(
+        'UPDATE User SET vote = "", state = "voting" WHERE roomId = ?',
+        roomCode,
+        (err, rows) => {
+            if (err) throw err;
+        }
     );
 }
 
-export async function getUserVotes(roomCode: string): Promise<Vote[]> {
-    const [rows] = await connection.query<RowDataPacket[]>(
-        "SELECT sessionId, vote FROM User WHERE roomId LIKE ?",
-        [roomCode]
-    );
-    return rows.map((row: RowDataPacket) => {
-        return {
-            sessionId: row.sessionId,
-            vote: row.vote,
-        } as Vote;
+export function getUserVotes(roomCode: string): Promise<Vote[]> {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT sessionId, vote FROM User WHERE roomId LIKE ?",
+            [roomCode],
+            (err, rows) => {
+                if (err) throw err;
+                resolve(rows);
+            }
+        );
     });
 }
 
-export async function getRoomModerator(
-    roomCode: string
-): Promise<string | undefined> {
-    const [rows] = await connection.query<RowDataPacket[]>(
-        "SELECT sessionId FROM User WHERE roomId LIKE ? AND isModerator = 1",
-        [roomCode]
-    );
-    if (rows.length != 0) return rows[0].sessionId;
-    else return undefined;
+export function getRoomModerator(roomCode: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT sessionId FROM User WHERE roomId LIKE ? AND isModerator = 1",
+            [roomCode],
+            (err, rows) => {
+                if (err) throw err;
+                if (rows.length != 0) resolve(rows[0].sessionId);
+                else resolve("");
+            }
+        );
+    });
 }

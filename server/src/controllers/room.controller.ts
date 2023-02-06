@@ -30,15 +30,8 @@ import {
 import { ApplicationErrorMessages, RoomStates } from "../constants/enums";
 import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
 import { ApplicationError } from "../errors/application.error";
-import {
-    RoomClosePayload,
-    RoomCreationPayload,
-    RoomJoinPayload,
-    User,
-    UserStory,
-} from "../types";
 
-export function create(socket: Socket, payload: RoomCreationPayload): void {
+export function create(payload: RoomCreationPayload, socket: Socket): void {
     const roomCode: string = generateWordSlug(3, "-");
     const now: number = Math.floor(Date.now() / 1000);
 
@@ -69,12 +62,12 @@ export function create(socket: Socket, payload: RoomCreationPayload): void {
     addUserStories(payload.options.userStories, roomCode);
 
     socket.join(roomCode);
-    join(socket, { roomCode: roomCode, username: payload.base.username }, true);
+    join({ roomCode: roomCode, username: payload.base.username }, socket, true);
 }
 
 export async function join(
-    socket: Socket,
     payload: RoomJoinPayload,
+    socket: Socket,
     isModerator?: boolean
 ) {
     const roomCode: string = payload.roomCode;
@@ -115,10 +108,7 @@ export async function join(
 export async function leave(socket: Socket) {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
-    const roomModeratorId: string | undefined = await getRoomModerator(
-        roomCode
-    );
-    if (roomModeratorId === undefined) return; // TODO: handle this case
+    const roomModeratorId: string = await getRoomModerator(roomCode);
     const isModerator: boolean = sessionId === roomModeratorId;
 
     deleteUser(sessionId);
@@ -133,7 +123,7 @@ export async function leave(socket: Socket) {
     await handleUserListUpdate(roomCode);
 }
 
-export async function close(socket: Socket, payload: RoomClosePayload) {
+export async function close(payload: RoomClosePayload, socket: Socket) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
     if (!roomFound) return socket.emit("room:notfound");
@@ -168,7 +158,7 @@ export async function nextRound(socket: Socket) {
     } else {
         switch (currentState) {
             case RoomStates.CLOSEABLE: {
-                await close(socket, { roomCode: roomCode }); // ? Should this be await?
+                await close({ roomCode: roomCode }, socket); // ? Should this be await?
                 return;
             }
             case RoomStates.VOTING: {

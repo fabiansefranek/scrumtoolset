@@ -11,22 +11,11 @@ import {
 import { handleVote } from "./controllers/vote.controller";
 import { handleErrors } from "./middleware/error.middleware";
 import { DisconnectReason } from "socket.io/dist/socket";
-import {
-    RoomClosePayload,
-    RoomCreationPayload,
-    RoomJoinPayload,
-    RoomVotePayload,
-} from "./types";
-import mysql from "mysql2/promise";
 
 dotenv.config();
 
-export let connection: mysql.Connection;
-
-connect().then((con: mysql.Connection) => {
-    setup(con);
-    connection = con;
-});
+export const connection = connect();
+setup(connection);
 
 export const io = new Server({
     cors: {
@@ -36,39 +25,21 @@ export const io = new Server({
 
 io.on("connection", (socket: Socket) => {
     socket.on("room:join", (payload: RoomJoinPayload) =>
-        handleErrors(join, {
-            socket: socket,
-            args: payload,
-        })
+        handleErrors(socket, join, payload)
     );
     socket.on("room:create", (payload: RoomCreationPayload) =>
-        handleErrors(create, {
-            socket: socket,
-            args: payload,
-        })
+        handleErrors(socket, create, payload)
     );
     socket.on("room:vote", (payload: RoomVotePayload) =>
-        handleErrors(handleVote, {
-            socket: socket,
-            args: payload,
-        })
+        handleErrors(socket, handleVote, payload)
     );
     socket.on("room:close", (payload: RoomClosePayload) =>
-        handleErrors(close, {
-            socket: socket,
-            args: payload,
-        })
+        handleErrors(socket, close, payload)
     );
     socket.on("disconnecting", (reason: DisconnectReason) =>
-        handleErrors(leave, {
-            socket: socket,
-        })
+        handleErrors(socket, leave)
     );
-    socket.on("room:nextRound", () =>
-        handleErrors(nextRound, {
-            socket: socket,
-        })
-    );
+    socket.on("room:nextRound", () => handleErrors(socket, nextRound));
 });
 
 io.listen(parseInt(process.env.PORT!));
