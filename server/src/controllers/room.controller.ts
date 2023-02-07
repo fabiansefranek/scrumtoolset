@@ -8,7 +8,7 @@ import {
     deleteRoomUserStories,
     getUserStories,
     getCurrentUserStoryId,
-    setCurrentUserStoryId, checkDone,
+    setCurrentUserStoryId, checkDone, setUserStoryResult,
 } from "../models/userStory";
 import {
     doesRoomExist,
@@ -30,6 +30,7 @@ import { ApplicationErrorMessages, RoomStates } from "../constants/enums";
 import { broadcastVotes, areVotesUnanimous } from "./vote.controller";
 import { ApplicationError } from "../errors/application.error";
 import {
+    EndOfVotingPacket,
     RoomClosePayload,
     RoomCreationPayload,
     RoomJoinPayload,
@@ -163,8 +164,8 @@ export async function nextRound(socket: Socket) {
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
     const isDone : boolean = await checkDone(roomCode);
     if (
-        currentState != RoomStates.CLOSEABLE &&
-        isDone
+        (currentState != RoomStates.CLOSEABLE &&
+        isDone) && (await areVotesUnanimous(roomCode)).success
     ) {
         await broadcastVotes(socket);
         setRoomState(RoomStates.CLOSEABLE, roomCode);
@@ -180,8 +181,9 @@ export async function nextRound(socket: Socket) {
                 break;
             }
             case RoomStates.WAITING: {
-                if (
-                    (await areVotesUnanimous(roomCode)) ||
+                const result : EndOfVotingPacket = await areVotesUnanimous(roomCode);
+                if ( result.success
+                     ||
                     currentUserStoryId == -1
                 ) {
                     setCurrentUserStoryId(roomCode, currentUserStoryId + 1);
@@ -189,6 +191,8 @@ export async function nextRound(socket: Socket) {
                         "room:userStoryUpdate",
                         userStories[currentUserStoryId + 1]
                     );
+                    if(currentUserStoryId != -1)
+                        setUserStoryResult(currentUserStoryId, result.result || "")
                 } else
                     new ApplicationError(
                         ApplicationErrorMessages.REVOTE_STARTED,
