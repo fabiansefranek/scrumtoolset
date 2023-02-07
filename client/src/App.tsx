@@ -272,6 +272,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
                         disconnect={disconnect}
                         votingSystem={votingSystem}
                         roomName={roomName}
+                        roomCode={roomCode}
                     />
                 )}
             </Container>

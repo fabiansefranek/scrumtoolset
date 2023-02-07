@@ -53,12 +53,14 @@ const Username = styled.p`
     margin: 0;
     text-transform: capitalize;
     color: ${(props) => props.theme.colors.text};
+    font-size: 20px;
 `;
 
 const State = styled.p`
     margin: 0;
     text-transform: capitalize;
     color: ${(props) => props.theme.colors.text};
+    font-size: 20px;
 `;
 
 export default UserContainer;

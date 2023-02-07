@@ -34,6 +34,11 @@ function ConfigurationScreen(props: Props) {
     const language = useLanguage();
     return (
         <Container>
+            <LogoContainer>
+                <Logo src={`${process.env.PUBLIC_URL}/cards.png`} />
+                <LogoText>Scrum Poker</LogoText>
+            </LogoContainer>
+
             <InputContainer>
                 <Text>{language.strings.join_room}</Text>
                 <Input
@@ -127,19 +132,44 @@ const Container = styled.div`
     width: 30vw;
     background-color: ${({ theme }) => theme.colors.secondaryBackground};
     border-radius: 0.3rem;
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    box-shadow: ${({ theme }) =>
+        theme.name === "Light"
+            ? "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"
+            : null};
     padding: 2rem;
+`;
+
+const LogoContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    user-select: none;
+`;
+
+const LogoText = styled.h1`
+    margin: 0;
+    color: ${({ theme }) => theme.colors.text};
+`;
+
+const Logo = styled.img`
+    width: 40px;
+    height: 40px;
+    filter: ${({ theme }) =>
+        theme.name === "Dark" ? "invert(1)" : "invert(0)"};
 `;
 
 const InputContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    font-size: 16px;
 `;
 
 const Text = styled.p`
     margin: 0;
     color: ${({ theme }) => theme.colors.text};
+    font-size: 16px;
 `;
 
 const Input = styled.input`
@@ -149,6 +179,7 @@ const Input = styled.input`
     border: ${(props) => props.theme.colors.border} 1px solid;
     border-radius: 0.25rem;
     padding: 0.75rem;
+    font-size: 16px;
 
     &:focus {
         outline: none;
@@ -161,6 +192,7 @@ const Select = styled.select`
     border: ${(props) => props.theme.colors.border} 1px solid;
     border-radius: 0.25rem;
     padding: 0.75rem;
+    font-size: 16px;
 `;
 
 const TextArea = styled.textarea`
@@ -170,6 +202,7 @@ const TextArea = styled.textarea`
     border-radius: 0.25rem;
     padding: 0.75rem;
     resize: none;
+    font-family: inherit;
 
     &:focus {
         outline: none;
