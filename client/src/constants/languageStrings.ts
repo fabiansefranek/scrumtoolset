@@ -36,6 +36,7 @@ const strings: LanguageStringsType = {
             create: "Create",
             next_round: "Next Round",
             start_round: "Start Round",
+            export_results: "Export voting results",
         },
         notifications: {
             user_name_invalid: "Please enter a valid user name",
@@ -49,6 +50,7 @@ const strings: LanguageStringsType = {
                 "The room has been closed by the moderator",
             must_be_moderator: "You must be a moderator to do this",
             disconnected: "You disconnect",
+            exported_results: "Voting results have been exported",
         },
     },
     de: {
@@ -87,6 +89,7 @@ const strings: LanguageStringsType = {
             create: "Erstellen",
             next_round: "Nächste Runde",
             start_round: "Runde starten",
+            export_results: "Ergebnisse exportieren",
         },
         notifications: {
             user_name_invalid: "Bitte einen gültigen Benutzernamen eingeben",
@@ -100,6 +103,7 @@ const strings: LanguageStringsType = {
                 "Der Raum wurde vom Moderator geschlossen",
             must_be_moderator: "Sie müssen ein Moderator sein, um dies zu tun",
             disconnected: "Verbindung wurde getrennt",
+            exported_results: "Abstimmungsergebnisse wurden exportiert",
         },
     },
 };

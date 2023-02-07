@@ -12,7 +12,6 @@ type Props = {
 
 function UserContainer(props: Props) {
     const language = useLanguage();
-    console.log(props.currentUserStory.name);
 
     return (
         <Container key={props.user.sessionId}>

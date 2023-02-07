@@ -6,6 +6,7 @@ import { votingSystems } from "../constants/enums";
 import { Button } from "./Button";
 import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
+import { Fragment } from "react";
 
 type Props = {
     userList: User[];
@@ -18,6 +19,7 @@ type Props = {
     disconnect: Function;
     votingSystem: string;
     currentUserStory: UserStory;
+    exportResults: Function;
 };
 
 function VoteContainer(props: Props) {
@@ -55,9 +57,14 @@ function VoteContainer(props: Props) {
                                 : language.strings.buttons.next_round}
                         </CustomButton>
                     ) : (
-                        <CustomButton onClick={() => props.nextRound()}>
-                            {language.strings.buttons.close_room}
-                        </CustomButton>
+                        <Fragment>
+                            <CustomButton onClick={() => props.exportResults()}>
+                                {language.strings.buttons.export_results}
+                            </CustomButton>
+                            <CustomButton onClick={() => props.nextRound()}>
+                                {language.strings.buttons.close_room}
+                            </CustomButton>
+                        </Fragment>
                     )
                 ) : null}
                 <CustomButton onClick={() => props.disconnect()}>
@@ -75,7 +82,7 @@ function VoteContainer(props: Props) {
 }
 
 const CustomButton = styled(Button)`
-    width: 9vw;
+    width: 10.5vw;
 `;
 
 const Container = styled.div`
@@ -83,7 +90,7 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: space-between;
     background-color: ${(props) => props.theme.colors.secondaryBackground};
-    width: 65vw;
+    width: 70vw;
     height: fit-content;
     padding: 2.5rem;
     box-sizing: border-box;
