@@ -6,7 +6,7 @@ import {
     create,
     leave,
     close,
-    nextRound,
+    nextRound, sendUserStoryResults,
 } from "./controllers/room.controller";
 import { handleVote } from "./controllers/vote.controller";
 import { handleErrors } from "./middleware/error.middleware";
@@ -66,6 +66,11 @@ io.on("connection", (socket: Socket) => {
     );
     socket.on("room:nextRound", () =>
         handleErrors(nextRound, {
+            socket: socket,
+        })
+    );
+    socket.on("room:exportResults", () =>
+        handleErrors(sendUserStoryResults, {
             socket: socket,
         })
     );

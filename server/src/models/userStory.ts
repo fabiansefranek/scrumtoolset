@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { connection } from "../index";
-import { User, UserStory } from "../types";
+import {User, UserStory, UserStoryResultPacket} from "../types";
 
 export async function addUserStories(userStories: UserStory[], roomCode: string) {
     const data: string[][] = userStories.map((userStory: UserStory) => {
@@ -77,5 +77,18 @@ export async function setUserStoryResult(userSoryId : number, result : string) {
     await connection.query("UPDATE UserStory SET result = ? WHERE id = ?",
         [result, userSoryId]
         );
+}
+
+export async function getUserStoryResults(roomcode : string) : Promise<UserStoryResultPacket[]>{
+    const [rows] = await connection.query<RowDataPacket[]>(
+        "SELECT name, result FROM UserStory WHERE roomId = ?",
+        [roomcode]
+    );
+    return rows.map((row: RowDataPacket) => {
+        return {
+            name: row.name,
+            result: row.result
+        } as UserStoryResultPacket;
+    });
 }
 

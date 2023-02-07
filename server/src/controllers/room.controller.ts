@@ -8,7 +8,7 @@ import {
     deleteRoomUserStories,
     getUserStories,
     getCurrentUserStoryId,
-    setCurrentUserStoryId, checkDone, setUserStoryResult,
+    setCurrentUserStoryId, checkDone, setUserStoryResult, getUserStoryResults,
 } from "../models/userStory";
 import {
     doesRoomExist,
@@ -35,7 +35,7 @@ import {
     RoomCreationPayload,
     RoomJoinPayload,
     User,
-    UserStory,
+    UserStory, UserStoryResultPacket,
 } from "../types";
 
 export function create(socket: Socket, payload: RoomCreationPayload): void {
@@ -207,4 +207,10 @@ export async function nextRound(socket: Socket) {
     }
     const newRoomState: string = await getRoomState(roomCode);
     io.in(roomCode).emit("room:stateUpdate", newRoomState);
+}
+
+export async function sendUserStoryResults(socket: Socket) {
+    const roomCode: string = [...socket.rooms][1];
+    const results: UserStoryResultPacket[] = await getUserStoryResults(roomCode);
+    socket.emit("room:exportedResults", results)
 }
