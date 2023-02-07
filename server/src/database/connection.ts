@@ -20,6 +20,6 @@ export async function setup(con: mysql.Connection) {
         "CREATE TABLE IF NOT EXISTS User ( sessionId varchar(255) not null, username varchar(255) not null, createdAt int not null, roomId varchar(255), isModerator BOOLEAN, state varchar(255), vote varchar(255), PRIMARY KEY (sessionId), FOREIGN KEY (roomId) REFERENCES Room(id) );"
     );
     await con.query(
-        "CREATE TABLE IF NOT EXISTS UserStory ( id int AUTO_INCREMENT PRIMARY KEY, name varchar(255) not null, content varchar(500), roomId varchar(255) not null, result int);"
+        "CREATE TABLE IF NOT EXISTS UserStory ( id int AUTO_INCREMENT PRIMARY KEY, name varchar(255) not null, content varchar(500), roomId varchar(255) not null, result varchar(255));"
     );
 }

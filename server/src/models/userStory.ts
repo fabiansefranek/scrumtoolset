@@ -73,3 +73,9 @@ export async function checkDone(roomcode: string): Promise<boolean> {
     return (await getCurrentUserStoryId(roomcode)) >= ((await getUserStories(roomcode)).length -1)
 }
 
+export async function setUserStoryResult(userSoryId : number, result : string) {
+    await connection.query("UPDATE UserStory SET result = ? WHERE id = ?",
+        [result, userSoryId]
+        );
+}
+

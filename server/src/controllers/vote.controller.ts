@@ -2,7 +2,7 @@ import { io } from "../index";
 import { Socket } from "socket.io";
 import { setUserVote, getRoomModerator, getUserVotes } from "../models/user";
 import { VotingStates } from "../constants/enums";
-import { RoomVotePayload, Vote } from "../types";
+import {EndOfVotingPacket, RoomVotePayload, Vote} from "../types";
 
 export function handleVote(socket: Socket, payload: RoomVotePayload): void {
     const sessionId: string = socket.id;
@@ -28,15 +28,17 @@ export async function broadcastVotes(socket: Socket) {
     io.in(roomCode).emit("room:revealedVotes", votes);
 }
 
-export async function areVotesUnanimous(roomCode: string): Promise<boolean> {
+export async function areVotesUnanimous(roomCode: string): Promise<EndOfVotingPacket> {
     const rawVotes: Vote[] = await getUserVotes(roomCode);
     let votes: string[] = rawVotes.map((vote: Vote) => vote.vote);
     votes = votes.filter((vote: string) => vote !== "");
     let flag: boolean = true;
-    if (votes.length == 0) return flag;
+    let value: string = "";
+    if (votes.length == 0) return {success:true};
     votes.reduce((previousValue: string, currentValue: string) => {
+        value = previousValue;
         if (previousValue !== currentValue) flag = false;
         return currentValue;
     });
-    return flag;
+    return {success:flag, result: value};
 }

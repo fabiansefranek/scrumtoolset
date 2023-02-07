@@ -65,3 +65,8 @@ type ErrorHandlerPayload = {
     socket: Socket;
     args?: unknown;
 };
+
+type EndOfVotingPacket = {
+    success: boolean;
+    result? : string;
+}
