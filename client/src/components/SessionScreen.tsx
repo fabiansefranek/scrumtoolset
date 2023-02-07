@@ -17,6 +17,7 @@ type Props = {
     votingSystem: string;
     roomName: string;
     roomCode: string;
+    exportResults: Function;
 };
 
 function SessionScreen(props: Props) {
@@ -40,6 +41,7 @@ function SessionScreen(props: Props) {
                 disconnect={props.disconnect}
                 votingSystem={props.votingSystem}
                 currentUserStory={props.currentUserStory}
+                exportResults={props.exportResults}
             />
         </Container>
     );

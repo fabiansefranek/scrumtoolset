@@ -120,6 +120,15 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             );
         });
 
+        socket.on("room:exportedResults", (results: any) => {
+            console.log(results);
+            const filename = `${
+                new Date().toISOString() + "-" + roomName
+            }.json`;
+            downloadFile(results, filename);
+            toast.success(language.strings.notifications.results_exported);
+        });
+
         socket.on("error", (error: ApplicationError) => {
             error.critical
                 ? toast.error(language.strings.notifications[error.message])
@@ -142,6 +151,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             socket.off("room:userStoryUpdate");
             socket.off("room:stateUpdate");
             socket.off("room:revealedVotes");
+            socket.off("room:exportedResults");
             socket.off("disconnect");
             socket.off("error");
         };
@@ -149,6 +159,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     }, [socket, userList, toast, setTheme, userIsModerator, language]);
 
     function disconnect() {
+        if (!socket) return;
         setIsConnected(false);
         setUsername("");
         setRoomName("");
@@ -161,7 +172,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
         setUserIsModerator(false);
         setTheme(light);
         toast.alert(language.strings.notifications.disconnected);
-        socket?.disconnect();
+        socket.disconnect();
         console.log("Disconnected from server");
     }
 
@@ -214,24 +225,33 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
     }
 
     function vote(text: string) {
-        socket?.emit("room:vote", { state: "voted", vote: text });
+        if (!socket) return;
+        socket.emit("room:vote", { state: "voted", vote: text });
     }
 
     function nextRound() {
+        if (!socket) return;
         if (!userIsModerator) {
             toast.error(language.strings.notifications.must_be_moderator);
             return;
         }
-        socket?.emit("room:nextRound");
+        socket.emit("room:nextRound");
     }
 
     function revealVotes() {
+        if (!socket) return;
         if (!userIsModerator) {
             toast.error(language.strings.notifications.must_be_moderator);
             return;
         }
         console.log("reveal votes");
-        socket?.emit("room:revealVotes");
+        socket.emit("room:revealVotes");
+    }
+
+    function exportResults() {
+        if (!socket) return;
+        console.log("export results");
+        socket.emit("room:exportResults");
     }
 
     function closeRoom() {
@@ -240,6 +260,16 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
             return;
         }
         socket?.emit("room:close", { roomCode: roomCode });
+    }
+
+    function downloadFile(text: string, filename: string) {
+        const json = JSON.stringify(text);
+        const blob = new Blob([json], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = filename;
+        link.href = url;
+        link.click();
     }
 
     return (
@@ -273,6 +303,7 @@ function App({ theme, setTheme }: { theme: Theme; setTheme: Function }) {
                         votingSystem={votingSystem}
                         roomName={roomName}
                         roomCode={roomCode}
+                        exportResults={exportResults}
                     />
                 )}
             </Container>

@@ -78,6 +78,7 @@ type LanguageObject = {
         create: string;
         next_round: string;
         start_round: string;
+        export_results: string;
     };
     room: {
         name: string;
@@ -99,6 +100,7 @@ type LanguageObject = {
         room_closed_by_moderator: string;
         must_be_moderator: string;
         disconnected: string;
+        exported_results: string;
     };
 };
 

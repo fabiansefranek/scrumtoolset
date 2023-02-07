@@ -64,7 +64,7 @@ const CurrentUserStoryContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 65vw;
+    width: 70vw;
     padding: 2rem;
     box-sizing: border-box;
     border-radius: 0.3rem;
@@ -78,7 +78,7 @@ const CurrentUserStoryContainer = styled.div`
 
 const AllUserstoriesContainer = styled.div`
     background-color: ${(props) => props.theme.colors.secondaryBackground};
-    width: 65vw;
+    width: 70vw;
     border-radius: 0.25rem;
     padding: 2rem;
     box-sizing: border-box;
