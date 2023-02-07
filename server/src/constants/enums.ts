@@ -14,4 +14,5 @@ export enum ApplicationErrorMessages {
     ROOM_NAME_INVALID = "room_name_invalid",
     MISSING_USERSTORY = "missing_userstory",
     REVOTE_STARTED = "revote_started",
+    ROOM_NOT_FOUND = "room_not_found"
 }
