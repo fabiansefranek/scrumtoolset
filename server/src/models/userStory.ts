@@ -2,10 +2,7 @@ import { RowDataPacket } from "mysql2";
 import { connection } from "../index";
 import { User, UserStory } from "../types";
 
-export async function addUserStories(
-    userStories: UserStory[],
-    roomCode: string
-): Promise<void> {
+export async function addUserStories(userStories: UserStory[], roomCode: string) {
     const data: string[][] = userStories.map((userStory: UserStory) => {
         return [userStory.name, userStory.content, roomCode];
     });
@@ -38,19 +35,22 @@ export async function getCurrentUserStoryId(roomCode: string): Promise<number> {
     return rows[0].currentUserStory;
 }
 
-export async function getCurrentUserStory(
-    roomCode: string
-): Promise<UserStory> {
-    const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
-    if (currentUserStoryId == -1)
-        return { id: -1, roomId: roomCode, name: "Waiting", content: "" };
-    const userStoryId: number =
-        (await getUserStories(roomCode))[currentUserStoryId].id || -97; //TODO replace -97 with error
-    const [rows] = await connection.query<RowDataPacket[]>(
-        "SELECT * FROM UserStory WHERE id = ?",
-        [userStoryId]
-    );
+export async function getUserStory(userStoryId : number) : Promise<UserStory> {
+    const [rows] = await
+        connection.query<RowDataPacket[]>(
+            "SELECT * FROM UserStory WHERE id = ?",
+            [userStoryId]
+        );
     return rows[0] as UserStory;
+    }
+
+
+export async function getCurrentUserStory(roomCode : string) : Promise<UserStory> {
+    const currentId : number = await getCurrentUserStoryId(roomCode)
+    if(currentId == -1)
+        return { id: -1, roomId: roomCode, name: "Waiting", content: "" };
+    const userStories : UserStory[] = await getUserStories(roomCode);
+    return userStories[currentId];
 }
 
 export async function setCurrentUserStoryId(
@@ -63,8 +63,13 @@ export async function setCurrentUserStoryId(
     );
 }
 
-export async function deleteRoomUserStories(roomCode: string): Promise<void> {
+export async function deleteRoomUserStories(roomCode: string) {
     await connection.query("DELETE FROM UserStory WHERE roomId = ?", [
         roomCode,
     ]);
 }
+
+export async function checkDone(roomcode: string): Promise<boolean> {
+    return (await getCurrentUserStoryId(roomcode)) >= ((await getUserStories(roomcode)).length -1)
+}
+
