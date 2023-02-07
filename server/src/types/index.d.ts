@@ -70,3 +70,8 @@ type EndOfVotingPacket = {
     success: boolean;
     result? : string;
 }
+
+type UserStoryResultPacket = {
+    name: string;
+    result: string;
+}
