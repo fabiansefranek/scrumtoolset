@@ -25,6 +25,10 @@ function VoteContainer(props: Props) {
 
     return (
         <Container>
+            <LogoContainer>
+                <Logo src={`${process.env.PUBLIC_URL}/cards.png`} />
+                <LogoText>Scrum Poker</LogoText>
+            </LogoContainer>
             <UserAndCardContainer>
                 <UserList
                     userList={props.userList}
@@ -75,12 +79,18 @@ const CustomButton = styled(Button)`
 `;
 
 const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     background-color: ${(props) => props.theme.colors.secondaryBackground};
-    width: 80vw;
-    padding: 2rem;
+    width: 65vw;
     height: fit-content;
+    padding: 2.5rem;
     box-sizing: border-box;
-    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    box-shadow: ${({ theme }) =>
+        theme.name === "Light"
+            ? "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"
+            : null};
     border-radius: 0.3rem;
 `;
 
@@ -96,6 +106,30 @@ const ButtonContainer = styled.div`
     justify-content: flex-end;
     margin-top: 2rem;
     gap: 1rem;
+`;
+
+const LogoContainer = styled.div`
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    user-select: none;
+    opacity: 0.3;
+`;
+
+const LogoText = styled.h1`
+    margin: 0;
+    color: ${({ theme }) => theme.colors.text};
+`;
+
+const Logo = styled.img`
+    width: 40px;
+    height: 40px;
+    filter: ${({ theme }) =>
+        theme.name === "Dark" ? "invert(1)" : "invert(0)"};
 `;
 
 export default VoteContainer;

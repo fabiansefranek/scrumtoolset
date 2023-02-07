@@ -16,6 +16,7 @@ type Props = {
     disconnect: Function;
     votingSystem: string;
     roomName: string;
+    roomCode: string;
 };
 
 function SessionScreen(props: Props) {
@@ -26,6 +27,7 @@ function SessionScreen(props: Props) {
                 currentUserStory={props.currentUserStory}
                 userIsModerator={props.userIsModerator}
                 roomName={props.roomName}
+                roomCode={props.roomCode}
             />
             <VoteContainer
                 userList={props.userList}

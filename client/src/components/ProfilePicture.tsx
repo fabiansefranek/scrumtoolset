@@ -21,6 +21,7 @@ const Paragraph = styled.p`
     margin: 0;
     user-select: none;
     text-transform: capitalize;
+    font-size: 20px;
 `;
 
 export default ProfilePicture;

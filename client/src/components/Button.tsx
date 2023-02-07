@@ -13,6 +13,7 @@ export const Button = styled.button`
     padding: 0.75rem;
     border-radius: 0.25rem;
     cursor: pointer;
+    font-size: 16px;
 
     &:hover {
         background-color: ${(props: Props) =>

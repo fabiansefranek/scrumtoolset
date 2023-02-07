@@ -45,6 +45,7 @@ const Container = styled.div`
 const Text = styled.p`
     margin: 0;
     color: ${(props) => props.theme.colors.text};
+    font-size: 20px;
 `;
 
 const Cards = styled.div.attrs((props: { cards: string[] }) => props)`

@@ -10,6 +10,7 @@ const strings: LanguageStringsType = {
         username: "Username",
         all_userstories: "All User Stories",
         waiting_for_moderator_to_start: "Waiting for moderator to start round",
+        click_to_copy_roomcode: "Click to copy the room code",
         roomState: {
             voting: "Voting",
         },
@@ -60,6 +61,7 @@ const strings: LanguageStringsType = {
         username: "Benutzername",
         waiting_for_moderator_to_start:
             "Der Moderator hat die Runde noch nicht gestartet",
+        click_to_copy_roomcode: "Hier klicken um den Roomcode zu kopieren",
         roomState: {
             voting: "Stimmen werden abgegeben",
         },

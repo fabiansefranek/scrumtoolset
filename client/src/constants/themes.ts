@@ -14,7 +14,7 @@ export const light: Theme = {
         inputBackground: "#fafafa",
         border: "#d7d7d7",
         cardBackgroundActive: "#ffffff",
-        cardBackgroundInactive: "#f5f5f5",
+        cardBackgroundInactive: "#fafafa",
     },
 };
 

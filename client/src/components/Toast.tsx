@@ -68,6 +68,7 @@ const Container = styled.div<{ toast: ToastType }>`
     max-width: 20vw;
     cursor: ${(props) =>
         props.toast.onClick !== undefined ? "pointer" : "default"};
+    font-size: 16px;
 `;
 
 export default Toast;

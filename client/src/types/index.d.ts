@@ -59,6 +59,7 @@ type LanguageObject = {
     username: string;
     all_userstories: string;
     waiting_for_moderator_to_start: string;
+    click_to_copy_roomcode;
     roomState: {
         voting: string;
     };
