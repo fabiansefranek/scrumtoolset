@@ -8,7 +8,7 @@ import {
     deleteRoomUserStories,
     getUserStories,
     getCurrentUserStoryId,
-    setCurrentUserStoryId,
+    setCurrentUserStoryId, checkDone,
 } from "../models/userStory";
 import {
     doesRoomExist,
@@ -139,7 +139,7 @@ export async function leave(socket: Socket) {
 export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
-    if (!roomFound) return socket.emit("room:notfound"); // TODO: throw application error
+    if (!roomFound) throw new ApplicationError(ApplicationErrorMessages.ROOM_NOT_FOUND, true);
 
     const sockets: any[] = await io.in(roomCode).fetchSockets();
     io.in(roomCode).emit("room:closed");
@@ -161,9 +161,10 @@ export async function nextRound(socket: Socket) {
     const currentState: string = await getRoomState(roomCode);
     const userStories: UserStory[] = await getUserStories(roomCode);
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
+    const isDone : boolean = await checkDone(roomCode);
     if (
-        userStories.length - 1 == currentUserStoryId &&
-        currentState != RoomStates.CLOSEABLE
+        currentState != RoomStates.CLOSEABLE &&
+        isDone
     ) {
         await broadcastVotes(socket);
         setRoomState(RoomStates.CLOSEABLE, roomCode);
