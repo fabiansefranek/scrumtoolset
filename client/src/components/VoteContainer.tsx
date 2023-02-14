@@ -121,13 +121,13 @@ const LogoContainer = styled.div`
     left: 20px;
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    gap: 0.25rem;
     align-items: center;
     user-select: none;
     opacity: 0.3;
 `;
 
-const LogoText = styled.h1`
+const LogoText = styled.h2`
     margin: 0;
     color: ${({ theme }) => theme.colors.text};
 `;
