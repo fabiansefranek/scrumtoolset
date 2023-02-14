@@ -7,6 +7,7 @@ import { useState } from "react";
 type Props = {
     theme: Theme;
     setTheme: Function;
+    title: string;
 };
 
 function LuckyWheel(props: Props) {
@@ -16,6 +17,8 @@ function LuckyWheel(props: Props) {
         { text: "Steve", color: "#815CD1" },
         { text: "Max", color: "#3DA5E0" },
     ]);
+
+    document.title = props.title;
 
     return (
         <ThemeProvider theme={props.theme}>

@@ -22,6 +22,7 @@ import { votingSystems } from "../constants/enums";
 type Props = {
     theme: Theme;
     setTheme: Function;
+    title: string;
 };
 
 function ScrumPoker(props: Props) {
@@ -40,6 +41,8 @@ function ScrumPoker(props: Props) {
     const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
     const toast = useToast();
     const language = useLanguage();
+
+    document.title = props.title;
 
     useEffect(() => {
         if (socket === null) return;
