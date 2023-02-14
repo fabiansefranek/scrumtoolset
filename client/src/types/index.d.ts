@@ -124,6 +124,11 @@ type RoomJoinedPayload = {
     roomName: string;
 };
 
+type LuckyWheelSegment = {
+    text: string;
+    color: string;
+};
+
 export type {
     User,
     UserStory,
@@ -134,4 +139,5 @@ export type {
     Vote,
     LanguageStringsType,
     LanguageObject,
+    LuckyWheelSegment,
 };
