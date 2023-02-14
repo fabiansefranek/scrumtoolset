@@ -1,7 +1,8 @@
-import { Theme } from "../types";
+import { LuckyWheelSegment, Theme } from "../types";
 import styled from "styled-components";
 import { ThemeProvider } from "styled-components";
-import WheelComponent from "../components/Wheel";
+import Wheel from "../components/Wheel";
+import { useState } from "react";
 
 type Props = {
     theme: Theme;
@@ -9,43 +10,13 @@ type Props = {
 };
 
 function LuckyWheel(props: Props) {
-    const segments = [
-        "better luck next time",
-        "won 70",
-        "won 10",
-        "better luck next time",
-        "won 2",
-        "won uber pass",
-        "better luck next time",
-        "won a voucher",
-        "won 70",
-        "won 10",
-        "better luck next time",
-        "won 2",
-        "won uber pass",
-        "better luck next time",
-        "won a voucher",
-    ];
-    const segColors = [
-        "#EE4040",
-        "#F0CF50",
-        "#815CD1",
-        "#3DA5E0",
-        "#34A24F",
-        "#F9AA1F",
-        "#EC3F3F",
-        "#FF9000",
-        "#F0CF50",
-        "#815CD1",
-        "#3DA5E0",
-        "#34A24F",
-        "#F9AA1F",
-        "#EC3F3F",
-        "#FF9000",
-    ];
-    const onFinished = (winner: any) => {
-        console.log(winner);
-    };
+    const [segments, setSegments] = useState<LuckyWheelSegment[]>([
+        { text: "Andrea", color: "#EE4040" },
+        { text: "Michelle", color: "#F0CF50" },
+        { text: "Steve", color: "#815CD1" },
+        { text: "Max", color: "#3DA5E0" },
+    ]);
+
     return (
         <ThemeProvider theme={props.theme}>
             <Container>
@@ -53,26 +24,15 @@ function LuckyWheel(props: Props) {
                     <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />
                     <LogoText>Lucky Wheel</LogoText>
                 </LogoContainer>
-                <div style={{ margin: "0 auto" }}>
-                    <WheelComponent
-                        segments={segments}
-                        segColors={segColors}
-                        winningSegment={
-                            segments[
-                                Math.floor(Math.random() * segments.length)
-                            ]
-                        }
-                        onFinished={(winner: any) => onFinished(winner)}
-                        primaryColor="black"
-                        contrastColor="white"
-                        buttonText="Spin"
-                        isOnlyOnce={false}
-                        size={300}
-                        upDuration={200}
-                        downDuration={1000}
-                        fontFamily="Arial"
-                    />
-                </div>
+                <Wheel
+                    segments={segments}
+                    canvasSize={800}
+                    fontSize={24}
+                    fontFamily="Ubuntu"
+                    onFinished={(currentSegment: any) =>
+                        alert(currentSegment.text)
+                    }
+                />
             </Container>
         </ThemeProvider>
     );
