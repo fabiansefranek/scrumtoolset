@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "./screens/Home";
 import LuckyWheel from "./screens/LuckyWheel";
 import ScrumPoker from "./screens/ScrumPoker";
 import { Theme } from "./types";
@@ -12,18 +13,26 @@ function App(props: Props) {
     const router = createBrowserRouter([
         {
             path: "/",
-            element: <div>Home</div>,
+            element: <Home title={"Home"} />,
         },
         {
             path: "/luckywheel",
             element: (
-                <LuckyWheel theme={props.theme} setTheme={props.setTheme} />
+                <LuckyWheel
+                    theme={props.theme}
+                    setTheme={props.setTheme}
+                    title={"Lucky Wheel"}
+                />
             ),
         },
         {
             path: "/scrumpoker",
             element: (
-                <ScrumPoker theme={props.theme} setTheme={props.setTheme} />
+                <ScrumPoker
+                    theme={props.theme}
+                    setTheme={props.setTheme}
+                    title={"Scrum Poker"}
+                />
             ),
         },
     ]);
