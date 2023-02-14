@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LuckyWheel from "./screens/LuckyWheel";
 import ScrumPoker from "./screens/ScrumPoker";
 import { Theme } from "./types";
 
@@ -15,7 +16,9 @@ function App(props: Props) {
         },
         {
             path: "/luckywheel",
-            element: <div>Lucky Wheel</div>,
+            element: (
+                <LuckyWheel theme={props.theme} setTheme={props.setTheme} />
+            ),
         },
         {
             path: "/scrumpoker",
