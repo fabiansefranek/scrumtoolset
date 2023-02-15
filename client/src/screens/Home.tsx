@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 type Props = {
@@ -73,15 +73,6 @@ const Card = styled.div`
         box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);
         background-color: #fdfdfd;
     }
-`;
-
-const Title = styled.h1`
-    font-size: 48px;
-    font-weight: 500;
-    margin: 0;
-    text-align: center;
-    line-height: 1;
-    font-weight: bold;
 `;
 
 const Image = styled.img`

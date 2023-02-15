@@ -11,7 +11,7 @@ type Props = {
 };
 
 function LuckyWheel(props: Props) {
-    const [segments, setSegments] = useState<LuckyWheelSegment[]>([
+    const [segments] = useState<LuckyWheelSegment[]>([
         { text: "Andrea", color: "#EE4040" },
         { text: "Michelle", color: "#F0CF50" },
         { text: "Steve", color: "#815CD1" },
@@ -29,7 +29,7 @@ function LuckyWheel(props: Props) {
                 </LogoContainer>
                 <Wheel
                     segments={segments}
-                    canvasSize={800}
+                    canvasSize={700}
                     fontSize={24}
                     fontFamily="Ubuntu"
                     onFinished={(currentSegment: any) =>
