@@ -3,6 +3,7 @@ import ProfilePicture from "./ProfilePicture";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
+import {useEffect} from "react";
 
 type Props = {
     user: User;
@@ -12,7 +13,9 @@ type Props = {
 
 function UserContainer(props: Props) {
     const language = useLanguage();
-
+    useEffect(() => {
+        console.log(props.currentUserStory);
+    })
     return (
         <Container key={props.user.sessionId}>
             <NameAndPictureContainer>

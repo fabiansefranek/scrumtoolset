@@ -46,7 +46,7 @@ export function create(socket: Socket, payload: RoomCreationPayload): void {
         throw new ApplicationError(
             ApplicationErrorMessages.ROOM_NAME_INVALID,
             true
-        ); //TODO change to emit error when failing
+        );
     if (!checkUserInput(payload.base.username))
         throw new ApplicationError(
             ApplicationErrorMessages.USER_NAME_INVALID,
@@ -121,7 +121,7 @@ export async function leave(socket: Socket) {
     const roomModeratorId: string | undefined = await getRoomModerator(
         roomCode
     );
-    if (roomModeratorId === undefined) return; // TODO: handle this case
+    if (roomModeratorId === undefined) throw new ApplicationError(ApplicationErrorMessages.NO_MODERATOR, true);
     const isModerator: boolean = sessionId === roomModeratorId;
 
     deleteUser(sessionId);
@@ -163,36 +163,50 @@ export async function nextRound(socket: Socket) {
     const userStories: UserStory[] = await getUserStories(roomCode);
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
     const isDone : boolean = await checkDone(roomCode);
+    const curResult : EndOfVotingPacket = await areVotesUnanimous(roomCode)
+    console.log(curResult.result + " : " + curResult.success);
     if (
         (currentState != RoomStates.CLOSEABLE &&
-        isDone) && (await areVotesUnanimous(roomCode)).success
+        isDone) && curResult.success
     ) {
         await broadcastVotes(socket);
+        setUserStoryResult(currentUserStoryId, curResult.result!)
         setRoomState(RoomStates.CLOSEABLE, roomCode);
     } else {
         switch (currentState) {
             case RoomStates.CLOSEABLE: {
-                await close(socket, { roomCode: roomCode }); // ? Should this be await?
+                await close(socket, { roomCode: roomCode });
                 return;
             }
             case RoomStates.VOTING: {
-                await broadcastVotes(socket); // ? Should this be await?
+                await broadcastVotes(socket);
                 setRoomState(RoomStates.WAITING, roomCode);
                 break;
             }
             case RoomStates.WAITING: {
-                const result : EndOfVotingPacket = await areVotesUnanimous(roomCode);
-                if ( result.success
+                if ( curResult.success
                      ||
                     currentUserStoryId == -1
                 ) {
-                    setCurrentUserStoryId(roomCode, currentUserStoryId + 1);
-                    io.in(roomCode).emit(
-                        "room:userStoryUpdate",
-                        userStories[currentUserStoryId + 1]
-                    );
+
                     if(currentUserStoryId != -1)
-                        setUserStoryResult(currentUserStoryId, result.result || "")
+                        setCurrentUserStoryId(roomCode, currentUserStoryId + 1);
+                    else
+                        setCurrentUserStoryId(roomCode, userStories[0].id!);
+                    if(currentUserStoryId != -1)
+                        io.in(roomCode).emit(
+                        "room:userStoryUpdate",
+                        userStories[currentUserStoryId - userStories[0].id! + 1 ]
+                    );
+                    else
+                        io.in(roomCode).emit(
+                            "room:userStoryUpdate",
+                            userStories[0]
+                        );
+                    console.log(JSON.stringify(userStories) + "ID OF NEXT");
+                    if(currentUserStoryId != -1) {
+                        setUserStoryResult(currentUserStoryId, curResult.result!)
+                    }
                 } else
                     new ApplicationError(
                         ApplicationErrorMessages.REVOTE_STARTED,
@@ -200,7 +214,7 @@ export async function nextRound(socket: Socket) {
                     ).send(socket, true);
                 resetUserVotes(roomCode);
                 setRoomState(RoomStates.VOTING, roomCode);
-                await handleUserListUpdate(roomCode); // ? Should this be await?
+                await handleUserListUpdate(roomCode);
                 break;
             }
         }
@@ -214,3 +228,5 @@ export async function sendUserStoryResults(socket: Socket) {
     const results: UserStoryResultPacket[] = await getUserStoryResults(roomCode);
     socket.emit("room:exportedResults", results)
 }
+
+
