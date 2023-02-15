@@ -11,7 +11,7 @@ type Props = {
 
 function Wheel(props: Props) {
     const [isFinished, setIsFinished] = useState<boolean>(false);
-    const maxSpeed = 0.1; // 0.05 slow, 0.1 medium, 0.2 fast
+    const maxSpeed = 0.15; // 0.05 slow, 0.1 medium, 0.2 fast
     const timerDelay = props.segments.length;
     const upDuration = 100;
     const downDuration = 1000;
