@@ -13,7 +13,7 @@ function Home(props: Props) {
         <Container>
             <img
                 alt="Team Meeting"
-                style={{ width: "25vw", height: "25vw" }}
+                style={{ width: "35vw", height: "35vw" }}
                 src={`${process.env.PUBLIC_URL}/Team_Meeting_Monochromatic.svg`}
             />
             <CardContainer>
@@ -46,7 +46,7 @@ const CardContainer = styled.div`
     align-items: center;
     gap: 1rem;
     position: relative;
-    top: -60px;
+    top: -80px;
 `;
 
 const Card = styled.div`
