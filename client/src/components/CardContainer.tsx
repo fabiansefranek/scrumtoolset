@@ -1,5 +1,5 @@
 import React from "react";
-import Card from "./Card";
+import PokerCard from "./PokerCard";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
 import { RoomStates } from "../constants/enums";
@@ -19,7 +19,7 @@ function CardContainer(props: Props) {
             <Cards cards={props.cards}>
                 {props.cards.map((card: string) => {
                     return (
-                        <Card
+                        <PokerCard
                             key={card}
                             text={card}
                             sendVote={props.sendVote}
