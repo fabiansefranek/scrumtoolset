@@ -13,8 +13,9 @@ function Home(props: Props) {
         <Container>
             <img
                 alt="Team Meeting"
-                style={{ width: "35vw", height: "35vw" }}
+                style={{ width: "35vw", height: "35vw", userSelect: "none" }}
                 src={`${process.env.PUBLIC_URL}/Team_Meeting_Monochromatic.svg`}
+                draggable={false}
             />
             <CardContainer>
                 <Card onClick={() => navigate("/scrumpoker")}>
@@ -67,6 +68,7 @@ const Card = styled.div`
     font-size: 24px;
     font-weight: 500;
     cursor: pointer;
+    user-select: none;
     &:hover {
         box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.05);
         background-color: #fdfdfd;
