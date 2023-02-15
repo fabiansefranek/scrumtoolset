@@ -11,7 +11,7 @@ type Props = {
     sendVote: Function;
 };
 
-function Card(props: Props) {
+function PokerCard(props: Props) {
     const width: number = 55;
     return (
         <Container
@@ -51,4 +51,4 @@ const Text = styled.p`
     font-size: 20px;
 `;
 
-export default Card;
+export default PokerCard;
