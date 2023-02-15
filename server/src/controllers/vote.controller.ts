@@ -22,7 +22,7 @@ export async function broadcastVotes(socket: Socket) {
     const roomCode: string = [...socket.rooms][1];
     const sessionId: string = socket.id;
     const roomModerator: string | undefined = await getRoomModerator(roomCode);
-    if (!roomModerator) return; // TODO: Handle this error
+    if (!roomModerator) return;
     if (sessionId !== roomModerator) return;
     const votes: Vote[] = await getUserVotes(roomCode);
     io.in(roomCode).emit("room:revealedVotes", votes);
@@ -34,7 +34,7 @@ export async function areVotesUnanimous(roomCode: string): Promise<EndOfVotingPa
     votes = votes.filter((vote: string) => vote !== "");
     let flag: boolean = true;
     let value: string = "";
-    if (votes.length == 0) return {success:true};
+    if (votes.length <= 1) return {success:true};
     votes.reduce((previousValue: string, currentValue: string) => {
         value = previousValue;
         if (previousValue !== currentValue) flag = false;

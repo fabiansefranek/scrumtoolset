@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import { connection } from "../index";
-import {User, UserStory, UserStoryResultPacket} from "../types";
+import {UserStory, UserStoryResultPacket} from "../types";
 
 export async function addUserStories(userStories: UserStory[], roomCode: string) {
     const data: string[][] = userStories.map((userStory: UserStory) => {
@@ -42,8 +42,7 @@ export async function getUserStory(userStoryId : number) : Promise<UserStory> {
             [userStoryId]
         );
     return rows[0] as UserStory;
-    }
-
+}
 
 export async function getCurrentUserStory(roomCode : string) : Promise<UserStory> {
     const currentId : number = await getCurrentUserStoryId(roomCode)
@@ -70,12 +69,13 @@ export async function deleteRoomUserStories(roomCode: string) {
 }
 
 export async function checkDone(roomcode: string): Promise<boolean> {
-    return (await getCurrentUserStoryId(roomcode)) >= ((await getUserStories(roomcode)).length -1)
+    return (await getCurrentUserStoryId(roomcode)) >= ((await getUserStories(roomcode)).length -1) + (await getUserStories(roomcode))[0].id!
 }
 
-export async function setUserStoryResult(userSoryId : number, result : string) {
+export async function setUserStoryResult(userStoryId : number, result : string) {
+    console.log("WRITING : "+ result + " TO " + userStoryId)
     await connection.query("UPDATE UserStory SET result = ? WHERE id = ?",
-        [result, userSoryId]
+        [result, userStoryId]
         );
 }
 
