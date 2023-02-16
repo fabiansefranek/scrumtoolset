@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { ThemeProvider } from "styled-components";
 import Wheel from "../components/Wheel";
 import { useState } from "react";
+import LuckyWheelPopup from "../components/LuckyWheelPopup";
+import { useLanguage } from "../hooks/useLanguage";
 
 type Props = {
     theme: Theme;
@@ -17,6 +19,10 @@ function LuckyWheel(props: Props) {
         { text: "Steve", color: "#815CD1" },
         { text: "Max", color: "#3DA5E0" },
     ]);
+    const [winner, setWinner] = useState<LuckyWheelSegment>(
+        {} as LuckyWheelSegment
+    );
+    const language = useLanguage();
 
     document.title = props.title;
 
@@ -32,11 +38,18 @@ function LuckyWheel(props: Props) {
                     canvasSize={700}
                     fontSize={24}
                     fontFamily="Ubuntu"
-                    onFinished={(currentSegment: any) =>
-                        alert(currentSegment.text)
-                    }
+                    spinText={language.strings.luckyWheel.spin}
+                    onFinished={(winnerSegment: LuckyWheelSegment) => {
+                        setWinner(winnerSegment);
+                    }}
                 />
             </Container>
+            {winner.text !== undefined ? (
+                <LuckyWheelPopup
+                    text={`${language.strings.luckyWheel.the_winner_is} ${winner.text}!`}
+                    closePopup={() => setWinner({} as LuckyWheelSegment)}
+                />
+            ) : null}
         </ThemeProvider>
     );
 }

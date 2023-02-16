@@ -52,6 +52,10 @@ const strings: LanguageStringsType = {
             disconnected: "You disconnect",
             exported_results: "Voting results have been exported",
         },
+        luckyWheel: {
+            spin: "Spin",
+            the_winner_is: "The winner is",
+        },
     },
     de: {
         all_userstories: "Alle User Stories",
@@ -104,6 +108,10 @@ const strings: LanguageStringsType = {
             must_be_moderator: "Sie müssen ein Moderator sein, um dies zu tun",
             disconnected: "Verbindung wurde getrennt",
             exported_results: "Abstimmungsergebnisse wurden exportiert",
+        },
+        luckyWheel: {
+            spin: "Drehen",
+            the_winner_is: "Der Gewinner ist",
         },
     },
 };
