@@ -5,8 +5,7 @@ import {RowDataPacket} from "mysql2";
 export async function getTeams() : Promise<Team[]> {
     const [rows] = await
         connection.query<RowDataPacket[]>(
-            "SELECT * FROM",
-            [name]
+            "SELECT * FROM Team",
         );
     return rows as Team[];
 }
