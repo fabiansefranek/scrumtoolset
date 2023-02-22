@@ -23,3 +23,9 @@ export async function deleteTeam(name: string) : Promise<void> {
         name
     ]);
 }
+
+export async function updateTeam(packet : Team) : Promise<void> {
+    await connection.query("UPDATE Team SET members = ? WHERE name = ?", [
+        packet.name,packet.members
+    ]);
+}
