@@ -102,6 +102,11 @@ type LanguageObject = {
         disconnected: string;
         exported_results: string;
     };
+    luckyWheel: {
+        [index: string]: string;
+        spin: string;
+        the_winner_is: string;
+    };
 };
 
 type LanguageStringsType = {
