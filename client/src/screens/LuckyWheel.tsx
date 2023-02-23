@@ -5,6 +5,7 @@ import Wheel from "../components/Wheel";
 import { useState } from "react";
 import LuckyWheelPopup from "../components/LuckyWheelPopup";
 import { useLanguage } from "../hooks/useLanguage";
+import LuckyWheelConfigurationScreen from "../components/LuckyWheelConfigurationScreen";
 
 type Props = {
     theme: Theme;
@@ -13,12 +14,11 @@ type Props = {
 };
 
 function LuckyWheel(props: Props) {
-    const [segments] = useState<LuckyWheelSegment[]>([
-        { text: "Andrea", color: "#EE4040" },
+    const [segments] = useState<LuckyWheelSegment[] | undefined>(undefined);
+    /* { text: "Andrea", color: "#EE4040" },
         { text: "Michelle", color: "#F0CF50" },
         { text: "Steve", color: "#815CD1" },
-        { text: "Max", color: "#3DA5E0" },
-    ]);
+        { text: "Max", color: "#3DA5E0" },*/
     const [winner, setWinner] = useState<LuckyWheelSegment>(
         {} as LuckyWheelSegment
     );
@@ -33,16 +33,20 @@ function LuckyWheel(props: Props) {
                     <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />
                     <LogoText>Lucky Wheel</LogoText>
                 </LogoContainer>
-                <Wheel
-                    segments={segments}
-                    canvasSize={700}
-                    fontSize={24}
-                    fontFamily="Ubuntu"
-                    spinText={language.strings.luckyWheel.spin}
-                    onFinished={(winnerSegment: LuckyWheelSegment) => {
-                        setWinner(winnerSegment);
-                    }}
-                />
+                {!segments ? (
+                    <LuckyWheelConfigurationScreen></LuckyWheelConfigurationScreen>
+                ) : (
+                    <Wheel
+                        segments={segments}
+                        canvasSize={700}
+                        fontSize={24}
+                        fontFamily="Ubuntu"
+                        spinText={language.strings.luckyWheel.spin}
+                        onFinished={(winnerSegment: LuckyWheelSegment) => {
+                            setWinner(winnerSegment);
+                        }}
+                    />
+                )}
             </Container>
             {winner.text !== undefined ? (
                 <LuckyWheelPopup
