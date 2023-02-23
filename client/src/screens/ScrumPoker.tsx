@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import io, { Socket } from "socket.io-client";
-import ConfigurationScreen from "../components/ConfigurationScreen";
+import PokerConfigurationScreen from "../components/PokerConfigurationScreen";
 import SessionScreen from "../components/SessionScreen";
 import {
     Theme,
@@ -284,7 +284,7 @@ function ScrumPoker(props: Props) {
         <ThemeProvider theme={props.theme}>
             <Container>
                 {!isConnected && (
-                    <ConfigurationScreen
+                    <PokerConfigurationScreen
                         createRoom={createRoom}
                         setRoomName={setRoomName}
                         setUsername={setUsername}
