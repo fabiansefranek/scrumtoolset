@@ -33,6 +33,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
     >(0);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
+    const newMemberRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
     const language = useLanguage();
 
@@ -50,8 +51,8 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             name: member,
                             absent: false,
                         };
-                    }),
-                };
+                    }) as TeamMember[],
+                } as Team;
             });
             console.info("Received teams: ");
             console.table(parsedMembersTeams);
@@ -110,6 +111,41 @@ function LuckyWheelConfigurationScreen(props: Props) {
         console.table(nonAbsentMembers);
     }
 
+    function updateTeam(team: Team) {
+        if (selectedTeamIndex === undefined) return;
+        if (socket === null) return;
+        const names = (team.members as TeamMember[]).map(
+            (member) => member.name
+        );
+        const newTeam = { ...team };
+        newTeam.members = JSON.stringify(names);
+        socket.emit("lucky:updateTeam", newTeam);
+    }
+
+    function addMember() {
+        if (selectedTeamIndex === undefined) return;
+        const newTeam = teams[selectedTeamIndex];
+        (newTeam.members as TeamMember[]).push({
+            name: newMemberRef.current!.value,
+            absent: false,
+        } as TeamMember);
+        const newTeams = [...teams];
+        newTeams[selectedTeamIndex] = newTeam;
+        setTeams(newTeams);
+        updateTeam(newTeam);
+    }
+
+    function removeMember() {
+        if (selectedMemberIndex === undefined) return;
+        if (selectedTeamIndex === undefined) return;
+        const newTeam = { ...teams[selectedTeamIndex] };
+        (newTeam.members as TeamMember[]).splice(selectedMemberIndex, 1);
+        const newTeams = [...teams];
+        newTeams[selectedTeamIndex] = newTeam;
+        setSelectedMemberIndex((index) => index! - 1);
+        setTeams(newTeams);
+        updateTeam(newTeam);
+    }
     return (
         <Container>
             <LogoContainer>
@@ -233,13 +269,15 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                     if (memberIndex === -1) return;
                                     const newTeams = [...teams];
                                     (
-                                        newTeams[selectedTeamIndex].members[
-                                            memberIndex
-                                        ] as TeamMember
+                                        (
+                                            newTeams[selectedTeamIndex]
+                                                .members as TeamMember[]
+                                        )[memberIndex] as TeamMember
                                     ).absent = !(
-                                        newTeams[selectedTeamIndex].members[
-                                            memberIndex
-                                        ] as TeamMember
+                                        (
+                                            newTeams[selectedTeamIndex]
+                                                .members as TeamMember[]
+                                        )[memberIndex] as TeamMember
                                     ).absent;
                                     setTeams(newTeams);
                                 }}
@@ -252,15 +290,21 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                     ? "present"
                                     : "absent"}
                             </Button>
-                            <Button secondary={true} style={{ flex: 1 }}>
+                            <Button
+                                secondary={true}
+                                style={{ flex: 1 }}
+                                onClick={removeMember}
+                            >
                                 Remove member
                             </Button>
                         </ButtonContainer>
                     </InputContainer>
                     <InputContainer>
                         <Text>Add a member</Text>
-                        <Input placeholder="Name"></Input>
-                        <Button secondary={true}>Add</Button>
+                        <Input placeholder="Name" ref={newMemberRef}></Input>
+                        <Button secondary={true} onClick={addMember}>
+                            Add
+                        </Button>
                     </InputContainer>
                     <InputContainer>
                         <Text>Start the lucky wheel</Text>
