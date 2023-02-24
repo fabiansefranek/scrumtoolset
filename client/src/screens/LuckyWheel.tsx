@@ -14,11 +14,9 @@ type Props = {
 };
 
 function LuckyWheel(props: Props) {
-    const [segments] = useState<LuckyWheelSegment[] | undefined>(undefined);
-    /* { text: "Andrea", color: "#EE4040" },
-        { text: "Michelle", color: "#F0CF50" },
-        { text: "Steve", color: "#815CD1" },
-        { text: "Max", color: "#3DA5E0" },*/
+    const [segments, setSegments] = useState<LuckyWheelSegment[] | undefined>(
+        undefined
+    );
     const [winner, setWinner] = useState<LuckyWheelSegment>(
         {} as LuckyWheelSegment
     );
@@ -34,7 +32,9 @@ function LuckyWheel(props: Props) {
                     <LogoText>Lucky Wheel</LogoText>
                 </LogoContainer>
                 {!segments ? (
-                    <LuckyWheelConfigurationScreen></LuckyWheelConfigurationScreen>
+                    <LuckyWheelConfigurationScreen
+                        setSegments={setSegments}
+                    ></LuckyWheelConfigurationScreen>
                 ) : (
                     <Wheel
                         segments={segments}

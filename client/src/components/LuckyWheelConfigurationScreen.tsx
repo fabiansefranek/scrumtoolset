@@ -2,7 +2,8 @@ import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
-import { Team, TeamMember } from "../types";
+import { useToast } from "../hooks/useToast";
+import { LuckyWheelSegment, Team, TeamMember } from "../types";
 import { Button } from "./Button";
 
 function convertLinesToUserStoryArray(lines: string): string[] | undefined {
@@ -16,7 +17,9 @@ function convertLinesToUserStoryArray(lines: string): string[] | undefined {
         }));*/
 }
 
-type Props = {};
+type Props = {
+    setSegments: Function;
+};
 
 function LuckyWheelConfigurationScreen(props: Props) {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -30,6 +33,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
     >(0);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
+    const toast = useToast();
     const language = useLanguage();
 
     useEffect(() => {
@@ -84,6 +88,28 @@ function LuckyWheelConfigurationScreen(props: Props) {
         console.log("Sent request for getting teams");
     }
 
+    function handleStart() {
+        if (socket === null) return;
+        if (selectedTeamIndex === undefined) return;
+        const nonAbsentMembers = (
+            teams[selectedTeamIndex].members as TeamMember[]
+        ).filter((member) => !member.absent);
+        if (nonAbsentMembers.length < 2) {
+            toast.error("At least 2 members must be present");
+            return;
+        }
+        const segments = nonAbsentMembers.map((member) => {
+            return {
+                text: member.name,
+                color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            } as LuckyWheelSegment;
+        });
+        disconnect();
+        props.setSegments(segments);
+        console.info("Start button clicked");
+        console.table(nonAbsentMembers);
+    }
+
     return (
         <Container>
             <LogoContainer>
@@ -129,7 +155,9 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         ...
                     </option>
                     {teams.map((team) => (
-                        <option value={team.name}>{team.name}</option>
+                        <option key={team.name} value={team.name}>
+                            {team.name}
+                        </option>
                     ))}
                 </Select>
             </InputContainer>
@@ -164,6 +192,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                           .members as TeamMember[]
                                   ).map((member: TeamMember) => (
                                       <option
+                                          key={member.name}
                                           value={member.name}
                                           style={{
                                               opacity: member.absent ? 0.5 : 1,
@@ -222,7 +251,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                     </InputContainer>
                     <InputContainer>
                         <Text>Start the lucky wheel</Text>
-                        <Button>Start</Button>
+                        <Button onClick={handleStart}>Start</Button>
                     </InputContainer>
                 </Fragment>
             ) : null}
