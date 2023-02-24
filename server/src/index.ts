@@ -6,7 +6,8 @@ import {
     create,
     leave,
     close,
-    nextRound, sendUserStoryResults,
+    nextRound,
+    sendUserStoryResults,
 } from "./controllers/room.controller";
 import { handleVote } from "./controllers/vote.controller";
 import { handleErrors } from "./middleware/error.middleware";
@@ -15,11 +16,12 @@ import {
     RoomClosePayload,
     RoomCreationPayload,
     RoomJoinPayload,
-    RoomVotePayload, Team,
+    RoomVotePayload,
+    Team,
 } from "./types";
 import mysql from "mysql2/promise";
-import {sendTeams} from "./controllers/luckywheel.controller";
-import {addTeam, deleteTeam, updateTeam} from "./models/team";
+import { sendTeams } from "./controllers/luckywheel.controller";
+import { addTeam, deleteTeam, updateTeam } from "./models/team";
 
 dotenv.config();
 
@@ -81,19 +83,19 @@ io.on("connection", (socket: Socket) => {
             socket: socket,
         })
     );
-    socket.on("lucky:addTeam", (payload : Team) =>
+    socket.on("lucky:addTeam", (payload: Team) =>
         handleErrors(addTeam, {
-            args : payload,
+            args: payload,
         })
     );
-    socket.on("lucky:deleteTeam", (payload : string) =>
+    socket.on("lucky:deleteTeam", (payload: string) =>
         handleErrors(deleteTeam, {
-            args : payload
+            args: payload,
         })
     );
-    socket.on("lucky:updateTeam", (payload : string) =>
+    socket.on("lucky:updateTeam", (payload: Team) =>
         handleErrors(updateTeam, {
-            args : payload
+            args: payload,
         })
     );
 });
