@@ -132,6 +132,19 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             onClick={() => {
                                 setSelectedTeamIndex(undefined);
                                 selectedTeamRef.current!.value = "";
+                                const newTeams = [...teams];
+                                newTeams.forEach((team, teamIndex) => {
+                                    (team.members as TeamMember[]).forEach(
+                                        (member, memberIndex) => {
+                                            (
+                                                newTeams[teamIndex].members[
+                                                    memberIndex
+                                                ] as TeamMember
+                                            ).absent = false;
+                                        }
+                                    );
+                                });
+                                setTeams(newTeams);
                             }}
                         >
                             create new team
