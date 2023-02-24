@@ -19,13 +19,15 @@ function convertLinesToUserStoryArray(lines: string): string[] | undefined {
 type Props = {};
 
 function LuckyWheelConfigurationScreen(props: Props) {
-    const [choose, setChoose] = useState<boolean>(false);
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [teams, setTeams] = useState<Team[]>([]);
     const [selectedTeamIndex, setSelectedTeamIndex] = useState<
         number | undefined
     >(undefined);
+    const [selectedMemberIndex, setSelectedMemberIndex] = useState<
+        number | undefined
+    >(0);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
     const language = useLanguage();
@@ -70,7 +72,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     function disconnect(): void {
         if (socket === null) return;
-        setChoose(false);
+        setSelectedTeamIndex(undefined);
         socket.disconnect();
         setSocket(null);
         console.log("Disconnected from server");
@@ -88,7 +90,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />
                 <LogoText>Lucky Wheel</LogoText>
             </LogoContainer>
-            {!choose ? (
+            {selectedTeamIndex === undefined ? (
                 <InputContainer>
                     <Text>Create new team</Text>
                     <Input placeholder="Team name"></Input>
@@ -97,11 +99,12 @@ function LuckyWheelConfigurationScreen(props: Props) {
             ) : null}
             <InputContainer>
                 <Text>
-                    Select a team {choose ? " or " : null}
-                    {choose ? (
+                    Select a team{" "}
+                    {selectedTeamIndex !== undefined ? " or " : null}
+                    {selectedTeamIndex !== undefined ? (
                         <Link
                             onClick={() => {
-                                setChoose(false);
+                                setSelectedTeamIndex(undefined);
                                 selectedTeamRef.current!.value = "";
                             }}
                         >
@@ -112,7 +115,6 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 <Select
                     placeholder={language.strings.username}
                     onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-                        setChoose(true);
                         setSelectedTeamIndex(
                             teams.findIndex(
                                 (team) => team.name === event.target.value
@@ -131,7 +133,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                     ))}
                 </Select>
             </InputContainer>
-            {choose ? (
+            {selectedTeamIndex !== undefined ? (
                 <Fragment>
                     <InputContainer>
                         <Text>Delete selected team</Text>
@@ -142,9 +144,18 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         <Select
                             placeholder={language.strings.username}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                                console.log(event.target.value)
+                                setSelectedMemberIndex(
+                                    (
+                                        teams[selectedTeamIndex]
+                                            .members as TeamMember[]
+                                    ).findIndex(
+                                        (member) =>
+                                            member.name === event.target.value
+                                    )
+                                )
                             }
                             ref={selectedMemberRef}
+                            defaultValue={selectedMemberIndex}
                             size={3}
                         >
                             {selectedTeamIndex !== undefined
@@ -152,7 +163,12 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                       teams[selectedTeamIndex]
                                           .members as TeamMember[]
                                   ).map((member: TeamMember) => (
-                                      <option value={member.name}>
+                                      <option
+                                          value={member.name}
+                                          style={{
+                                              opacity: member.absent ? 0.5 : 1,
+                                          }}
+                                      >
                                           {member.name}
                                       </option>
                                   ))
@@ -162,9 +178,37 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             <Button
                                 secondary={true}
                                 style={{ flex: 1 }}
-                                onClick={() => {}}
+                                onClick={() => {
+                                    if (selectedTeamIndex === undefined) return;
+                                    const memberIndex = (
+                                        teams[selectedTeamIndex]
+                                            .members as TeamMember[]
+                                    ).findIndex(
+                                        (member) =>
+                                            member.name ===
+                                            selectedMemberRef.current!.value
+                                    );
+                                    if (memberIndex === -1) return;
+                                    const newTeams = [...teams];
+                                    (
+                                        newTeams[selectedTeamIndex].members[
+                                            memberIndex
+                                        ] as TeamMember
+                                    ).absent = !(
+                                        newTeams[selectedTeamIndex].members[
+                                            memberIndex
+                                        ] as TeamMember
+                                    ).absent;
+                                    setTeams(newTeams);
+                                }}
                             >
-                                Mark as absent
+                                Mark as{" "}
+                                {(
+                                    teams[selectedTeamIndex]
+                                        .members as TeamMember[]
+                                )[selectedMemberIndex!].absent
+                                    ? "present"
+                                    : "absent"}
                             </Button>
                             <Button secondary={true} style={{ flex: 1 }}>
                                 Remove member
