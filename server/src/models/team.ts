@@ -11,8 +11,10 @@ export async function getTeams(): Promise<Team[]> {
 
 export async function addTeam(packet: Team): Promise<void> {
     // TODO: check if team already exists
-    const data: string[] = [packet.name, packet.members];
-    await connection.query("INSERT INTO Team (name, members) VALUES ?", [data]);
+    await connection.query("INSERT INTO Team(name, members) VALUES (?, ?)", [
+        packet.name,
+        packet.members,
+    ]);
 }
 
 export async function deleteTeam(name: string): Promise<void> {
