@@ -134,6 +134,16 @@ type LuckyWheelSegment = {
     color: string;
 };
 
+type Team = {
+    name: string;
+    members: TeamMember[] | string;
+};
+
+type TeamMember = {
+    name: string;
+    absent: boolean;
+};
+
 export type {
     User,
     UserStory,
@@ -145,4 +155,6 @@ export type {
     LanguageStringsType,
     LanguageObject,
     LuckyWheelSegment,
+    Team,
+    TeamMember,
 };

@@ -1,6 +1,8 @@
-import { ChangeEvent, Fragment, useRef, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
+import { Team, TeamMember } from "../types";
 import { Button } from "./Button";
 
 function convertLinesToUserStoryArray(lines: string): string[] | undefined {
@@ -18,9 +20,68 @@ type Props = {};
 
 function LuckyWheelConfigurationScreen(props: Props) {
     const [choose, setChoose] = useState<boolean>(false);
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [selectedTeamIndex, setSelectedTeamIndex] = useState<
+        number | undefined
+    >(undefined);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
-
+    const selectedMemberRef = useRef<HTMLSelectElement>(null);
     const language = useLanguage();
+
+    useEffect(() => {
+        const socket = connect();
+
+        socket.on("receivedTeams", (teams: Team[]) => {
+            const parsedMembersTeams = teams.map((team) => {
+                return {
+                    ...team,
+                    members: (
+                        JSON.parse(team.members as string) as string[]
+                    ).map((member) => {
+                        return {
+                            name: member,
+                            absent: false,
+                        };
+                    }),
+                };
+            });
+            console.info("Received teams: ");
+            console.table(parsedMembersTeams);
+            setTeams(parsedMembersTeams);
+        });
+
+        return () => {
+            socket.off("receivedTeams");
+        };
+    }, []);
+
+    useEffect(() => {
+        getTeams();
+    }, [isConnected, socket]);
+
+    function connect(): Socket {
+        const socket = io("http://localhost:3000");
+        setSocket(socket);
+        console.log("Connected to server");
+        return socket;
+    }
+
+    function disconnect(): void {
+        if (socket === null) return;
+        setChoose(false);
+        socket.disconnect();
+        setSocket(null);
+        console.log("Disconnected from server");
+    }
+
+    function getTeams() {
+        if (socket === null) return;
+        socket.emit("lucky:receiveTeams");
+        console.log("Sent request for getting teams");
+    }
+
     return (
         <Container>
             <LogoContainer>
@@ -50,18 +111,24 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 </Text>
                 <Select
                     placeholder={language.strings.username}
-                    onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                        setChoose(true)
-                    }
+                    onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+                        setChoose(true);
+                        setSelectedTeamIndex(
+                            teams.findIndex(
+                                (team) => team.name === event.target.value
+                            )
+                        );
+                    }}
                     ref={selectedTeamRef}
+                    defaultValue=""
                     required
                 >
-                    <option value="" disabled selected>
+                    <option value="" disabled>
                         ...
                     </option>
-                    <option value="1">Team 1</option>
-                    <option value="2">Team 2</option>
-                    <option value="3">Team 3</option>
+                    {teams.map((team) => (
+                        <option value={team.name}>{team.name}</option>
+                    ))}
                 </Select>
             </InputContainer>
             {choose ? (
@@ -77,16 +144,26 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                                 console.log(event.target.value)
                             }
+                            ref={selectedMemberRef}
                             size={3}
                         >
-                            <option value="1">Member 1</option>
-                            <option value="2">Member 2</option>
-                            <option value="3">Member 3</option>
-                            <option value="4">Member 4</option>
-                            <option value="5">Member 5</option>
+                            {selectedTeamIndex !== undefined
+                                ? (
+                                      teams[selectedTeamIndex]
+                                          .members as TeamMember[]
+                                  ).map((member: TeamMember) => (
+                                      <option value={member.name}>
+                                          {member.name}
+                                      </option>
+                                  ))
+                                : null}
                         </Select>
                         <ButtonContainer>
-                            <Button secondary={true} style={{ flex: 1 }}>
+                            <Button
+                                secondary={true}
+                                style={{ flex: 1 }}
+                                onClick={() => {}}
+                            >
                                 Mark as absent
                             </Button>
                             <Button secondary={true} style={{ flex: 1 }}>
