@@ -34,6 +34,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
     const newMemberRef = useRef<HTMLInputElement>(null);
+    const newTeamRef = useRef<HTMLInputElement>(null);
     const toast = useToast();
     const language = useLanguage();
 
@@ -122,6 +123,31 @@ function LuckyWheelConfigurationScreen(props: Props) {
         socket.emit("lucky:updateTeam", newTeam);
     }
 
+    function deleteTeam(team: Team) {
+        if (socket === null) return;
+        socket.emit("lucky:deleteTeam", team.name);
+    }
+
+    function createTeam() {
+        if (socket === null) return;
+        const teamName = newTeamRef.current!.value;
+        if (teamName.length === 0) {
+            toast.error("Team name must not be empty");
+        }
+        const newTeam = {
+            name: teamName,
+            members: [{ name: "Member 1", absent: false }],
+        } as Team;
+        const jsonTeam = {
+            ...newTeam,
+            members: (newTeam.members as TeamMember[])
+                .map((member) => member.name)
+                .toString(),
+        };
+        setTeams((teams) => [...teams, newTeam]);
+        socket.emit("lucky:addTeam", jsonTeam);
+    }
+
     function addMember() {
         if (selectedTeamIndex === undefined) return;
         const newTeam = teams[selectedTeamIndex];
@@ -155,8 +181,8 @@ function LuckyWheelConfigurationScreen(props: Props) {
             {selectedTeamIndex === undefined ? (
                 <InputContainer>
                     <Text>Create new team</Text>
-                    <Input placeholder="Team name"></Input>
-                    <Button>Create</Button>
+                    <Input placeholder="Team name" ref={newTeamRef}></Input>
+                    <Button onClick={createTeam}>Create</Button>
                 </InputContainer>
             ) : null}
             <InputContainer>
