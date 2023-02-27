@@ -6,17 +6,6 @@ import { useToast } from "../hooks/useToast";
 import { LuckyWheelSegment, Team, TeamMember } from "../types";
 import { Button } from "./Button";
 
-function convertLinesToUserStoryArray(lines: string): string[] | undefined {
-    if (lines.length === 0) return [];
-    /*return lines
-        .trim()
-        .split("\n")
-        .map((line: string) => ({
-            name: line.split(";")[0],
-            content: line.split(";")[1],
-        }));*/
-}
-
 type Props = {
     setSegments: Function;
 };
@@ -168,7 +157,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
         (newTeam.members as TeamMember[]).splice(selectedMemberIndex, 1);
         const newTeams = [...teams];
         newTeams[selectedTeamIndex] = newTeam;
-        setSelectedMemberIndex((index) => index! - 1);
+        setSelectedMemberIndex((index) => (index === 0 ? 0 : index! - 1));
         setTeams(newTeams);
         updateTeam(newTeam);
     }
@@ -240,7 +229,16 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 <Fragment>
                     <InputContainer>
                         <Text>Delete selected team</Text>
-                        <Button secondary={true}>Delete</Button>
+                        <Button
+                            secondary={true}
+                            onClick={() =>
+                                selectedTeamIndex
+                                    ? deleteTeam(teams[selectedTeamIndex])
+                                    : null
+                            }
+                        >
+                            Delete
+                        </Button>
                     </InputContainer>
                     <InputContainer>
                         <Text>Team members</Text>
@@ -309,12 +307,18 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                 }}
                             >
                                 Mark as{" "}
-                                {(
+                                {selectedMemberIndex !== undefined &&
+                                (
                                     teams[selectedTeamIndex]
                                         .members as TeamMember[]
-                                )[selectedMemberIndex!].absent
-                                    ? "present"
-                                    : "absent"}
+                                ).length > 0
+                                    ? (
+                                          teams[selectedTeamIndex]
+                                              .members as TeamMember[]
+                                      )[selectedMemberIndex].absent
+                                        ? "present"
+                                        : "absent"
+                                    : null}
                             </Button>
                             <Button
                                 secondary={true}
