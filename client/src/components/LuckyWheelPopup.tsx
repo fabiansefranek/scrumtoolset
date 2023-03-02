@@ -13,7 +13,13 @@ function LuckyWheelPopup(props: Props) {
         audio.play();
     }, []);
     return (
-        <Container onClick={() => props.closePopup()}>
+        <Container
+            onClick={() => {
+                props.closePopup();
+                audio.pause();
+                audio.currentTime = 0;
+            }}
+        >
             <Confetti></Confetti>
             <Text>{props.text}</Text>
         </Container>
