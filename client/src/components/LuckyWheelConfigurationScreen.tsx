@@ -125,7 +125,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
         }
         const newTeam = {
             name: teamName,
-            members: [{ name: "Member 1", absent: false }],
+            members: [] as TeamMember[],
         } as Team;
         const jsonTeam = {
             ...newTeam,
