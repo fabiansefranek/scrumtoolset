@@ -29,13 +29,13 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     useEffect(() => {
         const socket = connect();
-
         socket.on("receivedTeams", (teams: Team[]) => {
             const parsedMembersTeams = teams.map((team) => {
                 return {
                     ...team,
-                    members: (
-                        JSON.parse(team.members as string) as string[]
+                    members: (team.members
+                        ? (JSON.parse(team.members as string) as string[])
+                        : []
                     ).map((member) => {
                         return {
                             name: member,
