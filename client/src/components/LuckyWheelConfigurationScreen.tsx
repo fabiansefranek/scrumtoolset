@@ -431,7 +431,7 @@ const LogoContainer = styled.div`
     gap: 0.25rem;
     align-items: center;
     user-select: none;
-    opacity: 0.3;
+    opacity: 0.05;
 `;
 
 const LogoText = styled.h2`
