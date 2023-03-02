@@ -4,9 +4,9 @@ import {Team} from "../types";
 import {ApplicationError} from "../errors/application.error";
 import {ApplicationErrorMessages} from "../constants/enums";
 
-export async function sendTeams(socket : Socket): Promise<void> {
+export async function sendTeams(socket: Socket): Promise<void> {
     const teams: Team[] = await getTeams();
-    socket.emit("receivedTeams", teams)
+    socket.emit("receivedTeams", teams); // TODO: rename to "lucky:receivedTeams"
 }
 
 export async function addTeam(packet : Team) {

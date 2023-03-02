@@ -1,47 +1,201 @@
-import { ChangeEvent, Fragment, useRef, useState } from "react";
+import { ChangeEvent, Fragment, useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 import styled from "styled-components";
 import { useLanguage } from "../hooks/useLanguage";
+import { useToast } from "../hooks/useToast";
+import { LuckyWheelSegment, Team, TeamMember } from "../types";
 import { Button } from "./Button";
 
-function convertLinesToUserStoryArray(lines: string): string[] | undefined {
-    if (lines.length === 0) return [];
-    /*return lines
-        .trim()
-        .split("\n")
-        .map((line: string) => ({
-            name: line.split(";")[0],
-            content: line.split(";")[1],
-        }));*/
-}
-
-type Props = {};
+type Props = {
+    setSegments: Function;
+};
 
 function LuckyWheelConfigurationScreen(props: Props) {
-    const [choose, setChoose] = useState<boolean>(false);
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [selectedTeamIndex, setSelectedTeamIndex] = useState<
+        number | undefined
+    >(undefined);
+    const [selectedMemberIndex, setSelectedMemberIndex] = useState<
+        number | undefined
+    >(0);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
-
+    const selectedMemberRef = useRef<HTMLSelectElement>(null);
+    const newMemberRef = useRef<HTMLInputElement>(null);
+    const newTeamRef = useRef<HTMLInputElement>(null);
+    const toast = useToast();
     const language = useLanguage();
+
+    useEffect(() => {
+        const socket = connect();
+
+        socket.on("receivedTeams", (teams: Team[]) => {
+            const parsedMembersTeams = teams.map((team) => {
+                return {
+                    ...team,
+                    members: (
+                        JSON.parse(team.members as string) as string[]
+                    ).map((member) => {
+                        return {
+                            name: member,
+                            absent: false,
+                        };
+                    }) as TeamMember[],
+                } as Team;
+            });
+            console.info("Received teams: ");
+            console.table(parsedMembersTeams);
+            setTeams(parsedMembersTeams);
+        });
+
+        return () => {
+            socket.off("receivedTeams");
+        };
+    }, []);
+
+    useEffect(() => {
+        getTeams();
+    }, [isConnected, socket]);
+
+    function connect(): Socket {
+        const socket = io("http://localhost:3000");
+        setSocket(socket);
+        console.log("Connected to server");
+        return socket;
+    }
+
+    function disconnect(): void {
+        if (socket === null) return;
+        setSelectedTeamIndex(undefined);
+        socket.disconnect();
+        setSocket(null);
+        console.log("Disconnected from server");
+    }
+
+    function getTeams() {
+        if (socket === null) return;
+        socket.emit("lucky:receiveTeams");
+        console.log("Sent request for getting teams");
+    }
+
+    function handleStart() {
+        if (socket === null) return;
+        if (selectedTeamIndex === undefined) return;
+        const nonAbsentMembers = (
+            teams[selectedTeamIndex].members as TeamMember[]
+        ).filter((member) => !member.absent);
+        if (nonAbsentMembers.length < 2) {
+            toast.error("At least 2 members must be present");
+            return;
+        }
+        const segments = nonAbsentMembers.map((member) => {
+            return {
+                text: member.name,
+                color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            } as LuckyWheelSegment;
+        });
+        disconnect();
+        props.setSegments(segments);
+        console.info("Start button clicked");
+        console.table(nonAbsentMembers);
+    }
+
+    function updateTeam(team: Team) {
+        if (selectedTeamIndex === undefined) return;
+        if (socket === null) return;
+        const names = (team.members as TeamMember[]).map(
+            (member) => member.name
+        );
+        const newTeam = { ...team };
+        newTeam.members = JSON.stringify(names);
+        socket.emit("lucky:updateTeam", newTeam);
+    }
+
+    function deleteTeam(team: Team) {
+        if (socket === null) return;
+        socket.emit("lucky:deleteTeam", team.name);
+    }
+
+    function createTeam() {
+        if (socket === null) return;
+        const teamName = newTeamRef.current!.value;
+        if (teamName.length === 0) {
+            toast.error("Team name must not be empty");
+        }
+        const newTeam = {
+            name: teamName,
+            members: [{ name: "Member 1", absent: false }],
+        } as Team;
+        const jsonTeam = {
+            ...newTeam,
+            members: (newTeam.members as TeamMember[])
+                .map((member) => member.name)
+                .toString(),
+        };
+        setTeams((teams) => [...teams, newTeam]);
+        socket.emit("lucky:addTeam", jsonTeam);
+    }
+
+    function addMember() {
+        if (selectedTeamIndex === undefined) return;
+        const newTeam = teams[selectedTeamIndex];
+        (newTeam.members as TeamMember[]).push({
+            name: newMemberRef.current!.value,
+            absent: false,
+        } as TeamMember);
+        const newTeams = [...teams];
+        newTeams[selectedTeamIndex] = newTeam;
+        setTeams(newTeams);
+        updateTeam(newTeam);
+    }
+
+    function removeMember() {
+        if (selectedMemberIndex === undefined) return;
+        if (selectedTeamIndex === undefined) return;
+        const newTeam = { ...teams[selectedTeamIndex] };
+        (newTeam.members as TeamMember[]).splice(selectedMemberIndex, 1);
+        const newTeams = [...teams];
+        newTeams[selectedTeamIndex] = newTeam;
+        setSelectedMemberIndex((index) => (index === 0 ? 0 : index! - 1));
+        setTeams(newTeams);
+        updateTeam(newTeam);
+    }
     return (
         <Container>
             <LogoContainer>
                 <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />
                 <LogoText>Lucky Wheel</LogoText>
             </LogoContainer>
-            {!choose ? (
+            {selectedTeamIndex === undefined ? (
                 <InputContainer>
                     <Text>Create new team</Text>
-                    <Input placeholder="Team name"></Input>
-                    <Button>Create</Button>
+                    <Input placeholder="Team name" ref={newTeamRef}></Input>
+                    <Button onClick={createTeam}>Create</Button>
                 </InputContainer>
             ) : null}
             <InputContainer>
                 <Text>
-                    Select a team {choose ? " or " : null}
-                    {choose ? (
+                    Select a team{" "}
+                    {selectedTeamIndex !== undefined ? " or " : null}
+                    {selectedTeamIndex !== undefined ? (
                         <Link
                             onClick={() => {
-                                setChoose(false);
+                                setSelectedTeamIndex(undefined);
                                 selectedTeamRef.current!.value = "";
+                                const newTeams = [...teams];
+                                newTeams.forEach((team, teamIndex) => {
+                                    (team.members as TeamMember[]).forEach(
+                                        (member, memberIndex) => {
+                                            (
+                                                newTeams[teamIndex].members[
+                                                    memberIndex
+                                                ] as TeamMember
+                                            ).absent = false;
+                                        }
+                                    );
+                                });
+                                setTeams(newTeams);
                             }}
                         >
                             create new team
@@ -50,58 +204,141 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 </Text>
                 <Select
                     placeholder={language.strings.username}
-                    onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                        setChoose(true)
-                    }
+                    onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+                        setSelectedTeamIndex(
+                            teams.findIndex(
+                                (team) => team.name === event.target.value
+                            )
+                        );
+                    }}
                     ref={selectedTeamRef}
+                    defaultValue=""
                     required
                 >
-                    <option value="" disabled selected>
+                    <option value="" disabled>
                         ...
                     </option>
-                    <option value="1">Team 1</option>
-                    <option value="2">Team 2</option>
-                    <option value="3">Team 3</option>
+                    {teams.map((team) => (
+                        <option key={team.name} value={team.name}>
+                            {team.name}
+                        </option>
+                    ))}
                 </Select>
             </InputContainer>
-            {choose ? (
+            {selectedTeamIndex !== undefined ? (
                 <Fragment>
                     <InputContainer>
                         <Text>Delete selected team</Text>
-                        <Button secondary={true}>Delete</Button>
+                        <Button
+                            secondary={true}
+                            onClick={() =>
+                                selectedTeamIndex
+                                    ? deleteTeam(teams[selectedTeamIndex])
+                                    : null
+                            }
+                        >
+                            Delete
+                        </Button>
                     </InputContainer>
                     <InputContainer>
                         <Text>Team members</Text>
                         <Select
                             placeholder={language.strings.username}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                                console.log(event.target.value)
+                                setSelectedMemberIndex(
+                                    (
+                                        teams[selectedTeamIndex]
+                                            .members as TeamMember[]
+                                    ).findIndex(
+                                        (member) =>
+                                            member.name === event.target.value
+                                    )
+                                )
                             }
+                            ref={selectedMemberRef}
+                            defaultValue={selectedMemberIndex}
                             size={3}
                         >
-                            <option value="1">Member 1</option>
-                            <option value="2">Member 2</option>
-                            <option value="3">Member 3</option>
-                            <option value="4">Member 4</option>
-                            <option value="5">Member 5</option>
+                            {selectedTeamIndex !== undefined
+                                ? (
+                                      teams[selectedTeamIndex]
+                                          .members as TeamMember[]
+                                  ).map((member: TeamMember) => (
+                                      <option
+                                          key={member.name}
+                                          value={member.name}
+                                          style={{
+                                              opacity: member.absent ? 0.5 : 1,
+                                          }}
+                                      >
+                                          {member.name}
+                                      </option>
+                                  ))
+                                : null}
                         </Select>
                         <ButtonContainer>
-                            <Button secondary={true} style={{ flex: 1 }}>
-                                Mark as absent
+                            <Button
+                                secondary={true}
+                                style={{ flex: 1 }}
+                                onClick={() => {
+                                    if (selectedTeamIndex === undefined) return;
+                                    const memberIndex = (
+                                        teams[selectedTeamIndex]
+                                            .members as TeamMember[]
+                                    ).findIndex(
+                                        (member) =>
+                                            member.name ===
+                                            selectedMemberRef.current!.value
+                                    );
+                                    if (memberIndex === -1) return;
+                                    const newTeams = [...teams];
+                                    (
+                                        (
+                                            newTeams[selectedTeamIndex]
+                                                .members as TeamMember[]
+                                        )[memberIndex] as TeamMember
+                                    ).absent = !(
+                                        (
+                                            newTeams[selectedTeamIndex]
+                                                .members as TeamMember[]
+                                        )[memberIndex] as TeamMember
+                                    ).absent;
+                                    setTeams(newTeams);
+                                }}
+                            >
+                                Mark as{" "}
+                                {selectedMemberIndex !== undefined &&
+                                (
+                                    teams[selectedTeamIndex]
+                                        .members as TeamMember[]
+                                ).length > 0
+                                    ? (
+                                          teams[selectedTeamIndex]
+                                              .members as TeamMember[]
+                                      )[selectedMemberIndex].absent
+                                        ? "present"
+                                        : "absent"
+                                    : null}
                             </Button>
-                            <Button secondary={true} style={{ flex: 1 }}>
+                            <Button
+                                secondary={true}
+                                style={{ flex: 1 }}
+                                onClick={removeMember}
+                            >
                                 Remove member
                             </Button>
                         </ButtonContainer>
                     </InputContainer>
                     <InputContainer>
                         <Text>Add a member</Text>
-                        <Input placeholder="Name"></Input>
-                        <Button secondary={true}>Add</Button>
+                        <Input placeholder="Name" ref={newMemberRef}></Input>
+                        <Button secondary={true} onClick={addMember}>
+                            Add
+                        </Button>
                     </InputContainer>
                     <InputContainer>
                         <Text>Start the lucky wheel</Text>
-                        <Button>Start</Button>
+                        <Button onClick={handleStart}>Start</Button>
                     </InputContainer>
                 </Fragment>
             ) : null}

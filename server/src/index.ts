@@ -91,11 +91,11 @@ io.on("connection", (socket: Socket) => {
             args : payload
         })
     );
-    socket.on("lucky:updateTeam", (payload : string) =>
+    socket.on("lucky:updateTeam", (payload: Team) =>
         handleErrors(updateTeam, {
             args : payload
         })
     );
 });
-io.listen(parseInt(process.env.PORT!));
 
+io.listen(parseInt(process.env.PORT!));
