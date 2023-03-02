@@ -18,8 +18,8 @@ import {
     RoomVotePayload, Team,
 } from "./types";
 import mysql from "mysql2/promise";
-import {sendTeams} from "./controllers/luckywheel.controller";
-import {addTeam, deleteTeam, updateTeam} from "./models/team";
+import {sendTeams, addTeam} from "./controllers/luckywheel.controller";
+import {deleteTeam, updateTeam} from "./models/team";
 
 dotenv.config();
 
@@ -97,5 +97,5 @@ io.on("connection", (socket: Socket) => {
         })
     );
 });
-
 io.listen(parseInt(process.env.PORT!));
+

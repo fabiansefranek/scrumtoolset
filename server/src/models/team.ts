@@ -29,3 +29,9 @@ export async function updateTeam(packet : Team) : Promise<void> {
         packet.name,packet.members
     ]);
 }
+
+export async function getTeam(name : String) {
+    const [rows] = await connection.query<RowDataPacket[]>("SELECT * FROM Team WHERE name = ?",
+        [name]);
+    return rows as Team[];
+}
