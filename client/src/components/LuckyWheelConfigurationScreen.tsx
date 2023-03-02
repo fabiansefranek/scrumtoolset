@@ -123,10 +123,12 @@ function LuckyWheelConfigurationScreen(props: Props) {
         if (teamName.length === 0) {
             toast.error("Team name must not be empty");
         }
+
         const newTeam = {
             name: teamName,
             members: [] as TeamMember[],
         } as Team;
+
         const jsonTeam = {
             ...newTeam,
             members: (newTeam.members as TeamMember[])
@@ -134,6 +136,9 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 .toString(),
         };
         setTeams((teams) => [...teams, newTeam]);
+
+        setSelectedTeamIndex(teams.length);
+
         socket.emit("lucky:addTeam", jsonTeam);
     }
 
@@ -212,6 +217,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         );
                     }}
                     ref={selectedTeamRef}
+                    value={selectedTeamIndex}
                     defaultValue=""
                     required
                 >
