@@ -10,7 +10,8 @@ export async function getTeams(): Promise<Team[]> {
 }
 
 export async function addTeam(packet: Team): Promise<void> {
-    // TODO: check if team already exists
+    if((await getTeam(packet.name)).length > 0) return;
+
     await connection.query("INSERT INTO Team(name, members) VALUES (?, ?)", [
         packet.name,
         packet.members,
