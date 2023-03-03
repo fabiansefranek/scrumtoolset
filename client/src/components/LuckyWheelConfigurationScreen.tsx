@@ -20,6 +20,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
     const [selectedMemberIndex, setSelectedMemberIndex] = useState<
         number | undefined
     >(0);
+    const selectedTeamIndexRef = useRef<number | undefined>(undefined);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
     const newMemberRef = useRef<HTMLInputElement>(null);
@@ -137,7 +138,9 @@ function LuckyWheelConfigurationScreen(props: Props) {
         };
         setTeams((teams) => [...teams, newTeam]);
 
+        selectedTeamIndexRef.current = teams.length + 1;
         setSelectedTeamIndex(teams.length);
+        //setSelectedTeamIndex(teams.length);
 
         socket.emit("lucky:addTeam", jsonTeam);
     }
@@ -210,14 +213,14 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 <Select
                     placeholder={language.strings.username}
                     onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-                        setSelectedTeamIndex(
-                            teams.findIndex(
-                                (team) => team.name === event.target.value
-                            )
+                        const teamIndex = teams.findIndex(
+                            (team) => team.name === event.target.value
                         );
+                        selectedTeamIndexRef.current = teamIndex + 1;
+                        setSelectedTeamIndex(teamIndex);
                     }}
                     ref={selectedTeamRef}
-                    value={selectedTeamIndex}
+                    value={selectedTeamIndexRef.current}
                     defaultValue=""
                     required
                 >
