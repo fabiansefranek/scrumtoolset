@@ -61,11 +61,7 @@ io.on("connection", (socket: Socket) => {
             args: payload,
         })
     );
-    socket.on("disconnecting", (reason: DisconnectReason) =>
-        handleErrors(leave, {
-            socket: socket,
-        })
-    );
+
     socket.on("room:nextRound", () =>
         handleErrors(nextRound, {
             socket: socket,
@@ -97,5 +93,7 @@ io.on("connection", (socket: Socket) => {
         })
     );
 });
+
+
 
 io.listen(parseInt(process.env.PORT!));

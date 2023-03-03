@@ -37,6 +37,8 @@ import {
     User,
     UserStory, UserStoryResultPacket,
 } from "../types";
+import {DisconnectReason} from "socket.io/dist/socket";
+import {handleErrors} from "../middleware/error.middleware";
 
 export function create(socket: Socket, payload: RoomCreationPayload): void {
     const roomCode: string = generateWordSlug(3, "-");
@@ -77,6 +79,12 @@ export async function join(
     payload: RoomJoinPayload,
     isModerator?: boolean
 ) {
+    socket.on("disconnecting", (reason: DisconnectReason) =>
+        handleErrors(leave, {
+            socket: socket,
+        })
+    );
+
     const roomCode: string = payload.roomCode;
     const username: string = payload.username;
     const now: number = Math.floor(Date.now() / 1000);
@@ -99,6 +107,8 @@ export async function join(
 
     //Makes sure user doesn't join same room twice
     if ([...socket.rooms][1] != roomCode) socket.join(roomCode);
+
+    socket.join("scrumpoker")
 
     const votingSystem: string = await getRoomVotingSystem(roomCode);
     const roomState: string = await getRoomState(roomCode);
@@ -147,6 +157,8 @@ export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
     if (!roomFound) throw new ApplicationError(ApplicationErrorMessages.ROOM_NOT_FOUND, true);
+
+    socket.removeAllListeners()
 
     const sockets: any[] = await io.in(roomCode).fetchSockets();
     io.in(roomCode).emit("room:closed"); //COMMENT THE FIRST leave(out) -> then it should have no issues
