@@ -59,7 +59,22 @@ type LanguageObject = {
     username: string;
     all_userstories: string;
     waiting_for_moderator_to_start: string;
-    click_to_copy_roomcode;
+    click_to_copy_roomcode: string;
+    create_new_team: string;
+    team_name: string;
+    select_team: string;
+    or: string;
+    delete_selected_team: string;
+    delete: string;
+    team_members: string;
+    mark_as: string;
+    absent: string;
+    present: string;
+    remove_member: string;
+    add_member: string;
+    add: string;
+    start_lucky_wheel: string;
+    start: string;
     roomState: {
         voting: string;
     };
@@ -101,6 +116,8 @@ type LanguageObject = {
         must_be_moderator: string;
         disconnected: string;
         exported_results: string;
+        maximum_team_members_reached: string;
+        minimum_team_members_not_reached: string;
     };
     luckyWheel: {
         [index: string]: string;

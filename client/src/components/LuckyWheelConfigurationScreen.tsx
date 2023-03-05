@@ -87,7 +87,10 @@ function LuckyWheelConfigurationScreen(props: Props) {
             teams[selectedTeamIndex].members as TeamMember[]
         ).filter((member) => !member.absent);
         if (nonAbsentMembers.length < 2) {
-            toast.error("At least 2 members must be present");
+            toast.error(
+                language.strings.notifications
+                    .minimum_team_members_not_reached + " (2)"
+            );
             return;
         }
         const segments = nonAbsentMembers.map((member) => {
@@ -148,6 +151,14 @@ function LuckyWheelConfigurationScreen(props: Props) {
     function addMember() {
         if (selectedTeamIndex === undefined) return;
         const newTeam = teams[selectedTeamIndex];
+        console.log((newTeam.members as TeamMember[]).length);
+        if ((newTeam.members as TeamMember[]).length >= 20) {
+            toast.error(
+                language.strings.notifications.maximum_team_members_reached +
+                    " (20)"
+            );
+            return;
+        }
         (newTeam.members as TeamMember[]).push({
             name: newMemberRef.current!.value,
             absent: false,
@@ -177,15 +188,22 @@ function LuckyWheelConfigurationScreen(props: Props) {
             </LogoContainer>
             {selectedTeamIndex === undefined ? (
                 <InputContainer>
-                    <Text>Create new team</Text>
-                    <Input placeholder="Team name" ref={newTeamRef}></Input>
-                    <Button onClick={createTeam}>Create</Button>
+                    <Text>{language.strings.create_new_team}</Text>
+                    <Input
+                        placeholder={language.strings.team_name}
+                        ref={newTeamRef}
+                    ></Input>
+                    <Button onClick={createTeam}>
+                        {language.strings.buttons.create}
+                    </Button>
                 </InputContainer>
             ) : null}
             <InputContainer>
                 <Text>
-                    Select a team{" "}
-                    {selectedTeamIndex !== undefined ? " or " : null}
+                    {language.strings.select_team}{" "}
+                    {selectedTeamIndex !== undefined
+                        ? ` ${language.strings.or} `
+                        : null}
                     {selectedTeamIndex !== undefined ? (
                         <Link
                             onClick={() => {
@@ -206,7 +224,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                 setTeams(newTeams);
                             }}
                         >
-                            create new team
+                            {language.strings.create_new_team}
                         </Link>
                     ) : null}
                 </Text>
@@ -237,7 +255,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
             {selectedTeamIndex !== undefined ? (
                 <Fragment>
                     <InputContainer>
-                        <Text>Delete selected team</Text>
+                        <Text>{language.strings.delete_selected_team}</Text>
                         <Button
                             secondary={true}
                             onClick={() =>
@@ -246,11 +264,11 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                     : null
                             }
                         >
-                            Delete
+                            {language.strings.delete}
                         </Button>
                     </InputContainer>
                     <InputContainer>
-                        <Text>Team members</Text>
+                        <Text>{language.strings.team_members}</Text>
                         <Select
                             placeholder={language.strings.username}
                             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
@@ -315,7 +333,9 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                     setTeams(newTeams);
                                 }}
                             >
-                                Mark as{" "}
+                                {language.language === "de"
+                                    ? language.strings.mark_as.split(" ")[0] // Als
+                                    : language.strings.mark_as}{" "}
                                 {selectedMemberIndex !== undefined &&
                                 (
                                     teams[selectedTeamIndex]
@@ -325,8 +345,11 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                           teams[selectedTeamIndex]
                                               .members as TeamMember[]
                                       )[selectedMemberIndex].absent
-                                        ? "present"
-                                        : "absent"
+                                        ? language.strings.present
+                                        : language.strings.absent
+                                    : language.strings.absent}{" "}
+                                {language.language === "de"
+                                    ? language.strings.mark_as.split(" ")[1] // markieren
                                     : null}
                             </Button>
                             <Button
@@ -334,20 +357,22 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                 style={{ flex: 1 }}
                                 onClick={removeMember}
                             >
-                                Remove member
+                                {language.strings.remove_member}
                             </Button>
                         </ButtonContainer>
                     </InputContainer>
                     <InputContainer>
-                        <Text>Add a member</Text>
+                        <Text>{language.strings.add_member}</Text>
                         <Input placeholder="Name" ref={newMemberRef}></Input>
                         <Button secondary={true} onClick={addMember}>
-                            Add
+                            {language.strings.add}
                         </Button>
                     </InputContainer>
                     <InputContainer>
-                        <Text>Start the lucky wheel</Text>
-                        <Button onClick={handleStart}>Start</Button>
+                        <Text>{language.strings.start_lucky_wheel}</Text>
+                        <Button onClick={handleStart}>
+                            {language.strings.start}
+                        </Button>
                     </InputContainer>
                 </Fragment>
             ) : null}
@@ -414,6 +439,7 @@ const Select = styled.select`
 const Link = styled.a`
     color: ${(props) => props.theme.colors.text};
     text-decoration: underline;
+    text-transform: lowercase;
     cursor: pointer;
 `;
 
