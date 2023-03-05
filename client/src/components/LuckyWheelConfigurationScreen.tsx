@@ -185,6 +185,64 @@ function LuckyWheelConfigurationScreen(props: Props) {
         setTeams(newTeams);
         updateTeam(newTeam);
     }
+
+    function handleGoBackLinkClick() {
+        setSelectedTeamIndex(undefined);
+        selectedTeamRef.current!.value = "";
+        const newTeams = [...teams];
+        newTeams.forEach((team, teamIndex) => {
+            (team.members as TeamMember[]).forEach((member, memberIndex) => {
+                (
+                    newTeams[teamIndex].members[memberIndex] as TeamMember
+                ).absent = false;
+            });
+        });
+        setTeams(newTeams);
+    }
+
+    function onTeamSelectChange(event: ChangeEvent<HTMLSelectElement>) {
+        const teamIndex = teams.findIndex(
+            (team) => team.name === event.target.value
+        );
+        selectedTeamIndexRef.current = teamIndex + 1;
+        setSelectedTeamIndex(teamIndex);
+    }
+
+    function handleTeamDeleteButtonClick() {
+        if (selectedTeamIndex === undefined) return;
+        deleteTeam(teams[selectedTeamIndex]);
+    }
+
+    function handleMemberSelectChange(event: ChangeEvent<HTMLSelectElement>) {
+        if (selectedTeamIndex === undefined) return;
+        setSelectedMemberIndex(
+            (teams[selectedTeamIndex].members as TeamMember[]).findIndex(
+                (member) => member.name === event.target.value
+            )
+        );
+    }
+
+    function handleTogglePresenceButtonClick() {
+        if (selectedTeamIndex === undefined) return;
+        const memberIndex = (
+            teams[selectedTeamIndex].members as TeamMember[]
+        ).findIndex(
+            (member) => member.name === selectedMemberRef.current!.value
+        );
+        if (memberIndex === -1) return;
+        const newTeams = [...teams];
+        (
+            (newTeams[selectedTeamIndex].members as TeamMember[])[
+                memberIndex
+            ] as TeamMember
+        ).absent = !(
+            (newTeams[selectedTeamIndex].members as TeamMember[])[
+                memberIndex
+            ] as TeamMember
+        ).absent;
+        setTeams(newTeams);
+    }
+
     return (
         <Container>
             <LogoContainer>
@@ -210,38 +268,14 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         ? ` ${language.strings.or} `
                         : null}
                     {selectedTeamIndex !== undefined ? (
-                        <Link
-                            onClick={() => {
-                                setSelectedTeamIndex(undefined);
-                                selectedTeamRef.current!.value = "";
-                                const newTeams = [...teams];
-                                newTeams.forEach((team, teamIndex) => {
-                                    (team.members as TeamMember[]).forEach(
-                                        (member, memberIndex) => {
-                                            (
-                                                newTeams[teamIndex].members[
-                                                    memberIndex
-                                                ] as TeamMember
-                                            ).absent = false;
-                                        }
-                                    );
-                                });
-                                setTeams(newTeams);
-                            }}
-                        >
+                        <Link onClick={handleGoBackLinkClick}>
                             {language.strings.create_new_team}
                         </Link>
                     ) : null}
                 </Text>
                 <Select
                     placeholder={language.strings.username}
-                    onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-                        const teamIndex = teams.findIndex(
-                            (team) => team.name === event.target.value
-                        );
-                        selectedTeamIndexRef.current = teamIndex + 1;
-                        setSelectedTeamIndex(teamIndex);
-                    }}
+                    onChange={onTeamSelectChange}
                     ref={selectedTeamRef}
                     value={selectedTeamIndexRef.current}
                     defaultValue=""
@@ -263,11 +297,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         <Text>{language.strings.delete_selected_team}</Text>
                         <Button
                             secondary={true}
-                            onClick={() =>
-                                selectedTeamIndex
-                                    ? deleteTeam(teams[selectedTeamIndex])
-                                    : null
-                            }
+                            onClick={handleTeamDeleteButtonClick}
                         >
                             {language.strings.delete}
                         </Button>
@@ -276,17 +306,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         <Text>{language.strings.team_members}</Text>
                         <Select
                             placeholder={language.strings.username}
-                            onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                                setSelectedMemberIndex(
-                                    (
-                                        teams[selectedTeamIndex]
-                                            .members as TeamMember[]
-                                    ).findIndex(
-                                        (member) =>
-                                            member.name === event.target.value
-                                    )
-                                )
-                            }
+                            onChange={handleMemberSelectChange}
                             ref={selectedMemberRef}
                             defaultValue={selectedMemberIndex}
                             size={3}
@@ -312,31 +332,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             <Button
                                 secondary={true}
                                 style={{ flex: 1 }}
-                                onClick={() => {
-                                    if (selectedTeamIndex === undefined) return;
-                                    const memberIndex = (
-                                        teams[selectedTeamIndex]
-                                            .members as TeamMember[]
-                                    ).findIndex(
-                                        (member) =>
-                                            member.name ===
-                                            selectedMemberRef.current!.value
-                                    );
-                                    if (memberIndex === -1) return;
-                                    const newTeams = [...teams];
-                                    (
-                                        (
-                                            newTeams[selectedTeamIndex]
-                                                .members as TeamMember[]
-                                        )[memberIndex] as TeamMember
-                                    ).absent = !(
-                                        (
-                                            newTeams[selectedTeamIndex]
-                                                .members as TeamMember[]
-                                        )[memberIndex] as TeamMember
-                                    ).absent;
-                                    setTeams(newTeams);
-                                }}
+                                onClick={handleTogglePresenceButtonClick}
                             >
                                 {language.language === "de"
                                     ? language.strings.mark_as.split(" ")[0] // Als

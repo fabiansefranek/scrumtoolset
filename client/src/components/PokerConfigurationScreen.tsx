@@ -32,6 +32,7 @@ type Props = {
 
 function ConfigurationScreen(props: Props) {
     const language = useLanguage();
+
     return (
         <Container>
             <LogoContainer>
