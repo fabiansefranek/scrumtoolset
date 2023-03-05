@@ -118,6 +118,11 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     function deleteTeam(team: Team) {
         if (socket === null) return;
+        if (selectedTeamIndex === undefined) return;
+        const newTeams = [...teams];
+        newTeams.splice(selectedTeamIndex, 1);
+        setTeams(newTeams);
+        setSelectedTeamIndex(undefined);
         socket.emit("lucky:deleteTeam", team.name);
     }
 
