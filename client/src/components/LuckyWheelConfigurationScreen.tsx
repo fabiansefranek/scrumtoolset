@@ -21,6 +21,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
         number | undefined
     >(0);
     const selectedTeamIndexRef = useRef<number | undefined>(undefined);
+    const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
     const newMemberRef = useRef<HTMLInputElement>(null);
@@ -68,6 +69,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     function disconnect(): void {
         if (socket === null) return;
+        setIsTeamSelected(false);
         setSelectedTeamIndex(undefined);
         socket.disconnect();
         setSocket(null);
@@ -122,6 +124,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
         const newTeams = [...teams];
         newTeams.splice(selectedTeamIndex, 1);
         setTeams(newTeams);
+        setIsTeamSelected(false);
         setSelectedTeamIndex(undefined);
         socket.emit("lucky:deleteTeam", team.name);
     }
@@ -145,11 +148,8 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 .toString(),
         };
         setTeams((teams) => [...teams, newTeam]);
-
-        selectedTeamIndexRef.current = teams.length + 1;
-        setSelectedTeamIndex(teams.length);
-        //setSelectedTeamIndex(teams.length);
-
+        setSelectedTeamIndex(teams.length + 1);
+        setIsTeamSelected(true);
         socket.emit("lucky:addTeam", jsonTeam);
     }
 
@@ -187,6 +187,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
     }
 
     function handleGoBackLinkClick() {
+        setIsTeamSelected(false);
         setSelectedTeamIndex(undefined);
         selectedTeamRef.current!.value = "";
         const newTeams = [...teams];
@@ -204,7 +205,8 @@ function LuckyWheelConfigurationScreen(props: Props) {
         const teamIndex = teams.findIndex(
             (team) => team.name === event.target.value
         );
-        selectedTeamIndexRef.current = teamIndex + 1;
+        setIsTeamSelected(true);
+        console.log(teamIndex);
         setSelectedTeamIndex(teamIndex);
     }
 
@@ -220,6 +222,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 (member) => member.name === event.target.value
             )
         );
+        setIsTeamSelected(true);
     }
 
     function handleTogglePresenceButtonClick() {
@@ -249,7 +252,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />
                 <LogoText>Lucky Wheel</LogoText>
             </LogoContainer>
-            {selectedTeamIndex === undefined ? (
+            {!isTeamSelected ? (
                 <InputContainer>
                     <Text>{language.strings.create_new_team}</Text>
                     <Input
@@ -264,10 +267,8 @@ function LuckyWheelConfigurationScreen(props: Props) {
             <InputContainer>
                 <Text>
                     {language.strings.select_team}{" "}
-                    {selectedTeamIndex !== undefined
-                        ? ` ${language.strings.or} `
-                        : null}
-                    {selectedTeamIndex !== undefined ? (
+                    {isTeamSelected ? ` ${language.strings.or} ` : null}
+                    {isTeamSelected ? (
                         <Link onClick={handleGoBackLinkClick}>
                             {language.strings.create_new_team}
                         </Link>
@@ -277,7 +278,6 @@ function LuckyWheelConfigurationScreen(props: Props) {
                     placeholder={language.strings.username}
                     onChange={onTeamSelectChange}
                     ref={selectedTeamRef}
-                    value={selectedTeamIndexRef.current}
                     defaultValue=""
                     required
                 >
@@ -291,7 +291,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                     ))}
                 </Select>
             </InputContainer>
-            {selectedTeamIndex !== undefined ? (
+            {isTeamSelected ? (
                 <Fragment>
                     <InputContainer>
                         <Text>{language.strings.delete_selected_team}</Text>
@@ -307,7 +307,6 @@ function LuckyWheelConfigurationScreen(props: Props) {
                         <Select
                             placeholder={language.strings.username}
                             onChange={handleMemberSelectChange}
-                            ref={selectedMemberRef}
                             defaultValue={selectedMemberIndex}
                             size={3}
                         >
@@ -338,6 +337,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                     ? language.strings.mark_as.split(" ")[0] // Als
                                     : language.strings.mark_as}{" "}
                                 {selectedMemberIndex !== undefined &&
+                                selectedTeamIndex !== undefined &&
                                 (
                                     teams[selectedTeamIndex]
                                         .members as TeamMember[]
