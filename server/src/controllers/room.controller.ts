@@ -158,10 +158,11 @@ export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomFound: boolean = await doesRoomExist(roomCode);
     if (!roomFound) throw new ApplicationError(ApplicationErrorMessages.ROOM_NOT_FOUND, true);
 
-    socket.removeAllListeners()
-
     const sockets: any[] = await io.in(roomCode).fetchSockets();
-    io.in(roomCode).emit("room:closed"); //COMMENT THE FIRST leave(out) -> then it should have no issues
+
+    sockets.map((socket : Socket) => socket.removeAllListeners())
+
+    io.in(roomCode).emit("room:closed");
     let result = sockets.map((socket: Socket) => leave(socket, true));
     await Promise.all(result);
     io.in(roomCode).disconnectSockets(true);
