@@ -111,7 +111,7 @@ function Wheel(props: Props) {
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate((lastAngle + angle) / 2);
-        ctx.fillStyle = primaryColor;
+        ctx.fillStyle = "white";
         ctx.font = `bold ${props.fontSize}px ${props.fontFamily}`;
         ctx.fillText(text, size / 2 + 20, 0);
         ctx.restore();

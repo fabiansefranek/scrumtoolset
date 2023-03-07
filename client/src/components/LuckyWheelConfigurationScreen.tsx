@@ -81,6 +81,34 @@ function LuckyWheelConfigurationScreen(props: Props) {
         console.log("Sent request for getting teams");
     }
 
+    function getLuckyWheelColors(numberOfSegments: number): string[] {
+        const colors = [
+            "#3f51b5",
+            "#002045",
+            "#2196f3",
+            "#03a9f4",
+            "#00bcd4",
+            "#009688",
+            "#4caf50",
+            "#8bc34a",
+            "#cddc39",
+            "#ffc107",
+            "#ff9800",
+            "#ff9800",
+            "#ff5722",
+            "#f44336",
+            "#e91e63",
+            "#9c27b0",
+            "#673ab7",
+        ];
+        const result = [];
+        for (let i = 0; i < numberOfSegments; i++) {
+            result.push(colors[i]);
+            colors.splice(i, 1);
+        }
+        return result;
+    }
+
     function handleStart() {
         if (socket === null) return;
         if (selectedTeam === undefined) return;
@@ -94,10 +122,11 @@ function LuckyWheelConfigurationScreen(props: Props) {
             );
             return;
         }
-        const segments = nonAbsentMembers.map((member) => {
+        const colors = getLuckyWheelColors(nonAbsentMembers.length);
+        const segments = nonAbsentMembers.map((member, index) => {
             return {
                 text: member.name,
-                color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+                color: colors[index],
             } as LuckyWheelSegment;
         });
         disconnect();
@@ -318,6 +347,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             placeholder={language.strings.username}
                             onChange={handleMemberSelectChange}
                             defaultValue={selectedMemberIndex}
+                            ref={selectedMemberRef}
                             size={3}
                         >
                             {selectedTeam !== undefined
