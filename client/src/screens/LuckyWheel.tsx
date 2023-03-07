@@ -6,6 +6,7 @@ import { useState } from "react";
 import LuckyWheelPopup from "../components/LuckyWheelPopup";
 import { useLanguage } from "../hooks/useLanguage";
 import LuckyWheelConfigurationScreen from "../components/LuckyWheelConfigurationScreen";
+import HomeButton from "../components/HomeButton";
 
 type Props = {
     theme: Theme;
@@ -26,6 +27,7 @@ function LuckyWheel(props: Props) {
 
     return (
         <ThemeProvider theme={props.theme}>
+            <HomeButton />
             <Container>
                 <LogoContainer>
                     <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />

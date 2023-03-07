@@ -18,6 +18,7 @@ import { useToast } from "../hooks/useToast";
 import { checkUserInput } from "../utils";
 import { useLanguage } from "../hooks/useLanguage";
 import { votingSystems } from "../constants/enums";
+import HomeButton from "../components/HomeButton";
 
 type Props = {
     theme: Theme;
@@ -282,6 +283,7 @@ function ScrumPoker(props: Props) {
 
     return (
         <ThemeProvider theme={props.theme}>
+            <HomeButton />
             <Container>
                 {!isConnected && (
                     <PokerConfigurationScreen
