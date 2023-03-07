@@ -68,6 +68,7 @@ const strings: LanguageStringsType = {
             exported_results: "Voting results have been exported",
             maximum_team_members_reached: "Maximum team members reached",
             minimum_team_members_not_reached: "Minimum members not reached",
+            team_already_exists: "Team with this name already exists",
         },
         luckyWheel: {
             spin: "Spin",
@@ -143,6 +144,7 @@ const strings: LanguageStringsType = {
             maximum_team_members_reached: "Maximale Mitgliederanzahl erreicht",
             minimum_team_members_not_reached:
                 "Mindest Mitgliederanzahl nicht erreicht",
+            team_already_exists: "Team mit diesem Namen existiert bereits",
         },
         luckyWheel: {
             spin: "Drehen",

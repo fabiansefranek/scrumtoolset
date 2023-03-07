@@ -17,7 +17,6 @@ function LuckyWheelConfigurationScreen(props: Props) {
     const [selectedMemberIndex, setSelectedMemberIndex] = useState<
         number | undefined
     >(0);
-    const selectedTeamIndexRef = useRef<number | undefined>(undefined);
     const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
     const [selectedTeam, setSelectedTeam] = useState<Team | undefined>(
         undefined
@@ -166,7 +165,10 @@ function LuckyWheelConfigurationScreen(props: Props) {
         if (teamName.length === 0) {
             toast.error("Team name must not be empty");
         }
-
+        if (teams.find((team) => team.name === teamName)) {
+            toast.error(language.strings.notifications.team_already_exists);
+            return;
+        }
         const newTeam = {
             name: teamName,
             members: [] as TeamMember[],
@@ -182,8 +184,6 @@ function LuckyWheelConfigurationScreen(props: Props) {
         setSelectedTeam(newTeam);
         setIsTeamSelected(true);
         selectedTeamRef.current!.value = newTeam.name;
-        console.log(newTeam.name);
-        console.log(selectedTeamRef.current!.value);
         socket.emit("lucky:addTeam", jsonTeam);
     }
 

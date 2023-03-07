@@ -118,6 +118,7 @@ type LanguageObject = {
         exported_results: string;
         maximum_team_members_reached: string;
         minimum_team_members_not_reached: string;
+        team_already_exists: string;
     };
     luckyWheel: {
         [index: string]: string;
