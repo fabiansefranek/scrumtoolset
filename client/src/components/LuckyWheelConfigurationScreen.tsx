@@ -14,14 +14,14 @@ function LuckyWheelConfigurationScreen(props: Props) {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [teams, setTeams] = useState<Team[]>([]);
-    const [selectedTeamIndex, setSelectedTeamIndex] = useState<
-        number | undefined
-    >(undefined);
     const [selectedMemberIndex, setSelectedMemberIndex] = useState<
         number | undefined
     >(0);
     const selectedTeamIndexRef = useRef<number | undefined>(undefined);
     const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
+    const [selectedTeam, setSelectedTeam] = useState<Team | undefined>(
+        undefined
+    );
     const selectedTeamRef = useRef<HTMLSelectElement>(null);
     const selectedMemberRef = useRef<HTMLSelectElement>(null);
     const newMemberRef = useRef<HTMLInputElement>(null);
@@ -70,7 +70,6 @@ function LuckyWheelConfigurationScreen(props: Props) {
     function disconnect(): void {
         if (socket === null) return;
         setIsTeamSelected(false);
-        setSelectedTeamIndex(undefined);
         socket.disconnect();
         setSocket(null);
         console.log("Disconnected from server");
@@ -84,10 +83,10 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     function handleStart() {
         if (socket === null) return;
-        if (selectedTeamIndex === undefined) return;
-        const nonAbsentMembers = (
-            teams[selectedTeamIndex].members as TeamMember[]
-        ).filter((member) => !member.absent);
+        if (selectedTeam === undefined) return;
+        const nonAbsentMembers = (selectedTeam.members as TeamMember[]).filter(
+            (member) => !member.absent
+        );
         if (nonAbsentMembers.length < 2) {
             toast.error(
                 language.strings.notifications
@@ -108,7 +107,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
     }
 
     function updateTeam(team: Team) {
-        if (selectedTeamIndex === undefined) return;
+        if (selectedTeam === undefined) return;
         if (socket === null) return;
         const names = (team.members as TeamMember[]).map(
             (member) => member.name
@@ -120,12 +119,15 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     function deleteTeam(team: Team) {
         if (socket === null) return;
-        if (selectedTeamIndex === undefined) return;
+        if (selectedTeam === undefined) return;
         const newTeams = [...teams];
-        newTeams.splice(selectedTeamIndex, 1);
+        const teamIndex = newTeams.findIndex(
+            (team) => team.name === selectedTeam.name
+        );
+        newTeams.splice(teamIndex, 1);
         setTeams(newTeams);
         setIsTeamSelected(false);
-        setSelectedTeamIndex(undefined);
+        setSelectedTeam(undefined);
         socket.emit("lucky:deleteTeam", team.name);
     }
 
@@ -148,15 +150,17 @@ function LuckyWheelConfigurationScreen(props: Props) {
                 .toString(),
         };
         setTeams((teams) => [...teams, newTeam]);
-        setSelectedTeamIndex(teams.length + 1);
+        setSelectedTeam(newTeam);
         setIsTeamSelected(true);
+        selectedTeamRef.current!.value = newTeam.name;
+        console.log(newTeam.name);
+        console.log(selectedTeamRef.current!.value);
         socket.emit("lucky:addTeam", jsonTeam);
     }
 
     function addMember() {
-        if (selectedTeamIndex === undefined) return;
-        const newTeam = teams[selectedTeamIndex];
-        console.log((newTeam.members as TeamMember[]).length);
+        if (selectedTeam === undefined) return;
+        const newTeam = { ...selectedTeam };
         if ((newTeam.members as TeamMember[]).length >= 20) {
             toast.error(
                 language.strings.notifications.maximum_team_members_reached +
@@ -169,18 +173,24 @@ function LuckyWheelConfigurationScreen(props: Props) {
             absent: false,
         } as TeamMember);
         const newTeams = [...teams];
-        newTeams[selectedTeamIndex] = newTeam;
+        const teamIndex = newTeams.findIndex(
+            (team) => team.name === newTeam.name
+        );
+        newTeams[teamIndex] = newTeam;
         setTeams(newTeams);
         updateTeam(newTeam);
     }
 
     function removeMember() {
         if (selectedMemberIndex === undefined) return;
-        if (selectedTeamIndex === undefined) return;
-        const newTeam = { ...teams[selectedTeamIndex] };
+        if (selectedTeam === undefined) return;
+        const newTeam = { ...selectedTeam };
         (newTeam.members as TeamMember[]).splice(selectedMemberIndex, 1);
         const newTeams = [...teams];
-        newTeams[selectedTeamIndex] = newTeam;
+        const teamIndex = newTeams.findIndex(
+            (team) => team.name === newTeam.name
+        );
+        newTeams[teamIndex] = newTeam;
         setSelectedMemberIndex((index) => (index === 0 ? 0 : index! - 1));
         setTeams(newTeams);
         updateTeam(newTeam);
@@ -188,7 +198,7 @@ function LuckyWheelConfigurationScreen(props: Props) {
 
     function handleGoBackLinkClick() {
         setIsTeamSelected(false);
-        setSelectedTeamIndex(undefined);
+        setSelectedTeam(undefined);
         selectedTeamRef.current!.value = "";
         const newTeams = [...teams];
         newTeams.forEach((team, teamIndex) => {
@@ -206,19 +216,18 @@ function LuckyWheelConfigurationScreen(props: Props) {
             (team) => team.name === event.target.value
         );
         setIsTeamSelected(true);
-        console.log(teamIndex);
-        setSelectedTeamIndex(teamIndex);
+        setSelectedTeam({ ...teams[teamIndex] });
     }
 
     function handleTeamDeleteButtonClick() {
-        if (selectedTeamIndex === undefined) return;
-        deleteTeam(teams[selectedTeamIndex]);
+        if (selectedTeam === undefined) return;
+        deleteTeam(selectedTeam);
     }
 
     function handleMemberSelectChange(event: ChangeEvent<HTMLSelectElement>) {
-        if (selectedTeamIndex === undefined) return;
+        if (selectedTeam === undefined) return;
         setSelectedMemberIndex(
-            (teams[selectedTeamIndex].members as TeamMember[]).findIndex(
+            (selectedTeam.members as TeamMember[]).findIndex(
                 (member) => member.name === event.target.value
             )
         );
@@ -226,20 +235,21 @@ function LuckyWheelConfigurationScreen(props: Props) {
     }
 
     function handleTogglePresenceButtonClick() {
-        if (selectedTeamIndex === undefined) return;
-        const memberIndex = (
-            teams[selectedTeamIndex].members as TeamMember[]
-        ).findIndex(
+        if (selectedTeam === undefined) return;
+        const memberIndex = (selectedTeam.members as TeamMember[]).findIndex(
             (member) => member.name === selectedMemberRef.current!.value
         );
         if (memberIndex === -1) return;
+        const teamIndex = teams.findIndex(
+            (team) => team.name === selectedTeam.name
+        );
         const newTeams = [...teams];
         (
-            (newTeams[selectedTeamIndex].members as TeamMember[])[
+            (newTeams[teamIndex].members as TeamMember[])[
                 memberIndex
             ] as TeamMember
         ).absent = !(
-            (newTeams[selectedTeamIndex].members as TeamMember[])[
+            (newTeams[teamIndex].members as TeamMember[])[
                 memberIndex
             ] as TeamMember
         ).absent;
@@ -278,10 +288,10 @@ function LuckyWheelConfigurationScreen(props: Props) {
                     placeholder={language.strings.username}
                     onChange={onTeamSelectChange}
                     ref={selectedTeamRef}
-                    defaultValue=""
+                    value={selectedTeam ? selectedTeam.name : "..."}
                     required
                 >
-                    <option value="" disabled>
+                    <option value="..." disabled>
                         ...
                     </option>
                     {teams.map((team) => (
@@ -310,21 +320,22 @@ function LuckyWheelConfigurationScreen(props: Props) {
                             defaultValue={selectedMemberIndex}
                             size={3}
                         >
-                            {selectedTeamIndex !== undefined
-                                ? (
-                                      teams[selectedTeamIndex]
-                                          .members as TeamMember[]
-                                  ).map((member: TeamMember) => (
-                                      <option
-                                          key={member.name}
-                                          value={member.name}
-                                          style={{
-                                              opacity: member.absent ? 0.5 : 1,
-                                          }}
-                                      >
-                                          {member.name}
-                                      </option>
-                                  ))
+                            {selectedTeam !== undefined
+                                ? (selectedTeam.members as TeamMember[]).map(
+                                      (member: TeamMember) => (
+                                          <option
+                                              key={member.name}
+                                              value={member.name}
+                                              style={{
+                                                  opacity: member.absent
+                                                      ? 0.5
+                                                      : 1,
+                                              }}
+                                          >
+                                              {member.name}
+                                          </option>
+                                      )
+                                  )
                                 : null}
                         </Select>
                         <ButtonContainer>
@@ -337,15 +348,12 @@ function LuckyWheelConfigurationScreen(props: Props) {
                                     ? language.strings.mark_as.split(" ")[0] // Als
                                     : language.strings.mark_as}{" "}
                                 {selectedMemberIndex !== undefined &&
-                                selectedTeamIndex !== undefined &&
-                                (
-                                    teams[selectedTeamIndex]
-                                        .members as TeamMember[]
-                                ).length > 0
-                                    ? (
-                                          teams[selectedTeamIndex]
-                                              .members as TeamMember[]
-                                      )[selectedMemberIndex].absent
+                                selectedTeam !== undefined &&
+                                (selectedTeam.members as TeamMember[]).length >
+                                    0
+                                    ? (selectedTeam.members as TeamMember[])[
+                                          selectedMemberIndex
+                                      ].absent
                                         ? language.strings.present
                                         : language.strings.absent
                                     : language.strings.absent}{" "}
