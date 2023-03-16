@@ -192,9 +192,16 @@ function LuckyWheelConfigurationScreen(props: Props) {
         const newTeam = { ...selectedTeam };
         if ((newTeam.members as TeamMember[]).length >= 20) {
             toast.error(
+                newTeam,
                 language.strings.notifications.maximum_team_members_reached +
                     " (20)"
             );
+            return;
+        }
+        if (
+            newMemberRef.current!.value == null ||
+            newMemberRef.current!.value == ""
+        ) {
             return;
         }
         (newTeam.members as TeamMember[]).push({
