@@ -9,7 +9,7 @@ function HomeButton() {
                 navigate("/");
             }}
         >
-            <img src={`${process.env.PUBLIC_URL}/home.svg`} />
+            <Image src={`${process.env.PUBLIC_URL}/home.svg`} />
         </Button>
     );
 }
@@ -18,7 +18,7 @@ const Button = styled.div`
     position: absolute;
     bottom: 20px;
     left: 20px;
-    background-color: transparent;
+    background-color: ${({ theme }) => theme.colors.secondaryBackground};
     border: none;
     color: ${({ theme }) => theme.colors.text};
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -31,6 +31,12 @@ const Button = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+`;
+
+const Image = styled.img`
+    filter: ${({ theme }) =>
+        theme.name === "Dark" ? "invert(1)" : "invert(0)"};
+    opacity: ${({ theme }) => (theme.name === "Dark" ? "0.7" : "1")};
 `;
 
 export default HomeButton;

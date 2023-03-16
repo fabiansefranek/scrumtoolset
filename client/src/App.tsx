@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import { light } from "./constants/themes";
@@ -15,7 +15,7 @@ function App() {
     const router = createBrowserRouter([
         {
             path: "/",
-            element: <Home title={"Home"} />,
+            element: <Home title={"Home"} setTheme={setTheme} />,
         },
         {
             path: "/luckywheel",
