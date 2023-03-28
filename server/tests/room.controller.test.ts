@@ -10,13 +10,7 @@ import {
 } from "../src/types";
 import { faker } from "@faker-js/faker";
 
-dotenv.config();
-
-const events = {
-    CONNECT: "connect",
-    PING: "ping",
-    PONG: "pong",
-};
+dotenv.config({ path: "../.env" });
 
 describe("test suite: room controller", () => {
     let socket: Socket = {} as Socket;
@@ -32,7 +26,7 @@ describe("test suite: room controller", () => {
             forceNew: true,
             reconnectionDelay: 0,
         });
-        socket.on(events.CONNECT, done);
+        socket.on("CONNECT", done);
     });
 
     afterEach((done) => {
