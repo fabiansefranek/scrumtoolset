@@ -62,7 +62,7 @@ type RoomClosePayload = {
 };
 
 type ErrorHandlerPayload = {
-    socket: Socket;
+    socket?: Socket;
     args?: unknown;
 };
 
@@ -74,4 +74,9 @@ type EndOfVotingPacket = {
 type UserStoryResultPacket = {
     name: string;
     result: string;
+}
+
+type Team = {
+    name : string;
+    members : string;
 }

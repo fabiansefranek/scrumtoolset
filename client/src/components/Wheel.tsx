@@ -7,6 +7,7 @@ type Props = {
     canvasSize: number;
     fontSize: number;
     fontFamily: string;
+    spinText: string;
 };
 
 function Wheel(props: Props) {
@@ -110,7 +111,7 @@ function Wheel(props: Props) {
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate((lastAngle + angle) / 2);
-        ctx.fillStyle = primaryColor;
+        ctx.fillStyle = "white";
         ctx.font = `bold ${props.fontSize}px ${props.fontFamily}`;
         ctx.fillText(text, size / 2 + 20, 0);
         ctx.restore();
@@ -143,7 +144,7 @@ function Wheel(props: Props) {
         ctx.font = `bold ${props.fontSize}px ${props.fontFamily}`;
         ctx.fillStyle = secondaryColor;
         ctx.textAlign = "center";
-        ctx.fillText("Spin", centerX, centerY + 3);
+        ctx.fillText(props.spinText, centerX, centerY + 3);
         ctx.stroke();
 
         // Draw outer circle

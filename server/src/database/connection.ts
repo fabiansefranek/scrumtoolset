@@ -22,4 +22,7 @@ export async function setup(con: mysql.Connection) {
     await con.query(
         "CREATE TABLE IF NOT EXISTS UserStory ( id int AUTO_INCREMENT PRIMARY KEY, name varchar(255) not null, content varchar(500), roomId varchar(255) not null, result varchar(255));"
     );
+    await con.query(
+        "CREATE TABLE IF NOT EXISTS Team ( name varchar(255) PRIMARY KEY not null, members varchar(255) not null);"
+    );
 }

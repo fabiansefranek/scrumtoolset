@@ -1,13 +1,21 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
+import { setSyntheticTrailingComments } from "typescript";
+import { light } from "../constants/themes";
 
 type Props = {
     title: string;
+    setTheme: Function;
 };
 
 function Home(props: Props) {
     document.title = props.title;
     const navigate = useNavigate();
+
+    useEffect(() => {
+        props.setTheme(light);
+    }, [props]);
 
     return (
         <Container>

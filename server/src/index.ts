@@ -15,9 +15,11 @@ import {
     RoomClosePayload,
     RoomCreationPayload,
     RoomJoinPayload,
-    RoomVotePayload,
+    RoomVotePayload, Team,
 } from "./types";
 import mysql from "mysql2/promise";
+import {sendTeams, addTeam} from "./controllers/luckywheel.controller";
+import {deleteTeam, updateTeam} from "./models/team";
 
 dotenv.config();
 
@@ -59,11 +61,7 @@ io.on("connection", (socket: Socket) => {
             args: payload,
         })
     );
-    socket.on("disconnecting", (reason: DisconnectReason) =>
-        handleErrors(leave, {
-            socket: socket,
-        })
-    );
+
     socket.on("room:nextRound", () =>
         handleErrors(nextRound, {
             socket: socket,
@@ -74,6 +72,28 @@ io.on("connection", (socket: Socket) => {
             socket: socket,
         })
     );
+    socket.on("lucky:receiveTeams", () =>
+        handleErrors(sendTeams, {
+            socket: socket,
+        })
+    );
+    socket.on("lucky:addTeam", (payload : Team) =>
+        handleErrors(addTeam, {
+            args : payload,
+        })
+    );
+    socket.on("lucky:deleteTeam", (payload : string) =>
+        handleErrors(deleteTeam, {
+            args : payload
+        })
+    );
+    socket.on("lucky:updateTeam", (payload: Team) =>
+        handleErrors(updateTeam, {
+            args : payload
+        })
+    );
 });
+
+
 
 io.listen(parseInt(process.env.PORT!));

@@ -6,6 +6,7 @@ import { Theme } from "../types";
 import { themes } from "../constants/themes";
 import { useLanguage } from "../hooks/useLanguage";
 import { ChangeEvent } from "react";
+import HomeButton from "./HomeButton";
 
 function convertLinesToUserStoryArray(lines: string): UserStory[] {
     if (lines.length === 0) return [];
@@ -32,6 +33,7 @@ type Props = {
 
 function ConfigurationScreen(props: Props) {
     const language = useLanguage();
+
     return (
         <Container>
             <LogoContainer>

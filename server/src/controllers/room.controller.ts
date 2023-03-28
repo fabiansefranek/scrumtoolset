@@ -37,6 +37,8 @@ import {
     User,
     UserStory, UserStoryResultPacket,
 } from "../types";
+import {DisconnectReason} from "socket.io/dist/socket";
+import {handleErrors} from "../middleware/error.middleware";
 
 export function create(socket: Socket, payload: RoomCreationPayload): void {
     const roomCode: string = generateWordSlug(3, "-");
@@ -77,6 +79,12 @@ export async function join(
     payload: RoomJoinPayload,
     isModerator?: boolean
 ) {
+    socket.on("disconnecting", (reason: DisconnectReason) =>
+        handleErrors(leave, {
+            socket: socket,
+        })
+    );
+
     const roomCode: string = payload.roomCode;
     const username: string = payload.username;
     const now: number = Math.floor(Date.now() / 1000);
@@ -100,6 +108,8 @@ export async function join(
     //Makes sure user doesn't join same room twice
     if ([...socket.rooms][1] != roomCode) socket.join(roomCode);
 
+    socket.join("scrumpoker")
+
     const votingSystem: string = await getRoomVotingSystem(roomCode);
     const roomState: string = await getRoomState(roomCode);
     const currentUserStory: UserStory = await getCurrentUserStory(roomCode);
@@ -115,24 +125,30 @@ export async function join(
     await handleUserListUpdate(roomCode);
 }
 
-export async function leave(socket: Socket) {
+export async function leave(socket: Socket, force? : boolean) {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
+    const forceful = force !== undefined ? force : false;
     const roomModeratorId: string | undefined = await getRoomModerator(
         roomCode
     );
-    if (roomModeratorId === undefined) throw new ApplicationError(ApplicationErrorMessages.NO_MODERATOR, true);
-    const isModerator: boolean = sessionId === roomModeratorId;
-
+    console.log(forceful + " FORCEFULL")
     deleteUser(sessionId);
 
-    if (isModerator) {
-        const newModeratorId: string | undefined = await getOldestConnectionFromRoom(
-            roomCode
-        );
-        if (newModeratorId === "") return;
-        if(newModeratorId)
-        await giveUserModeratorRights(newModeratorId);
+    if(!forceful) {
+
+        if (roomModeratorId === undefined) throw new ApplicationError(ApplicationErrorMessages.NO_MODERATOR, true);
+        const isModerator: boolean = sessionId === roomModeratorId;
+
+
+        if (isModerator) {
+            const newModeratorId: string | undefined = await getOldestConnectionFromRoom(
+                roomCode
+            );
+            if (newModeratorId === "") return;
+            if (newModeratorId)
+                await giveUserModeratorRights(newModeratorId);
+        }
     }
     await handleUserListUpdate(roomCode);
 }
@@ -143,8 +159,11 @@ export async function close(socket: Socket, payload: RoomClosePayload) {
     if (!roomFound) throw new ApplicationError(ApplicationErrorMessages.ROOM_NOT_FOUND, true);
 
     const sockets: any[] = await io.in(roomCode).fetchSockets();
+
+    sockets.map((socket : Socket) => socket.removeAllListeners())
+
     io.in(roomCode).emit("room:closed");
-    let result = sockets.map((socket: Socket) => leave(socket));
+    let result = sockets.map((socket: Socket) => leave(socket, true));
     await Promise.all(result);
     io.in(roomCode).disconnectSockets(true);
 

@@ -15,5 +15,6 @@ export enum ApplicationErrorMessages {
     MISSING_USERSTORY = "missing_userstory",
     REVOTE_STARTED = "revote_started",
     ROOM_NOT_FOUND = "room_not_found",
-    NO_MODERATOR = "no_moderator"
+    NO_MODERATOR = "no_moderator",
+    DUPLICATE_TEAM = "duplicate_team"
 }

@@ -34,7 +34,7 @@ export async function areVotesUnanimous(roomCode: string): Promise<EndOfVotingPa
     votes = votes.filter((vote: string) => vote !== "");
     let flag: boolean = true;
     let value: string = "";
-    if (votes.length <= 1) return {success:true};
+    if (votes.length <= 1) return {success:true, result: votes[0]};
     votes.reduce((previousValue: string, currentValue: string) => {
         value = previousValue;
         if (previousValue !== currentValue) flag = false;

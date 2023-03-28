@@ -3,6 +3,10 @@ import styled from "styled-components";
 import { ThemeProvider } from "styled-components";
 import Wheel from "../components/Wheel";
 import { useState } from "react";
+import LuckyWheelPopup from "../components/LuckyWheelPopup";
+import { useLanguage } from "../hooks/useLanguage";
+import LuckyWheelConfigurationScreen from "../components/LuckyWheelConfigurationScreen";
+import HomeButton from "../components/HomeButton";
 
 type Props = {
     theme: Theme;
@@ -11,32 +15,47 @@ type Props = {
 };
 
 function LuckyWheel(props: Props) {
-    const [segments] = useState<LuckyWheelSegment[]>([
-        { text: "Andrea", color: "#EE4040" },
-        { text: "Michelle", color: "#F0CF50" },
-        { text: "Steve", color: "#815CD1" },
-        { text: "Max", color: "#3DA5E0" },
-    ]);
+    const [segments, setSegments] = useState<LuckyWheelSegment[] | undefined>(
+        undefined
+    );
+    const [winner, setWinner] = useState<LuckyWheelSegment>(
+        {} as LuckyWheelSegment
+    );
+    const language = useLanguage();
 
     document.title = props.title;
 
     return (
         <ThemeProvider theme={props.theme}>
+            <HomeButton />
             <Container>
                 <LogoContainer>
                     <Logo src={`${process.env.PUBLIC_URL}/wheel.png`} />
                     <LogoText>Lucky Wheel</LogoText>
                 </LogoContainer>
-                <Wheel
-                    segments={segments}
-                    canvasSize={700}
-                    fontSize={24}
-                    fontFamily="Ubuntu"
-                    onFinished={(currentSegment: any) =>
-                        alert(currentSegment.text)
-                    }
-                />
+                {!segments ? (
+                    <LuckyWheelConfigurationScreen
+                        setSegments={setSegments}
+                    ></LuckyWheelConfigurationScreen>
+                ) : (
+                    <Wheel
+                        segments={segments}
+                        canvasSize={700}
+                        fontSize={24}
+                        fontFamily="Ubuntu"
+                        spinText={language.strings.luckyWheel.spin}
+                        onFinished={(winnerSegment: LuckyWheelSegment) => {
+                            setWinner(winnerSegment);
+                        }}
+                    />
+                )}
             </Container>
+            {winner.text !== undefined ? (
+                <LuckyWheelPopup
+                    text={`${language.strings.luckyWheel.the_winner_is} ${winner.text}!`}
+                    closePopup={() => setWinner({} as LuckyWheelSegment)}
+                />
+            ) : null}
         </ThemeProvider>
     );
 }
