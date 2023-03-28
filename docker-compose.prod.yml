@@ -3,7 +3,7 @@ services:
     client:
         build:
             context: ./client
-            dockerfile: ./Dockerfile
+            dockerfile: ./Dockerfile.prod
             args:
                 REACT_APP_SERVER_PORT: ${SERVER_PORT}
         environment:
@@ -13,20 +13,16 @@ services:
             - .env
         ports:
             - "${CLIENT_PORT}:${CLIENT_PORT}"
-        volumes:
-            - ./client/src:/src
     server:
         build:
             context: ./server
-            dockerfile: ./Dockerfile
+            dockerfile: ./Dockerfile.prod
         env_file:
             - .env
         ports:
             - "${SERVER_PORT}:${SERVER_PORT}"
         expose:
             - ${SERVER_PORT}
-        volumes:
-            - ./server/src:/src
         depends_on:
             db:
                 condition: service_healthy

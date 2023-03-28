@@ -94,6 +94,4 @@ io.on("connection", (socket: Socket) => {
     );
 });
 
-
-
-io.listen(parseInt(process.env.PORT!));
+io.listen(parseInt(process.env.SERVER_PORT!));

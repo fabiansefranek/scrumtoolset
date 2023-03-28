@@ -3,9 +3,10 @@ import mysql from "mysql2/promise";
 export async function connect(): Promise<mysql.Connection> {
     return await mysql.createConnection({
         host: "db",
-        user: "root",
-        password: "example",
-        database: "scrumtoolset",
+        user: process.env.DB_USER,
+        port: parseInt(process.env.DB_PORT!),
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
     });
 }
 

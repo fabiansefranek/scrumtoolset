@@ -186,7 +186,9 @@ function ScrumPoker(props: Props) {
     }
 
     function connect() {
-        const socket = io("http://localhost:3000");
+        const socket = io(
+            `http://localhost:${process.env.REACT_APP_SERVER_PORT}`
+        );
         setSocket(socket);
         console.log("Connected to server");
         return socket;

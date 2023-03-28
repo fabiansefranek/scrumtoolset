@@ -1,0 +1,11 @@
+FROM node:17-alpine
+ENV NODE_ENV=production
+COPY package*.json .
+RUN npm ci
+RUN npm install -g serve
+COPY . .
+ARG CLIENT_PORT
+ARG REACT_APP_SERVER_PORT
+ENV REACT_APP_SERVER_PORT $REACT_APP_SERVER_PORT
+RUN npm run build
+CMD ["npx", "serve", "-s", "-p", "${CLIENT_PORT}", "build"]
