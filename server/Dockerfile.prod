@@ -1,0 +1,7 @@
+FROM node:17-alpine
+COPY package*.json ./
+COPY tsconfig.json ./
+RUN npm ci
+ENV NODE_ENV=production
+COPY . .
+CMD ["npm", "run", "start"]

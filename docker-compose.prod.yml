@@ -1,0 +1,48 @@
+version: "3"
+services:
+    client:
+        build:
+            context: ./client
+            dockerfile: ./Dockerfile.prod
+            args:
+                REACT_APP_SERVER_PORT: ${SERVER_PORT}
+        environment:
+            PORT: ${CLIENT_PORT}
+            REACT_APP_SERVER_PORT: ${SERVER_PORT}
+        env_file:
+            - .env
+        ports:
+            - "${CLIENT_PORT}:${CLIENT_PORT}"
+    server:
+        build:
+            context: ./server
+            dockerfile: ./Dockerfile.prod
+        env_file:
+            - .env
+        ports:
+            - "${SERVER_PORT}:${SERVER_PORT}"
+        expose:
+            - ${SERVER_PORT}
+        depends_on:
+            db:
+                condition: service_healthy
+    db:
+        image: mariadb
+        ports:
+            - "${DB_PORT}:${DB_PORT}"
+        environment:
+            MARIADB_USER: ${DB_USER}
+            MARIADB_PASSWORD: ${DB_PASSWORD}
+            MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MARIADB_DATABASE: ${DB_NAME}
+            MYSQL_TCP_PORT: ${DB_PORT}
+            MYSQL_UNIX_PORT: /run/mysqld/mysqld.sock
+        volumes:
+            - ./mariadb-data:/var/lib/mysql
+        healthcheck:
+            test: "mysqladmin ping -hlocalhost -u${DB_USER} -p${DB_PASSWORD}"
+            interval: 2s
+            timeout: 20s
+            retries: 10
+volumes:
+    mariadb-data:
