@@ -1,7 +1,7 @@
 # Jira Integration Documentation
 
 ## Jira Connect Integration
-* Atlassian Connect Datei nach folgenden Schema ausfüllen:
+1. The Atlassian Connect File is to be filled in according to the following schema:
 ```
 {
   "name": "Scrum",
@@ -30,6 +30,6 @@
   }
 }
 ```
-Die Base URL ist dabei mit dem übergeordnteten Pfad der zu ladenden Applikation, in unserem Fall das Frontend, zu ersetzen.
-* Atlassian Connect als App in das Jira Space importieren
-* Verbindung Testetn
+The Base URL is to be replaced by the Path of the Application, in our case the Frontend.
+2. Import the Atlassian Connect file as an App in the Jira Space
+3. Test the Connection
