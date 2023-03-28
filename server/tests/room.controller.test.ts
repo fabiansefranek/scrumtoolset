@@ -24,11 +24,11 @@ describe("test suite: room controller", () => {
 
     // Setup and Tear down
     beforeEach((done) => {
-        socket = io(`http://localhost:${process.env.PORT}`, {
+        socket = io(`http://localhost:${process.env.SERVER_PORT}`, {
             forceNew: true,
             reconnectionDelay: 0,
         });
-        otherSocket = io(`http://localhost:${process.env.PORT}`, {
+        otherSocket = io(`http://localhost:${process.env.SERVER_PORT}`, {
             forceNew: true,
             reconnectionDelay: 0,
         });
