@@ -45,7 +45,7 @@
 }
 ```
 
-2. Import the Atlassian Connect file as an App in the Jira Space
-3. Open the app
+2. Then, in a Jira Space where you have administration rights, in the header go to `Apps -> Manage Apps` and under `Upload App` fill in the path of the hosted `atlassian-connect.json` in `client/public/`.
+3. Open the app and test connectivity
 
 Additional Information can be found in the [Jira Connect Getting Started Documentation](https://developer.atlassian.com/cloud/jira/platform/getting-started-with-connect/).
