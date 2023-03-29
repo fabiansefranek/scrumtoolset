@@ -1,28 +1,27 @@
-## Start containers in production mode
+# Start containers in production mode
 
-1. clone Git repository
-2. copy .env.example and rename it to .env
-3. customize .env (ports, DB credentials)
-4. start container with `docker compose -f docker-compose.prod.yml up --build`.
+1. Clone Git repository
+2. Copy .env.example and rename it to .env
+3. Customize .env (ports, DB credentials)
+4. Start container with `docker compose -f docker-compose.prod.yml up --build`.
 
-## Execute tests
+# Run test cases
 
-1. change directory to `server`with `cd server`
-1. install dev dependencies with `npm i -D`
-1. execute test cases with `cd server && npm run test`
+1. Change directory to `server`with `cd server`
+2. Install dev dependencies with `npm i -D`
+3. Execute test cases with `cd server && npm run test`
 
 # Jira Integration Documentation
 
-## Jira Connect Integration
-
-1. The Atlassian Connect File is to be filled in according to the following schema:
+1. Locate the `atlassian-connect.json` in `client/public/`
+2. Fill out the json file with the necessary information. The `baseUrl` should be the URL of the React App.
 
 ```
 {
-  "name": "Scrum",
-  "description": "Atlassian Connect app",
+  "name": "Scrum Toolset",
+  "description": "",
   "key": "com.example.myapp",
-  "baseUrl": "https://clean-falcons-sip-146-255-62-186.loca.lt/",
+  "baseUrl": "https://url-to-react-app.com",
   "vendor": {
     "name": "Example, Inc.",
     "url": "http://example.com/"
@@ -46,4 +45,7 @@
 }
 ```
 
-The Base URL is to be replaced by the Path of the Application, in our case the Frontend. 2. Import the Atlassian Connect file as an App in the Jira Space 3. Test the Connection
+2. Import the Atlassian Connect file as an App in the Jira Space
+3. Open the app
+
+Additional Information can be found in the [Jira Connect Getting Started Documentation](https://developer.atlassian.com/cloud/jira/platform/getting-started-with-connect/).
