@@ -1,0 +1,26 @@
+{
+    "name": "Scrum Toolset",
+    "description": "A scrum toolset for Jira",
+    "key": "com.scrum.toolset",
+    "baseUrl": "",
+    "vendor": {
+        "name": "",
+        "url": ""
+    },
+    "authentication": {
+        "type": "none"
+    },
+    "apiVersion": 1,
+    "modules": {
+        "generalPages": [
+            {
+                "url": "/",
+                "key": "index",
+                "location": "system.top.navigation.bar",
+                "name": {
+                    "value": "Scrum Toolset"
+                }
+            }
+        ]
+    }
+}
