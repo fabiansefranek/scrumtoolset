@@ -73,7 +73,7 @@ export async function checkDone(roomcode: string): Promise<boolean> {
 }
 
 export async function setUserStoryResult(userStoryId : number, result : string) {
-    console.log("WRITING : "+ result + " TO " + userStoryId)
+    ("WRITING : "+ result + " TO " + userStoryId)
     await connection.query("UPDATE UserStory SET result = ? WHERE id = ?",
         [result, userStoryId]
         );

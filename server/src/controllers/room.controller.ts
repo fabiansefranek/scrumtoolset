@@ -132,7 +132,6 @@ export async function leave(socket: Socket, force? : boolean) {
     const roomModeratorId: string | undefined = await getRoomModerator(
         roomCode
     );
-    console.log(forceful + " FORCEFULL")
     deleteUser(sessionId);
 
     if(!forceful) {
@@ -183,7 +182,6 @@ export async function nextRound(socket: Socket) {
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
     const isDone : boolean = await checkDone(roomCode);
     const curResult : EndOfVotingPacket = await areVotesUnanimous(roomCode)
-    console.log(curResult.result + " : " + curResult.success);
     if (
         (currentState != RoomStates.CLOSEABLE &&
         isDone) && curResult.success
@@ -222,7 +220,6 @@ export async function nextRound(socket: Socket) {
                             "room:userStoryUpdate",
                             userStories[0]
                         );
-                    console.log(JSON.stringify(userStories) + "ID OF NEXT");
                     if(currentUserStoryId != -1) {
                         setUserStoryResult(currentUserStoryId, curResult.result!)
                     }
