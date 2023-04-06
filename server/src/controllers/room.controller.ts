@@ -8,7 +8,10 @@ import {
     deleteRoomUserStories,
     getUserStories,
     getCurrentUserStoryId,
-    setCurrentUserStoryId, checkDone, setUserStoryResult, getUserStoryResults,
+    setCurrentUserStoryId,
+    checkDone,
+    setUserStoryResult,
+    getUserStoryResults,
 } from "../models/userStory";
 import {
     doesRoomExist,
@@ -35,10 +38,11 @@ import {
     RoomCreationPayload,
     RoomJoinPayload,
     User,
-    UserStory, UserStoryResultPacket,
+    UserStory,
+    UserStoryResultPacket,
 } from "../types";
-import {DisconnectReason} from "socket.io/dist/socket";
-import {handleErrors} from "../middleware/error.middleware";
+import { DisconnectReason } from "socket.io/dist/socket";
+import { handleErrors } from "../middleware/error.middleware";
 
 export function create(socket: Socket, payload: RoomCreationPayload): void {
     const roomCode: string = generateWordSlug(3, "-");
@@ -90,7 +94,11 @@ export async function join(
     const now: number = Math.floor(Date.now() / 1000);
 
     const roomFound: boolean = await doesRoomExist(roomCode);
-    if (!roomFound) return socket.emit("room:denied");
+    if (!roomFound)
+        throw new ApplicationError(
+            ApplicationErrorMessages.ROOM_NOT_FOUND,
+            true
+        );
     if (!checkUserInput(username))
         throw new ApplicationError(
             ApplicationErrorMessages.USER_NAME_INVALID,
@@ -108,7 +116,7 @@ export async function join(
     //Makes sure user doesn't join same room twice
     if ([...socket.rooms][1] != roomCode) socket.join(roomCode);
 
-    socket.join("scrumpoker")
+    socket.join("scrumpoker");
 
     const votingSystem: string = await getRoomVotingSystem(roomCode);
     const roomState: string = await getRoomState(roomCode);
@@ -125,7 +133,7 @@ export async function join(
     await handleUserListUpdate(roomCode);
 }
 
-export async function leave(socket: Socket, force? : boolean) {
+export async function leave(socket: Socket, force?: boolean) {
     const sessionId: string = socket.id;
     const roomCode: string = [...socket.rooms][1];
     const forceful = force !== undefined ? force : false;
@@ -134,19 +142,19 @@ export async function leave(socket: Socket, force? : boolean) {
     );
     deleteUser(sessionId);
 
-    if(!forceful) {
-
-        if (roomModeratorId === undefined) throw new ApplicationError(ApplicationErrorMessages.NO_MODERATOR, true);
+    if (!forceful) {
+        if (roomModeratorId === undefined)
+            throw new ApplicationError(
+                ApplicationErrorMessages.NO_MODERATOR,
+                true
+            );
         const isModerator: boolean = sessionId === roomModeratorId;
 
-
         if (isModerator) {
-            const newModeratorId: string | undefined = await getOldestConnectionFromRoom(
-                roomCode
-            );
+            const newModeratorId: string | undefined =
+                await getOldestConnectionFromRoom(roomCode);
             if (newModeratorId === "") return;
-            if (newModeratorId)
-                await giveUserModeratorRights(newModeratorId);
+            if (newModeratorId) await giveUserModeratorRights(newModeratorId);
         }
     }
     await handleUserListUpdate(roomCode);
@@ -155,11 +163,15 @@ export async function leave(socket: Socket, force? : boolean) {
 export async function close(socket: Socket, payload: RoomClosePayload) {
     const roomCode: string = payload.roomCode;
     const roomFound: boolean = await doesRoomExist(roomCode);
-    if (!roomFound) throw new ApplicationError(ApplicationErrorMessages.ROOM_NOT_FOUND, true);
+    if (!roomFound)
+        throw new ApplicationError(
+            ApplicationErrorMessages.ROOM_NOT_FOUND,
+            true
+        );
 
     const sockets: any[] = await io.in(roomCode).fetchSockets();
 
-    sockets.map((socket : Socket) => socket.removeAllListeners())
+    sockets.map((socket: Socket) => socket.removeAllListeners());
 
     io.in(roomCode).emit("room:closed");
     let result = sockets.map((socket: Socket) => leave(socket, true));
@@ -180,14 +192,11 @@ export async function nextRound(socket: Socket) {
     const currentState: string = await getRoomState(roomCode);
     const userStories: UserStory[] = await getUserStories(roomCode);
     const currentUserStoryId: number = await getCurrentUserStoryId(roomCode);
-    const isDone : boolean = await checkDone(roomCode);
-    const curResult : EndOfVotingPacket = await areVotesUnanimous(roomCode)
-    if (
-        (currentState != RoomStates.CLOSEABLE &&
-        isDone) && curResult.success
-    ) {
+    const isDone: boolean = await checkDone(roomCode);
+    const curResult: EndOfVotingPacket = await areVotesUnanimous(roomCode);
+    if (currentState != RoomStates.CLOSEABLE && isDone && curResult.success) {
         await broadcastVotes(socket);
-        setUserStoryResult(currentUserStoryId, curResult.result!)
+        setUserStoryResult(currentUserStoryId, curResult.result!);
         setRoomState(RoomStates.CLOSEABLE, roomCode);
     } else {
         switch (currentState) {
@@ -201,27 +210,27 @@ export async function nextRound(socket: Socket) {
                 break;
             }
             case RoomStates.WAITING: {
-                if ( curResult.success
-                     ||
-                    currentUserStoryId == -1
-                ) {
-
-                    if(currentUserStoryId != -1)
+                if (curResult.success || currentUserStoryId == -1) {
+                    if (currentUserStoryId != -1)
                         setCurrentUserStoryId(roomCode, currentUserStoryId + 1);
-                    else
-                        setCurrentUserStoryId(roomCode, userStories[0].id!);
-                    if(currentUserStoryId != -1)
+                    else setCurrentUserStoryId(roomCode, userStories[0].id!);
+                    if (currentUserStoryId != -1)
                         io.in(roomCode).emit(
-                        "room:userStoryUpdate",
-                        userStories[currentUserStoryId - userStories[0].id! + 1 ]
-                    );
+                            "room:userStoryUpdate",
+                            userStories[
+                                currentUserStoryId - userStories[0].id! + 1
+                            ]
+                        );
                     else
                         io.in(roomCode).emit(
                             "room:userStoryUpdate",
                             userStories[0]
                         );
-                    if(currentUserStoryId != -1) {
-                        setUserStoryResult(currentUserStoryId, curResult.result!)
+                    if (currentUserStoryId != -1) {
+                        setUserStoryResult(
+                            currentUserStoryId,
+                            curResult.result!
+                        );
                     }
                 } else
                     new ApplicationError(
@@ -241,8 +250,8 @@ export async function nextRound(socket: Socket) {
 
 export async function sendUserStoryResults(socket: Socket) {
     const roomCode: string = [...socket.rooms][1];
-    const results: UserStoryResultPacket[] = await getUserStoryResults(roomCode);
-    socket.emit("room:exportedResults", results)
+    const results: UserStoryResultPacket[] = await getUserStoryResults(
+        roomCode
+    );
+    socket.emit("room:exportedResults", results);
 }
-
-

@@ -69,6 +69,7 @@ const strings: LanguageStringsType = {
             maximum_team_members_reached: "Maximum team members reached",
             minimum_team_members_not_reached: "Minimum members not reached",
             team_already_exists: "Team with this name already exists",
+            room_not_found: "Room with this name was not found!",
         },
         luckyWheel: {
             spin: "Spin",
