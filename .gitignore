@@ -5,3 +5,4 @@ dist
 mariadb-data
 .vscode
 coverage
+build
